@@ -1,6 +1,8 @@
 import { ObjectId } from 'mongodb';
 
-interface personalDetails {
+type platformType = 'LinkedIn' | 'GitHub' | 'Twitter' | 'Facebook' | 'Instagram' | 'YouTube' | 'Website' | 'Other';
+
+export interface PersonalDetails {
   fullName?: string;
   jobTitle?: string;
   email?: string;
@@ -10,30 +12,18 @@ interface personalDetails {
   dateOfBirth?: Date;
   nationality?: string;
   passport_govt_id?: string;
-  martialStatus?: string;
+  maritalStatus?: string;
   militaryService?: string;
   drivingLicense?: string;
   genderPronoun?: string;
   visa?: string;
-  socialLinks?: [
-    {
-      platform: string;
-      enum: [
-        'LinkedIn',
-        'GitHub',
-        'Twitter',
-        'Facebook',
-        'Instagram',
-        'YouTube',
-        'Website',
-        'Other'
-      ];
-      url: string;
-    }
-  ]
+  socialLinks?: Array<{
+    platform: platformType;
+    url: string;
+  }>
 }
 
-interface educationDetail {
+export interface EducationDetail {
   _id: ObjectId;
   degree: string;
   school?: string;
@@ -49,7 +39,7 @@ interface educationDetail {
   hide: boolean;
 }
 
-interface professionalExperience {
+export interface ProfessionalExperience {
   _id: ObjectId;
   jobTitle: string;
   employer: string;
@@ -63,33 +53,29 @@ interface professionalExperience {
   hide: boolean;
 }
 
-interface skill {
+type skillLevelType = 'Beginner' | 'Amateur' | 'Competent' | 'Proficient' | 'Expert';
+
+export interface Skill {
   _id: ObjectId;
   name: string;
-  subSkills?: [string];
-  level?: {
-    type: string;
-    enum: ['Beginner', 'Amateur', 'Competent', 'Proficient', 'Expert'];
-    default: 'Beginner';
-  };
+  subSkills?: string[];
+  level?: skillLevelType;
 
   hide: boolean;
 }
 
-interface language {
+type languageLevelType = 'Basic' | 'Conversational' | 'Proficient' | 'Fluent' | 'Native';
+
+export interface Language {
   _id: ObjectId;
   name: string;
   additionalInfo?: string;
-  level?: {
-    type: string;
-    enum: ['Basic', 'Conversational', 'Proficient','Fluent', 'Native'];
-    default: 'Basic';
-  }
+  level?: languageLevelType;
 
   hide: boolean;
 }
 
-interface certificate {
+export interface Certificate {
   _id: ObjectId;
   title: string;
   link?: string;
@@ -102,16 +88,15 @@ interface certificate {
   hide: boolean;
 }
 
-interface project {
+type projectType = 'GitHub' | 'Website' | 'App Store' | 'Play Store' | 'Other';
+
+export interface Project {
   _id: ObjectId;
   title: string;
-  links?: [
-    {
-      type: string;
-      enum: ['GitHub', 'Website', 'App Store', 'Play Store', 'Other'];
-      default: 'GitHub';
-    }
-  ],
+  links?: Array<{
+    type: projectType;
+    url: string;
+  }>;
   subtitle?: string;
   description?: string;
   startDate?: Date;
@@ -120,7 +105,7 @@ interface project {
   hide: boolean;
 }
 
-interface award {
+export interface Award {
   _id: ObjectId;
   title: string;
   link?: string;
@@ -132,7 +117,7 @@ interface award {
   hide: boolean;
 }
 
-interface course {
+export interface Course {
   _id: ObjectId;
   title: string;
   link?: string;
@@ -145,7 +130,7 @@ interface course {
   hide: boolean;
 }
 
-interface organization {
+export interface Organization {
   _id: ObjectId;
   name: string;
   link?: string;
@@ -158,7 +143,7 @@ interface organization {
   hide: boolean;
 }
 
-interface publication {
+export interface Publication {
   _id: ObjectId;
   title: string;
   link?: string;
@@ -170,7 +155,7 @@ interface publication {
   hide: boolean;
 }
 
-interface reference {
+export interface Reference {
   _id: ObjectId;
   name: string;
   link?: string;
@@ -182,7 +167,7 @@ interface reference {
   hide: boolean;
 }
 
-interface declaration{
+export interface Declaration {
   text: string;
   //TODO: later add signature image cdn url
   signature?: string;
@@ -205,20 +190,20 @@ export interface User {
   profilePicture?: string;
   hideProfilePicture: boolean;
 
-  personalDetails?: personalDetails;
-  educationDetails?: [educationDetail];
-  professionalExperience?: [professionalExperience];
-  skills?: [skill];
-  languages?: [language];
-  certificates?: [certificate];
-  projects?: [project];
-  awards?: [award];
-  courses?: [course];
-  organizations?: [organization];
-  publications?: [publication];
-  references?: [reference];
+  personalDetails?: PersonalDetails;
+  educationDetails?: EducationDetail[];
+  professionalExperience?: ProfessionalExperience[];
+  skills?: Skill[];
+  languages?: Language[];
+  certificates?: Certificate[];
+  projects?: Project[];
+  awards?: Award[];
+  courses?: Course[];
+  organizations?: Organization[];
+  publications?: Publication[];
+  references?: Reference[];
 
-  declaration?: declaration;
+  declaration?: Declaration;
 
   createdAt?: Date;
   updatedAt?: Date;

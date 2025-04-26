@@ -1,12 +1,13 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserRepository } from 'src/repository/user.repository';
-import { PersonalDetailsDto } from './dto/profile.dto';
+import { PersonalDetailsDto, ProfileSummaryResponseDto } from './dto/profile.dto';
+import { SuccessResponseDto } from 'src/dto/common.dto';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getProfile(email: string) {
+  async getProfile(email: string): Promise<SuccessResponseDto<any>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -30,7 +31,7 @@ export class ProfileService {
     };
   }
 
-  async updateProfileSummary(email: string, summary: string) {
+  async updateProfileSummary(email: string, summary: string): Promise<SuccessResponseDto<ProfileSummaryResponseDto>> {
     const res = await this.userRepository.updateUserProfileSummary(
       email,
       summary,
@@ -50,7 +51,7 @@ export class ProfileService {
     };
   }
 
-  async getProfileSummary(email: string) {
+  async getProfileSummary(email: string): Promise<SuccessResponseDto<ProfileSummaryResponseDto>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -63,14 +64,17 @@ export class ProfileService {
     return {
       success: true,
       message: 'Fetched Profile Summary Succesfully',
-      data: res.profileSummary || '',
+      data: {
+        summary: res.profileSummary || '',
+        hide: res.hideProfileSummary || false,
+      },
     };
   }
 
-  async toggleSummaryVisibility(email: string) {
+  async toggleSummaryVisibility(email: string): Promise<SuccessResponseDto<Boolean>> {
     const res = await this.userRepository.toggleProfileSummaryVisibility(email);
-
-    if (!res) {
+    
+    if (res !== true && res !== false) {
       throw new HttpException(
         'Something went Wrong while toggling Profile Summary Visibility',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -84,7 +88,7 @@ export class ProfileService {
     };
   }
 
-  async getPersonalDetails(email: string) {
+  async getPersonalDetails(email: string): Promise<SuccessResponseDto<PersonalDetailsDto>> {
     const res = await this.userRepository.findUserPersonalDetails(email);
 
     if (!res) {
@@ -97,14 +101,14 @@ export class ProfileService {
     return {
       success: true,
       message: 'Fetched Personal Details Succesfully',
-      data: res,
+      data: res.personalDetails || {},
     };
   }
 
   async updatePersonalDetails(
     email: string,
     details: PersonalDetailsDto,
-  ) {
+  ): Promise<SuccessResponseDto<PersonalDetailsDto>> {
     const res = await this.userRepository.updateUserPersonalDetails(
       email,
       details,
@@ -120,7 +124,7 @@ export class ProfileService {
     return {
       success: true,
       message: 'Updated Personal Details Succesfully',
-      data: res,
+      data: res.personalDetails || {},
     };
   }
 }

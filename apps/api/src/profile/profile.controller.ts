@@ -15,6 +15,7 @@ import {
   PersonalDetailsDto,
   ProfileSummaryRequestDto,
 } from './dto/profile.dto';
+import { SuccessResponseDto } from 'src/dto/common.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('profile')
@@ -22,12 +23,12 @@ export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
 
   @Get('')
-  getProfile(@GetUser() user) {
+  getProfile(@GetUser() user): Promise<SuccessResponseDto<any>> {
     return this.profileService.getProfile(user.email);
   }
 
   @Get('summary')
-  getProfileSummary(@GetUser() user) {
+  getProfileSummary(@GetUser() user): Promise<SuccessResponseDto<any>> {
     return this.profileService.getProfileSummary(user.email);
   }
 
@@ -35,13 +36,12 @@ export class ProfileController {
   updateProfileSummary(
     @GetUser() user,
     @Body() body: ProfileSummaryRequestDto,
-  ) {
+  ): Promise<SuccessResponseDto<any>> {
     return this.profileService.updateProfileSummary(user.email, body.summary);
   }
 
-  // TODO
   @Patch('summary/toggle-visibility')
-  toggleSummaryVisibility(@GetUser() user) {
+  toggleSummaryVisibility(@GetUser() user): Promise<SuccessResponseDto<Boolean>> {
     return this.profileService.toggleSummaryVisibility(user.email);
   }
 
@@ -67,12 +67,12 @@ export class ProfileController {
   }
 
   @Get('personal-details')
-  getPersonalDetails(@GetUser() user) {
+  getPersonalDetails(@GetUser() user): Promise<SuccessResponseDto<PersonalDetailsDto>> {
     return this.profileService.getPersonalDetails(user.email);
   }
 
   @Patch('personal-details')
-  updatePersonalDetails(@GetUser() user, @Body() body: PersonalDetailsDto) {
+  updatePersonalDetails(@GetUser() user, @Body() body: PersonalDetailsDto): Promise<SuccessResponseDto<PersonalDetailsDto>> {
     return this.profileService.updatePersonalDetails(user.email, body);
   }
 

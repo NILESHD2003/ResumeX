@@ -4,6 +4,7 @@ import { MongoService } from '../Mongo/mongo.service';
 import { User, USER_COLLECTION } from '../Mongo/Schema/user.schema';
 import {
   PersonalDetailsDto,
+  ProfileSummaryResponseDto,
 } from 'src/profile/dto/profile.dto';
 
 // try{
@@ -11,8 +12,6 @@ import {
 // }catch(error){
 //   console.log("Something went Wrong while performing Database Operation: updateUserProfileSummary ", error);
 // }
-
-class educationDetails {}
 
 @Injectable()
 export class UserRepository {
@@ -66,7 +65,7 @@ export class UserRepository {
   async updateUserProfileSummary(
     email: string,
     summary: string,
-  ): Promise<String | null> {
+  ): Promise<ProfileSummaryResponseDto> {
     try {
       const user = await this.collection.findOneAndUpdate(
         { email },
@@ -77,7 +76,7 @@ export class UserRepository {
           returnDocument: 'after',
         },
       );
-      return user.profileSummary;
+      return { summary: user.profileSummary, hide: user.hideProfileSummary };
     } catch (error) {
       console.log(
         'Something went Wrong while performing Database Operation: updateUserProfileSummary ',
@@ -121,16 +120,6 @@ export class UserRepository {
         {
           email,
         },
-        {
-          projection: {
-            PersonalDetails: 1,
-            _id: 0,
-            email: 1,
-            name: 1,
-            profilePicture: 1,
-            profileSummary: 1,
-          },
-        },
       );
 
       return data;
@@ -145,12 +134,12 @@ export class UserRepository {
 
   async updateUserPersonalDetails(
     email: string,
-    details: PersonalDetailsDto,
+    details: any,
   ) {
     try {
       const data = await this.collection.findOneAndUpdate(
         { email },
-        { $set: { PersonalDetails: details } },
+        { $set: { personalDetails: details } },
         { returnDocument: 'after' },
       );
 

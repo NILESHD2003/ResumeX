@@ -1,12 +1,14 @@
 import {
   IsDate,
-  IsEmail,
   IsNotEmpty,
   IsOptional,
   IsString,
   ValidateNested,
   IsEnum,
+  IsUrl,
+  IsBoolean,
 } from 'class-validator';
+import { PlatformEnum } from './constant';
 import { Type } from 'class-transformer';
 
 export class ProfileSummaryRequestDto {
@@ -15,28 +17,18 @@ export class ProfileSummaryRequestDto {
   summary: string;
 }
 
-export enum PlatformEnum {
-  LinkedIn = 'LinkedIn',
-  GitHub = 'GitHub',
-  Twitter = 'Twitter',
-  Facebook = 'Facebook',
-  Instagram = 'Instagram',
-  YouTube = 'YouTube',
-  Website = 'Website',
-  Other = 'Other',
+export class ProfileSummaryResponseDto {
+  @IsString()
+  summary: string;
+
+  @IsBoolean()
+  hide: boolean;
 }
 
 export class SocialLinkDto {
-  @IsNotEmpty()
-  @IsString()
-  platform: string;
-
   @IsEnum(PlatformEnum)
-  @IsNotEmpty()
-  type: PlatformEnum;
-
-  @IsNotEmpty()
-  @IsString()
+  platform: string;
+  @IsUrl()
   url: string;
 }
 
@@ -50,7 +42,7 @@ export class PersonalDetailsDto {
   jobTitle?: string;
 
   @IsOptional()
-  @IsEmail()
+  @IsString()
   email?: string;
 
   @IsOptional()
