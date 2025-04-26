@@ -9,12 +9,6 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class EmailValidationDto {
-  @IsNotEmpty()
-  @IsEmail()
-  email: string;
-}
-
 export class ProfileSummaryRequestDto {
   @IsNotEmpty()
   @IsString()

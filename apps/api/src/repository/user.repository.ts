@@ -3,7 +3,6 @@ import { Collection } from 'mongodb';
 import { MongoService } from '../Mongo/mongo.service';
 import { User, USER_COLLECTION } from '../Mongo/Schema/user.schema';
 import {
-  EmailValidationDto,
   PersonalDetailsDto,
 } from 'src/profile/dto/profile.dto';
 
@@ -26,7 +25,7 @@ export class UserRepository {
     this.collection = db.collection<User>(USER_COLLECTION);
   }
 
-  async findUserByEmail(email: EmailValidationDto): Promise<User | null> {
+  async findUserByEmail(email: string): Promise<User | null> {
     try {
       return this.collection.findOne({ email });
     } catch (error) {
@@ -39,14 +38,14 @@ export class UserRepository {
   }
 
   async createNewUser(
-    email: EmailValidationDto,
+    email: string,
     password: string,
     name: string,
   ): Promise<Boolean> {
     try {
       const user = await this.collection.insertOne({
         name,
-        email: email.toString(),
+        email,
         password,
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -65,7 +64,7 @@ export class UserRepository {
   }
 
   async updateUserProfileSummary(
-    email: EmailValidationDto,
+    email: string,
     summary: string,
   ): Promise<String | null> {
     try {
@@ -89,7 +88,7 @@ export class UserRepository {
   }
 
   async toggleProfileSummaryVisibility(
-    email: EmailValidationDto,
+    email: string,
   ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
@@ -116,7 +115,7 @@ export class UserRepository {
     }
   }
 
-  async findUserPersonalDetails(email: EmailValidationDto) {
+  async findUserPersonalDetails(email: string) {
     try {
       const data = await this.collection.findOne(
         {
@@ -145,7 +144,7 @@ export class UserRepository {
   }
 
   async updateUserPersonalDetails(
-    email: EmailValidationDto,
+    email: string,
     details: PersonalDetailsDto,
   ) {
     try {

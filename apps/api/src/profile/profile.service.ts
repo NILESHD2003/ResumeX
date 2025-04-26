@@ -1,12 +1,12 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserRepository } from 'src/repository/user.repository';
-import { EmailValidationDto, PersonalDetailsDto } from './dto/profile.dto';
+import { PersonalDetailsDto } from './dto/profile.dto';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getProfile(email: EmailValidationDto) {
+  async getProfile(email: string) {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -30,7 +30,7 @@ export class ProfileService {
     };
   }
 
-  async updateProfileSummary(email: EmailValidationDto, summary: string) {
+  async updateProfileSummary(email: string, summary: string) {
     const res = await this.userRepository.updateUserProfileSummary(
       email,
       summary,
@@ -50,7 +50,7 @@ export class ProfileService {
     };
   }
 
-  async getProfileSummary(email: EmailValidationDto) {
+  async getProfileSummary(email: string) {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -67,7 +67,7 @@ export class ProfileService {
     };
   }
 
-  async toggleSummaryVisibility(email: EmailValidationDto) {
+  async toggleSummaryVisibility(email: string) {
     const res = await this.userRepository.toggleProfileSummaryVisibility(email);
 
     if (!res) {
@@ -84,7 +84,7 @@ export class ProfileService {
     };
   }
 
-  async getPersonalDetails(email: EmailValidationDto) {
+  async getPersonalDetails(email: string) {
     const res = await this.userRepository.findUserPersonalDetails(email);
 
     if (!res) {
@@ -102,7 +102,7 @@ export class ProfileService {
   }
 
   async updatePersonalDetails(
-    email: EmailValidationDto,
+    email: string,
     details: PersonalDetailsDto,
   ) {
     const res = await this.userRepository.updateUserPersonalDetails(

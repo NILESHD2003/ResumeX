@@ -45,7 +45,8 @@ export class InvitationRepository {
       createdAt: new Date(),
       expiresAt: new Date(Date.now() + 1 * 15 * 60 * 1000),
     });
-
+    
+    // TODO: verify returning object
     return invitation[0];
   }
 }
