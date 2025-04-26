@@ -9,7 +9,8 @@ export class AuthController {
     @Post('login')
     login(@Body() body: loginBodyDto): Promise<{
         success: boolean,
-        message: string
+        message: string,
+        token?: string
     }> {
         return this.authService.login(body.email, body.password);
     }

@@ -33,7 +33,8 @@ interface personalDetails {
   ]
 }
 
-interface educationDetails {
+interface educationDetail {
+  _id: ObjectId;
   degree: string;
   school?: string;
   university?: string;
@@ -44,9 +45,12 @@ interface educationDetails {
   endDate?: Date;
   description?: string;
   grade?: string;
+
+  hide: boolean;
 }
 
 interface professionalExperience {
+  _id: ObjectId;
   jobTitle: string;
   employer: string;
   link?: string;
@@ -55,19 +59,25 @@ interface professionalExperience {
   startDate?: Date;
   endDate?: Date;
   description?: string;
+
+  hide: boolean;
 }
 
-interface skills {
+interface skill {
+  _id: ObjectId;
   name: string;
   subSkills?: [string];
   level?: {
     type: string;
     enum: ['Beginner', 'Amateur', 'Competent', 'Proficient', 'Expert'];
     default: 'Beginner';
-  }
+  };
+
+  hide: boolean;
 }
 
 interface language {
+  _id: ObjectId;
   name: string;
   additionalInfo?: string;
   level?: {
@@ -75,9 +85,12 @@ interface language {
     enum: ['Basic', 'Conversational', 'Proficient','Fluent', 'Native'];
     default: 'Basic';
   }
+
+  hide: boolean;
 }
 
 interface certificate {
+  _id: ObjectId;
   title: string;
   link?: string;
   additionalInfo?: string;
@@ -85,9 +98,12 @@ interface certificate {
   license?: string;
   date?: Date;
   expirationDate?: Date;
+
+  hide: boolean;
 }
 
 interface project {
+  _id: ObjectId;
   title: string;
   links?: [
     {
@@ -100,18 +116,24 @@ interface project {
   description?: string;
   startDate?: Date;
   endDate?: Date;
+
+  hide: boolean;
 }
 
 interface award {
+  _id: ObjectId;
   title: string;
   link?: string;
   issuer?: string;
   license?: string;
   date?: Date;
   expirationDate?: Date;
+
+  hide: boolean;
 }
 
 interface course {
+  _id: ObjectId;
   title: string;
   link?: string;
   additionalInfo?: string;
@@ -119,9 +141,12 @@ interface course {
   license?: string;
   date?: Date;
   expirationDate?: Date;
+
+  hide: boolean;
 }
 
 interface organization {
+  _id: ObjectId;
   name: string;
   link?: string;
   city?: string;
@@ -129,24 +154,32 @@ interface organization {
   startDate?: Date;
   endDate?: Date;
   description?: string;
+
+  hide: boolean;
 }
 
 interface publication {
+  _id: ObjectId;
   title: string;
   link?: string;
   publisher?: string;
   date?: Date;
   description?: string;
   citation?: string;
+
+  hide: boolean;
 }
 
 interface reference {
+  _id: ObjectId;
   name: string;
   link?: string;
   jobTitle?: string;
   organization?: string;
   email?: string;
   phone?: string;
+
+  hide: boolean;
 }
 
 interface declaration{
@@ -156,6 +189,8 @@ interface declaration{
   fullName: string;
   place?: string;
   date?: Date;
+
+  hide: boolean;
 }
 
 export interface User {
@@ -164,12 +199,16 @@ export interface User {
   password: string;
   name: string;
 
-  personalDetails?: personalDetails;
-  educationDetails?: [educationDetails];
-  professionalExperience?: [professionalExperience];
-  skills?: [skills];
   profileSummary?: string;
+  hideProfileSummary: boolean;
+
   profilePicture?: string;
+  hideProfilePicture: boolean;
+
+  personalDetails?: personalDetails;
+  educationDetails?: [educationDetail];
+  professionalExperience?: [professionalExperience];
+  skills?: [skill];
   languages?: [language];
   certificates?: [certificate];
   projects?: [project];

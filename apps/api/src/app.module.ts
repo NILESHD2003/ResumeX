@@ -7,6 +7,7 @@ import { ConfigModule } from '@nestjs/config';
 
 import { AuthModule } from './auth/auth.module';
 import { RepositoryModule } from './repository/repository.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { RepositoryModule } from './repository/repository.module';
     MongoModule,
     RepositoryModule,
     AuthModule,
+    ProfileModule,
   ],
   controllers: [AppController],
   providers: [AppService],

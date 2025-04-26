@@ -18,6 +18,8 @@
     "@nestjs/common": "^10.0.0",
     "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^10.0.0",
+    "@nestjs/jwt": "^11.0.0",
+    "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.0.0",
     "@repo/api": "*",
     "bcrypt": "^5.1.1",
@@ -25,6 +27,8 @@
     "class-validator": "^0.14.1",
     "generate-password": "^1.7.1",
     "mongodb": "^6.16.0",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
   },
