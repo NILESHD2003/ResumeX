@@ -6,10 +6,11 @@ import {
   PersonalDetailsResponseDto,
   EducationDetailResponseDto,
   EducationDetailDto,
+  ProfessionalExperienceResponseDto,
+  ProfessionalExperienceDto,
 } from './dto/profile.dto';
 import { SuccessResponseDto } from 'src/dto/common.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
-import { console } from 'inspector';
 import { ObjectId } from 'mongodb';
 
 @Injectable()
@@ -162,6 +163,7 @@ export class ProfileService {
   }
 }
 
+@Injectable()
 export class Education_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
@@ -326,6 +328,187 @@ export class Education_ProfileService {
       success: true,
       message: 'Deleted Education Detail Succesfully',
       data: (instanceToPlain(data) as EducationDetailResponseDto[]) || [],
+    };
+  }
+}
+
+@Injectable()
+export class Professional_ProfileService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async getProfessionalDetails(
+    email: string,
+  ): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto[]>> {
+    const res = await this.userRepository.findUserByEmail(email);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while fetching Professional Details',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    let preparedDetails;
+    let data;
+
+    if(res.professionalExperience && res.professionalExperience.length > 0) {
+      preparedDetails = res.professionalExperience.map((detail) => {
+        return {
+          ...detail,
+          _id: detail._id.toString(),
+        };
+      });
+  
+      data = plainToInstance(ProfessionalExperienceResponseDto, preparedDetails, {
+        excludeExtraneousValues: true,
+      });
+    } else {
+      data = [];
+    }
+
+    return {
+      success: true,
+      message: 'Fetched Professional Details Succesfully',
+      data: data,
+    };
+  }
+
+  async addProfessionalExperience(
+    email: string,
+    details: ProfessionalExperienceDto,
+  ): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto>> {
+    details._id = new ObjectId();
+    const res = await this.userRepository.addProfessionalExperience(
+      email,
+      details,
+    );
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while adding Professional Experience',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const addedDetail = res.professionalExperience[
+      res.professionalExperience.length - 1
+    ];
+
+    const preparedDetail = {
+      ...addedDetail,
+      _id: addedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(ProfessionalExperienceResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Added Professional Experience Succesfully',
+      data: (instanceToPlain(data) as ProfessionalExperienceResponseDto) || null,
+    };
+  }
+
+  async updateProfessionalExperience(
+    email: string,
+    details: any,
+    recordId: string,
+  ): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto>> {
+    const res = await this.userRepository.updateProfessionalExperience(
+      email,
+      details,
+      recordId,
+    );
+
+    if (!res) {
+      throw new HttpException(
+        'No Professional Experience found with the given ID',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updatedDetail = res.professionalExperience.find(
+      (detail) => detail._id.toString() === recordId,
+    );
+
+    if (!updatedDetail) {
+      throw new HttpException(
+        'Professional Experience not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const preparedDetail = {
+      ...updatedDetail,
+      _id: updatedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(ProfessionalExperienceResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Updated Professional Experience Succesfully',
+      data: (instanceToPlain(data) as ProfessionalExperienceResponseDto) || null,
+    };
+  }
+
+  async toggleProfessionalExperienceVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleProfessionalExperienceVisibility(
+      email,
+      recordId,
+    );
+
+    if (res !== true && res !== false) {
+      throw new HttpException(
+        'Something went Wrong while toggling Professional Experience Visibility',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return {
+      success: true,
+      message: 'Toggled Professional Experience Visibility Succesfully',
+      data: res,
+    };
+  }
+
+  async deleteProfessionalExperience(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto[]>> {
+    const res = await this.userRepository.deleteProfessionalExperience(
+      email,
+      recordId,
+    );
+
+    if (!res) {
+      throw new HttpException(
+        'No Professional Experience found with the given ID',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const preparedDetails = res.professionalExperience.map((detail) => {
+      return {
+        ...detail,
+        _id: detail._id.toString(),
+      };
+    });
+
+    const data = plainToInstance(ProfessionalExperienceResponseDto, preparedDetails, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Deleted Professional Experience Succesfully',
+      data: (instanceToPlain(data) as ProfessionalExperienceResponseDto[]) || [],
     };
   }
 }

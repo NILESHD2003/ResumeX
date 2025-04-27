@@ -10,12 +10,14 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { ProfileService, Education_ProfileService } from './profile.service';
+import { ProfileService, Education_ProfileService, Professional_ProfileService } from './profile.service';
 import {
   EducationDetailDto,
   EducationDetailResponseDto,
   PersonalDetailsDto,
   PersonalDetailsResponseDto,
+  ProfessionalExperienceDto,
+  ProfessionalExperienceResponseDto,
   ProfileSummaryRequestDto,
 } from './dto/profile.dto';
 import { SuccessResponseDto } from 'src/dto/common.dto';
@@ -23,7 +25,7 @@ import { SuccessResponseDto } from 'src/dto/common.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService, private readonly educationProfileService: Education_ProfileService) {}
+  constructor(private readonly profileService: ProfileService, private readonly educationProfileService: Education_ProfileService, private readonly professionalProfileService: Professional_ProfileService) {}
 
   @Get('')
   getProfile(@GetUser() user): Promise<SuccessResponseDto<any>> {
@@ -105,33 +107,28 @@ export class ProfileController {
   }
 
   @Get('professional-experiences')
-  getProfessionalExperiences() {
-    console.log('Get Professional Experiences');
-    return;
+  getProfessionalExperiences(@GetUser() user): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto[]>> {
+    return this.professionalProfileService.getProfessionalDetails(user.email);
   }
 
   @Post('professional-experiences')
-  addProfessionalExperience() {
-    console.log('Add Another Professional Experience');
-    return;
+  addProfessionalExperience(@GetUser() user, @Body() body: ProfessionalExperienceDto): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto>> {
+    return this.professionalProfileService.addProfessionalExperience(user.email, body);
   }
 
   @Patch('professional-experiences/:recordId')
-  updateProfessionalExperience() {
-    console.log('Update Professional Experience');
-    return;
+  updateProfessionalExperience(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto>> {
+    return this.professionalProfileService.updateProfessionalExperience(user.email, body, recordId);
   }
 
   @Patch('professional-experiences/:recordId/toggle-visibility')
-  toggleProfessionalExperienceVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleProfessionalExperienceVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.professionalProfileService.toggleProfessionalExperienceVisibility(user.email, recordId);
   }
 
   @Delete('professional-experiences/:recordId')
-  removeProfessionalExperience() {
-    console.log('Delete Professional Experience');
-    return;
+  removeProfessionalExperience(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto[]>> {
+    return this.professionalProfileService.deleteProfessionalExperience(user.email, recordId);
   }
 
   @Get('skills')

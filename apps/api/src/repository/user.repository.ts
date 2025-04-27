@@ -5,6 +5,7 @@ import { User, USER_COLLECTION } from '../Mongo/Schema/user.schema';
 import {
   EducationDetailDto,
   PersonalDetailsDto,
+  ProfessionalExperienceDto,
   ProfileSummaryResponseDto,
 } from 'src/profile/dto/profile.dto';
 
@@ -264,6 +265,134 @@ export class UserRepository {
     } catch (error) {
       console.log(
         'Something went Wrong while performing Database Operation: deleteEducationDetail',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async addProfessionalExperience(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { professionalExperience: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: addProfessionalExperience',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async updateProfessionalExperience(email: string, details: any, recordId: string) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`professionalExperience.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'professionalExperience._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: updateProfessionalExperience',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async toggleProfessionalExperienceVisibility(email: string, recordId: string) {
+    try {
+      const user = await this.collection.findOne({ email });
+
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.professionalExperience || user.professionalExperience.length === 0) {
+        throw new HttpException(
+          'No professional experience found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const professionalExperience = user.professionalExperience;
+
+      const professionalExperienceDetail = professionalExperience.find(
+        (detail) => detail._id.toString() === recordId,
+      );
+
+      if (!professionalExperienceDetail) {
+        throw new HttpException(
+          'No Professional Experience found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'professionalExperience._id': new ObjectId(recordId) },
+        { $set: { 'professionalExperience.$.hide': !professionalExperienceDetail.hide } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.professionalExperience.find(
+        (detail) => detail._id.toString() === recordId,
+      ).hide;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleProfessionalExperienceVisibility',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async deleteProfessionalExperience(email: string, recordId: string) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'professionalExperience._id': new ObjectId(recordId) },
+        { $pull: { professionalExperience: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteProfessionalExperience',
         error,
       );
       return null;

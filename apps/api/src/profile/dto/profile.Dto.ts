@@ -9,7 +9,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { PlatformEnum } from './constant';
-import { Type, Exclude, Expose, Transform } from 'class-transformer';
+import { Type, Expose } from 'class-transformer';
 import { ObjectId } from 'mongodb';
 
 export class ProfileSummaryRequestDto {
@@ -201,6 +201,70 @@ export class EducationDetailResponseDto {
   description?: string;
   @Expose()
   grade?: string;
+  @Expose()
+  hide: boolean;
+}
+
+export class ProfessionalExperienceDto {
+  @IsOptional()
+  @IsString()
+  _id?: ObjectId;
+
+  @IsNotEmpty()
+  @IsString()
+  jobTitle: string;
+
+  @IsOptional()
+  @IsString()
+  employer?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @IsOptional()
+  @IsDate()
+  startDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  endDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsBoolean()
+  hide: boolean;
+}
+
+export class ProfessionalExperienceResponseDto {
+  @Expose()
+  _id: string;
+  @Expose()
+  jobTitle: string;
+  @Expose()
+  employer?: string;
+  @Expose()
+  link?: string;
+  @Expose()
+  city?: string;
+  @Expose()
+  country?: string;
+  @Expose()
+  startDate?: Date;
+  @Expose()
+  endDate?: Date;
+  @Expose()
+  description?: string;
   @Expose()
   hide: boolean;
 }
