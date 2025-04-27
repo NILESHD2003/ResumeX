@@ -9,7 +9,8 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { PlatformEnum } from './constant';
-import { Type } from 'class-transformer';
+import { Type, Exclude, Expose, Transform } from 'class-transformer';
+import { ObjectId } from 'mongodb';
 
 export class ProfileSummaryRequestDto {
   @IsNotEmpty()
@@ -71,7 +72,7 @@ export class PersonalDetailsDto {
 
   @IsOptional()
   @IsString()
-  martialStatus?: string;
+  maritalStatus?: string;
 
   @IsOptional()
   @IsString()
@@ -93,4 +94,113 @@ export class PersonalDetailsDto {
   @ValidateNested({ each: true })
   @Type(() => SocialLinkDto)
   socialLinks?: SocialLinkDto[];
+}
+
+export class PersonalDetailsResponseDto {
+  @Expose()
+  fullName?: string;
+  @Expose()
+  jobTitle?: string;
+  @Expose()
+  email?: string;
+  @Expose()
+  phone?: string;
+  @Expose()
+  location?: string;
+  @Expose()
+  personalInfo?: string;
+  @Expose()
+  dateOfBirth?: Date;
+  @Expose()
+  nationality?: string;
+  @Expose()
+  passport_govt_id?: string;
+  @Expose()
+  maritalStatus?: string;
+  @Expose()
+  militaryService?: string;
+  @Expose()
+  drivingLicense?: string;
+  @Expose()
+  genderPronoun?: string;
+  @Expose()
+  visa?: string;
+  @Expose()
+  socialLinks?: SocialLinkDto[];
+}
+
+export class EducationDetailDto {
+  @IsOptional()
+  @IsString()
+  _id?: ObjectId;
+
+  @IsNotEmpty()
+  @IsString()
+  degree: string;
+
+  @IsOptional()
+  @IsString()
+  school?: string;
+
+  @IsOptional()
+  @IsString()
+  university?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @IsOptional()
+  @IsDate()
+  startDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  endDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  grade?: string;
+
+  @IsBoolean()
+  hide: boolean;
+}
+
+export class EducationDetailResponseDto {
+  @Expose()
+  _id: string;
+  @Expose()
+  degree: string;
+  @Expose()
+  school?: string;
+  @Expose()
+  university?: string;
+  @Expose()
+  link?: string;
+  @Expose()
+  city?: string;
+  @Expose()
+  country?: string;
+  @Expose()
+  startDate?: Date;
+  @Expose()
+  endDate?: Date;
+  @Expose()
+  description?: string;
+  @Expose()
+  grade?: string;
+  @Expose()
+  hide: boolean;
 }

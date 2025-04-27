@@ -1,7 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { UserRepository } from 'src/repository/user.repository';
-import { PersonalDetailsDto, ProfileSummaryResponseDto } from './dto/profile.dto';
+import {
+  PersonalDetailsDto,
+  ProfileSummaryResponseDto,
+  PersonalDetailsResponseDto,
+  EducationDetailResponseDto,
+  EducationDetailDto,
+} from './dto/profile.dto';
 import { SuccessResponseDto } from 'src/dto/common.dto';
+import { instanceToPlain, plainToInstance } from 'class-transformer';
+import { console } from 'inspector';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class ProfileService {
@@ -9,7 +18,6 @@ export class ProfileService {
 
   async getProfile(email: string): Promise<SuccessResponseDto<any>> {
     const res = await this.userRepository.findUserByEmail(email);
-
     if (!res) {
       throw new HttpException(
         'Something Went Wrong while fetching Profile',
@@ -31,7 +39,10 @@ export class ProfileService {
     };
   }
 
-  async updateProfileSummary(email: string, summary: string): Promise<SuccessResponseDto<ProfileSummaryResponseDto>> {
+  async updateProfileSummary(
+    email: string,
+    summary: string,
+  ): Promise<SuccessResponseDto<ProfileSummaryResponseDto>> {
     const res = await this.userRepository.updateUserProfileSummary(
       email,
       summary,
@@ -51,7 +62,9 @@ export class ProfileService {
     };
   }
 
-  async getProfileSummary(email: string): Promise<SuccessResponseDto<ProfileSummaryResponseDto>> {
+  async getProfileSummary(
+    email: string,
+  ): Promise<SuccessResponseDto<ProfileSummaryResponseDto>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -71,9 +84,11 @@ export class ProfileService {
     };
   }
 
-  async toggleSummaryVisibility(email: string): Promise<SuccessResponseDto<Boolean>> {
+  async toggleSummaryVisibility(
+    email: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
     const res = await this.userRepository.toggleProfileSummaryVisibility(email);
-    
+
     if (res !== true && res !== false) {
       throw new HttpException(
         'Something went Wrong while toggling Profile Summary Visibility',
@@ -88,7 +103,9 @@ export class ProfileService {
     };
   }
 
-  async getPersonalDetails(email: string): Promise<SuccessResponseDto<PersonalDetailsDto>> {
+  async getPersonalDetails(
+    email: string,
+  ): Promise<SuccessResponseDto<PersonalDetailsResponseDto>> {
     const res = await this.userRepository.findUserPersonalDetails(email);
 
     if (!res) {
@@ -98,17 +115,25 @@ export class ProfileService {
       );
     }
 
+    const data = plainToInstance(
+      PersonalDetailsResponseDto,
+      res.personalDetails,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
     return {
       success: true,
       message: 'Fetched Personal Details Succesfully',
-      data: res.personalDetails || {},
+      data: (instanceToPlain(data) as PersonalDetailsResponseDto) || null,
     };
   }
 
   async updatePersonalDetails(
     email: string,
     details: PersonalDetailsDto,
-  ): Promise<SuccessResponseDto<PersonalDetailsDto>> {
+  ): Promise<SuccessResponseDto<PersonalDetailsResponseDto>> {
     const res = await this.userRepository.updateUserPersonalDetails(
       email,
       details,
@@ -121,10 +146,186 @@ export class ProfileService {
       );
     }
 
+    const data = plainToInstance(
+      PersonalDetailsResponseDto,
+      res.personalDetails,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
+
     return {
       success: true,
       message: 'Updated Personal Details Succesfully',
-      data: res.personalDetails || {},
+      data: (instanceToPlain(data) as PersonalDetailsResponseDto) || null,
+    };
+  }
+}
+
+export class Education_ProfileService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async getEducationDetails(
+    email: string,
+  ): Promise<SuccessResponseDto<EducationDetailResponseDto[]>> {
+    const res = await this.userRepository.findUserByEmail(email);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while fetching Education Details',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const preparedDetails = res.educationDetails.map((detail) => {
+      return {
+        ...detail,
+        _id: detail._id.toString(),
+      };
+    });
+
+    const data = plainToInstance(EducationDetailResponseDto, preparedDetails, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Fetched Education Details Succesfully',
+      data: (instanceToPlain(data) as EducationDetailResponseDto[]) || [],
+    };
+  }
+
+  async addEducationDetail(
+    email: string,
+    details: EducationDetailDto,
+  ): Promise<SuccessResponseDto<EducationDetailResponseDto>> {
+    details._id = new ObjectId();
+    const res = await this.userRepository.addEducationDetail(email, details);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while adding Education Detail',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const addedDetail = res.educationDetails[res.educationDetails.length - 1];
+
+    const preparedDetail = {
+      ...addedDetail,
+      _id: addedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(EducationDetailResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Added Education Detail Succesfully',
+      data: (instanceToPlain(data) as EducationDetailResponseDto) || null,
+    };
+  }
+
+  async updateEducationDetail(
+    email: string,
+    details: any,
+    recordId: string,
+  ): Promise<SuccessResponseDto<EducationDetailResponseDto>> {
+    const res = await this.userRepository.updateEducationDetail(
+      email,
+      details,
+      recordId,
+    );
+
+    if (!res) {
+      throw new HttpException(
+        'No Education Detail found with the given ID',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const updatedDetail = res.educationDetails.find(
+      (detail) => detail._id.toString() === recordId,
+    );
+
+    if (!updatedDetail) {
+      throw new HttpException(
+        'Education Detail not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const preparedDetail = {
+      ...updatedDetail,
+      _id: updatedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(EducationDetailResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Updated Education Detail Succesfully',
+      data: (instanceToPlain(data) as EducationDetailResponseDto) || null,
+    };
+  }
+
+  async toggleEducationDetailVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleEducationDetailVisibility(
+      email,
+      recordId,
+    );
+
+    if (res !== true && res !== false) {
+      throw new HttpException(
+        'Something went Wrong while toggling Education Detail Visibility',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return {
+      success: true,
+      message: 'Toggled Education Detail Visibility Succesfully',
+      data: res,
+    };
+  }
+
+  async deleteEducationDetail(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<EducationDetailResponseDto[]>> {
+    const res = await this.userRepository.deleteEducationDetail(
+      email,
+      recordId,
+    );
+
+    if (!res) {
+      throw new HttpException(
+        'No Education Detail found with the given ID',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const preparedDetails = res.educationDetails.map((detail) => {
+      return {
+        ...detail,
+        _id: detail._id.toString(),
+      };
+    });
+
+    const data = plainToInstance(EducationDetailResponseDto, preparedDetails, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Deleted Education Detail Succesfully',
+      data: (instanceToPlain(data) as EducationDetailResponseDto[]) || [],
     };
   }
 }

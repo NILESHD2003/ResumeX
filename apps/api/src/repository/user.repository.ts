@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import { Collection } from 'mongodb';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Collection, ObjectId } from 'mongodb';
 import { MongoService } from '../Mongo/mongo.service';
 import { User, USER_COLLECTION } from '../Mongo/Schema/user.schema';
 import {
+  EducationDetailDto,
   PersonalDetailsDto,
   ProfileSummaryResponseDto,
 } from 'src/profile/dto/profile.dto';
@@ -86,9 +87,7 @@ export class UserRepository {
     }
   }
 
-  async toggleProfileSummaryVisibility(
-    email: string,
-  ): Promise<Boolean> {
+  async toggleProfileSummaryVisibility(email: string): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
@@ -116,11 +115,9 @@ export class UserRepository {
 
   async findUserPersonalDetails(email: string) {
     try {
-      const data = await this.collection.findOne(
-        {
-          email,
-        },
-      );
+      const data = await this.collection.findOne({
+        email,
+      });
 
       return data;
     } catch (error) {
@@ -132,10 +129,7 @@ export class UserRepository {
     }
   }
 
-  async updateUserPersonalDetails(
-    email: string,
-    details: any,
-  ) {
+  async updateUserPersonalDetails(email: string, details: any) {
     try {
       const data = await this.collection.findOneAndUpdate(
         { email },
@@ -147,6 +141,129 @@ export class UserRepository {
     } catch (error) {
       console.log(
         'Something went Wrong while performing Database Operation: updateUserPersonalDetails',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async addEducationDetail(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { educationDetails: details } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: addEducationDetail',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async updateEducationDetail(email: string, details: any, recordId: string) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`educationDetails.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'educationDetails._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: updateEducationDetail',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async toggleEducationDetailVisibility(email: string, recordId: string) {
+    try {
+      const user = await this.collection.findOne({ email });
+
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.educationDetails || user.educationDetails.length === 0) {
+        throw new HttpException(
+          'No education details found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const educationDetails = user.educationDetails;
+
+      const educationDetail = educationDetails.find(
+        (detail) => detail._id.toString() === recordId,
+      );
+
+      if (!educationDetail) {
+        throw new HttpException(
+          'No Education Detail found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'educationDetails._id': new ObjectId(recordId) },
+        { $set: { 'educationDetails.$.hide': !educationDetail.hide } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.educationDetails.find(
+        (detail) => detail._id.toString() === recordId,
+      ).hide;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleEducationDetailVisibility',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async deleteEducationDetail(email: string, recordId: string) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'educationDetails._id': new ObjectId(recordId) },
+        { $pull: { educationDetails: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteEducationDetail',
         error,
       );
       return null;

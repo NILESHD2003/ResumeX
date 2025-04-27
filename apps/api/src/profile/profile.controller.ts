@@ -3,16 +3,19 @@ import {
   Delete,
   Get,
   Patch,
-  Put,
   UseGuards,
   Post,
   Body,
+  Param,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { ProfileService } from './profile.service';
+import { ProfileService, Education_ProfileService } from './profile.service';
 import {
+  EducationDetailDto,
+  EducationDetailResponseDto,
   PersonalDetailsDto,
+  PersonalDetailsResponseDto,
   ProfileSummaryRequestDto,
 } from './dto/profile.dto';
 import { SuccessResponseDto } from 'src/dto/common.dto';
@@ -20,7 +23,7 @@ import { SuccessResponseDto } from 'src/dto/common.dto';
 @UseGuards(JwtAuthGuard)
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService) {}
+  constructor(private readonly profileService: ProfileService, private readonly educationProfileService: Education_ProfileService) {}
 
   @Get('')
   getProfile(@GetUser() user): Promise<SuccessResponseDto<any>> {
@@ -67,43 +70,38 @@ export class ProfileController {
   }
 
   @Get('personal-details')
-  getPersonalDetails(@GetUser() user): Promise<SuccessResponseDto<PersonalDetailsDto>> {
+  getPersonalDetails(@GetUser() user): Promise<SuccessResponseDto<PersonalDetailsResponseDto>> {
     return this.profileService.getPersonalDetails(user.email);
   }
 
   @Patch('personal-details')
-  updatePersonalDetails(@GetUser() user, @Body() body: PersonalDetailsDto): Promise<SuccessResponseDto<PersonalDetailsDto>> {
+  updatePersonalDetails(@GetUser() user, @Body() body: PersonalDetailsDto): Promise<SuccessResponseDto<PersonalDetailsResponseDto>> {
     return this.profileService.updatePersonalDetails(user.email, body);
   }
 
   @Get('education-details')
-  getEducationDetails() {
-    console.log('Get Education Details');
-    return;
+  getEducationDetails(@GetUser() user): Promise<SuccessResponseDto<EducationDetailResponseDto[]>> {
+    return this.educationProfileService.getEducationDetails(user.email);
   }
 
   @Post('education-details')
-  addEducationDetail() {
-    console.log('Add Another Education Detail');
-    return;
+  addEducationDetail(@GetUser() user, @Body() body: EducationDetailDto): Promise<SuccessResponseDto<EducationDetailResponseDto>> {
+    return this.educationProfileService.addEducationDetail(user.email, body);
   }
 
   @Patch('education-details/:recordId')
-  updateEducationDetails() {
-    console.log('Update Education Details');
-    return;
+  updateEducationDetails(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<EducationDetailResponseDto>> {
+    return this.educationProfileService.updateEducationDetail(user.email, body, recordId);
   }
 
   @Patch('education-details/:recordId/toggle-visibility')
-  toggleEducationDetailVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleEducationDetailVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.educationProfileService.toggleEducationDetailVisibility(user.email, recordId);
   }
 
   @Delete('education-details/:recordId')
-  removeEducationDetail() {
-    console.log('Delete Education Detail');
-    return;
+  removeEducationDetail(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<EducationDetailResponseDto[]>> {
+    return this.educationProfileService.deleteEducationDetail(user.email, recordId);
   }
 
   @Get('professional-experiences')
