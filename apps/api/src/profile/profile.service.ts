@@ -8,6 +8,12 @@ import {
   EducationDetailDto,
   ProfessionalExperienceResponseDto,
   ProfessionalExperienceDto,
+  SkillResponseDto,
+  SkillDto,
+  LanguageResponseDto,
+  LanguageDto,
+  CertificateResponseDto,
+  CertificateDto,
 } from './dto/profile.dto';
 import { SuccessResponseDto } from 'src/dto/common.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
@@ -509,6 +515,461 @@ export class Professional_ProfileService {
       success: true,
       message: 'Deleted Professional Experience Succesfully',
       data: (instanceToPlain(data) as ProfessionalExperienceResponseDto[]) || [],
+    };
+  }
+}
+
+@Injectable()
+export class Skill_ProfileService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async getSkills(email: string): Promise<SuccessResponseDto<SkillResponseDto[]>> {
+    const res = await this.userRepository.findUserByEmail(email);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while fetching Skills',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    let preparedDetails;
+    let data;
+
+    if(res.skills && res.skills.length > 0) {
+      preparedDetails = res.skills.map((detail) => {
+        return {
+          ...detail,
+          _id: detail._id?.toString(),
+        };
+      });
+  
+      data = plainToInstance(SkillResponseDto, preparedDetails, {
+        excludeExtraneousValues: true,
+      });
+    } else {
+      data = [];
+    }
+
+    return {
+      success: true,
+      message: 'Fetched Skills Succesfully',
+      data: data,
+    };
+  }
+
+  async addSkill(email: string, details: SkillDto): Promise<SuccessResponseDto<SkillResponseDto>> {
+    details._id = new ObjectId();
+    const res = await this.userRepository.addSkill(email, details);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while adding Skill',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const addedDetail = res.skills[res.skills.length - 1];
+
+    const preparedDetail = {
+      ...addedDetail,
+      _id: addedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(SkillResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Added Skill Succesfully',
+      data: (instanceToPlain(data) as SkillResponseDto) || null,
+    };
+  }
+
+  async updateSkill(email: string, recordId: string, details: any): Promise<SuccessResponseDto<SkillResponseDto>> {
+    const res = await this.userRepository.updateSkill(email, recordId, details);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while updating Skill',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const updatedDetail = res.skills.find(
+      (detail) => detail._id.toString() === recordId,
+    );
+
+    if (!updatedDetail) {
+      throw new HttpException(
+        'Skill not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const preparedDetail = {
+      ...updatedDetail,
+      _id: updatedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(SkillResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Updated Skill Succesfully',
+      data: (instanceToPlain(data) as SkillResponseDto) || null,
+    };
+  }
+
+  async toggleSkillVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleSkillVisibility(email, recordId);
+
+    if (res !== true && res !== false) {
+      throw new HttpException(
+        'Something went Wrong while toggling Skill Visibility',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return {
+      success: true,
+      message: 'Toggled Skill Visibility Succesfully',
+      data: res,
+    };
+  }
+
+  async deleteSkill(email: string, recordId: string): Promise<SuccessResponseDto<SkillResponseDto[]>> {
+    const res = await this.userRepository.deleteSkill(email, recordId);
+
+    if (!res) {
+      throw new HttpException(
+        'No Skill found with the given ID',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const preparedDetails = res.skills.map((detail) => {
+      return {
+        ...detail,
+        _id: detail._id.toString(),
+      };
+    });
+
+    const data = plainToInstance(SkillResponseDto, preparedDetails, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Deleted Skill Succesfully',
+      data: (instanceToPlain(data) as SkillResponseDto[]) || [],
+    };
+  }
+}
+
+@Injectable()
+export class Language_ProfileService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async getLanguages(email: string): Promise<SuccessResponseDto<LanguageResponseDto[]>> {
+    const res = await this.userRepository.findUserByEmail(email);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while fetching Languages',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    let preparedDetails;
+    let data;
+
+    if(res.languages && res.languages.length > 0) {
+      preparedDetails = res.languages.map((detail) => {
+        return {
+          ...detail,
+          _id: detail._id.toString(),
+        };
+      });
+
+      data = plainToInstance(LanguageResponseDto, preparedDetails, {
+        excludeExtraneousValues: true,
+      });
+
+      data = (instanceToPlain(data) as LanguageResponseDto[]) || [];
+    } else {
+      data = [];
+    }
+
+    return {
+      success: true,
+      message: 'Fetched Languages Succesfully',
+      data: data,
+    };
+  }
+
+  async addLanguage(email: string, details: LanguageDto): Promise<SuccessResponseDto<LanguageResponseDto>> {
+    details._id = new ObjectId();
+    const res = await this.userRepository.addLanguage(email, details);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while adding Language',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const addedDetail = res.languages[res.languages.length - 1];
+
+    const preparedDetail = {
+      ...addedDetail,
+      _id: addedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(LanguageResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Added Language Succesfully',
+      data: (instanceToPlain(data) as LanguageResponseDto) || null,
+    };
+  }
+
+  async updateLanguage(email: string, recordId: string, details: any): Promise<SuccessResponseDto<LanguageResponseDto>> {
+    const res = await this.userRepository.updateLanguage(email, recordId, details);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while updating Language',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const updatedDetail = res.languages.find(
+      (detail) => detail._id.toString() === recordId,
+    );  
+
+    if (!updatedDetail) {
+      throw new HttpException(
+        'Language not found',
+        HttpStatus.NOT_FOUND,
+      );
+    } 
+
+    const preparedDetail = {
+      ...updatedDetail,
+      _id: updatedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(LanguageResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+
+    return {
+      success: true,
+      message: 'Updated Language Succesfully',
+      data: (instanceToPlain(data) as LanguageResponseDto) || null,
+    };
+  }
+
+  async toggleLanguageVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleLanguageVisibility(email, recordId);
+
+    if (res !== true && res !== false) {
+      throw new HttpException(
+        'Something went Wrong while toggling Language Visibility',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return {
+      success: true,
+      message: 'Toggled Language Visibility Succesfully',
+      data: res,
+    };
+  }
+
+  async deleteLanguage(email: string, recordId: string): Promise<SuccessResponseDto<LanguageResponseDto[]>> {
+    const res = await this.userRepository.deleteLanguage(email, recordId);
+
+    if (!res) {
+      throw new HttpException(
+        'No Language found with the given ID',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const preparedDetails = res.languages.map((detail) => {
+      return {
+        ...detail,
+        _id: detail._id.toString(),
+      };
+    });
+
+    const data = plainToInstance(LanguageResponseDto, preparedDetails, {
+      excludeExtraneousValues: true,
+    });
+    
+    return {
+      success: true,
+      message: 'Deleted Language Succesfully',
+      data: (instanceToPlain(data) as LanguageResponseDto[]) || [],
+    };
+  }
+}
+
+@Injectable()
+export class Certificate_ProfileService {
+  constructor(private readonly userRepository: UserRepository) {}
+
+  async getCertificates(email: string): Promise<SuccessResponseDto<CertificateResponseDto[]>> {
+    const res = await this.userRepository.findUserByEmail(email);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while fetching Certificates',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    let preparedDetails;
+    let data;
+
+    if(res.certificates && res.certificates.length > 0) {
+      preparedDetails = res.certificates.map((detail) => {
+        return {
+          ...detail,
+          _id: detail._id.toString(),
+        };
+      });
+
+      data = plainToInstance(CertificateResponseDto, preparedDetails, {
+        excludeExtraneousValues: true,
+      });
+    } else {
+      data = [];
+    }
+
+    return {
+      success: true,
+      message: 'Fetched Certificates Succesfully',
+      data: data,
+    };
+  }
+
+  async addCertificate(email: string, details: CertificateDto): Promise<SuccessResponseDto<CertificateResponseDto>> {
+    details._id = new ObjectId();
+    const res = await this.userRepository.addCertificate(email, details);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while adding Certificate',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const addedDetail = res.certificates[res.certificates.length - 1];
+
+    const preparedDetail = {
+      ...addedDetail,
+      _id: addedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(CertificateResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+    
+    return {
+      success: true,
+      message: 'Added Certificate Succesfully',
+      data: (instanceToPlain(data) as CertificateResponseDto) || null,
+    };
+  }
+
+  async updateCertificate(email: string, recordId: string, details: any): Promise<SuccessResponseDto<CertificateResponseDto>> {   
+    const res = await this.userRepository.updateCertificate(email, recordId, details);
+
+    if (!res) {
+      throw new HttpException(
+        'Something went Wrong while updating Certificate',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    const updatedDetail = res.certificates.find(
+      (detail) => detail._id.toString() === recordId,
+    );
+
+    if (!updatedDetail) {
+      throw new HttpException(
+        'Certificate not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const preparedDetail = {
+      ...updatedDetail,
+      _id: updatedDetail._id.toString(),
+    };
+
+    const data = plainToInstance(CertificateResponseDto, preparedDetail, {
+      excludeExtraneousValues: true,
+    });
+    
+    return {
+      success: true,
+      message: 'Updated Certificate Succesfully',
+      data: (instanceToPlain(data) as CertificateResponseDto) || null,
+    };
+  }
+  
+  async toggleCertificateVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleCertificateVisibility(email, recordId);
+
+    if (res !== true && res !== false) {
+      throw new HttpException(
+        'Something went Wrong while toggling Certificate Visibility',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+
+    return {
+      success: true,
+      message: 'Toggled Certificate Visibility Succesfully',
+      data: res,
+    };
+  }
+
+  async deleteCertificate(email: string, recordId: string): Promise<SuccessResponseDto<CertificateResponseDto[]>> {
+    const res = await this.userRepository.deleteCertificate(email, recordId);     
+
+    if (!res) {
+      throw new HttpException(
+        'No Certificate found with the given ID',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    
+    const preparedDetails = res.certificates.map((detail) => {
+      return {
+        ...detail,
+        _id: detail._id.toString(),
+      };
+    }); 
+
+    const data = plainToInstance(CertificateResponseDto, preparedDetails, {
+      excludeExtraneousValues: true,
+    });   
+    
+    return {
+      success: true,
+      message: 'Deleted Certificate Succesfully',
+      data: (instanceToPlain(data) as CertificateResponseDto[]) || [],
     };
   }
 }

@@ -3,9 +3,6 @@ import { Collection, ObjectId } from 'mongodb';
 import { MongoService } from '../Mongo/mongo.service';
 import { User, USER_COLLECTION } from '../Mongo/Schema/user.schema';
 import {
-  EducationDetailDto,
-  PersonalDetailsDto,
-  ProfessionalExperienceDto,
   ProfileSummaryResponseDto,
 } from 'src/profile/dto/profile.dto';
 
@@ -398,4 +395,357 @@ export class UserRepository {
       return null;
     }
   }
-}
+
+  async addSkill(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { skills: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: addSkill',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async updateSkill(email: string, recordId: string, details: any) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`skills.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'skills._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: updateSkill',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async toggleSkillVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.skills || user.skills.length === 0) {
+        throw new HttpException(
+          'No Skills found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const skill = user.skills.find((s) => s._id.toString() === recordId);
+      if (!skill) {
+        throw new HttpException(
+          'No Skill found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !skill.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'skills._id': new ObjectId(recordId) },
+        { $set: { 'skills.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.skills.find((s) => s._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleSkillVisibility',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async deleteSkill(email: string, recordId: string): Promise<User | null> {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'skills._id': new ObjectId(recordId) },
+        { $pull: { skills: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteSkill',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async addLanguage(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { languages: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: addLanguage',
+        error,
+      );
+
+      return null;
+    }
+  }
+
+  async updateLanguage(email: string, recordId: string, details: any) {
+    try {
+      const updateFields = {};
+
+      for (const key in details) {
+        updateFields[`languages.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'languages._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: updateLanguage',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async toggleLanguageVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      } 
+
+      if (!user.languages || user.languages.length === 0) {
+        throw new HttpException(
+          'No Languages found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const language = user.languages.find((l) => l._id.toString() === recordId);
+      if (!language) {
+        throw new HttpException(
+          'No Language found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !language.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'languages._id': new ObjectId(recordId) },
+        { $set: { 'languages.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.languages.find((l) => l._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleLanguageVisibility',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async deleteLanguage(email: string, recordId: string): Promise<User | null> {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'languages._id': new ObjectId(recordId) }, 
+        { $pull: { languages: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteLanguage',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async addCertificate(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { certificates: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: addCertificate',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async updateCertificate(email: string, recordId: string, details: any) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`certificates.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'certificates._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: updateCertificate',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async toggleCertificateVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.certificates || user.certificates.length === 0) {
+        throw new HttpException(
+          'No Certificates found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const certificate = user.certificates.find((c) => c._id.toString() === recordId);
+      if (!certificate) {
+        throw new HttpException(
+          'No Certificate found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !certificate.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'certificates._id': new ObjectId(recordId) },
+        { $set: { 'certificates.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.certificates.find((c) => c._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleCertificateVisibility',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async deleteCertificate(email: string, recordId: string): Promise<User | null> {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'certificates._id': new ObjectId(recordId) },
+        { $pull: { certificates: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteCertificate',
+        error,
+      );
+      return null;
+    }
+  }
+} 

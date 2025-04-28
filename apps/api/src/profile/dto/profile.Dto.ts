@@ -7,8 +7,9 @@ import {
   IsEnum,
   IsUrl,
   IsBoolean,
+  IsArray,
 } from 'class-validator';
-import { PlatformEnum } from './constant';
+import { PlatformEnum, SkillLevelEnum, LanguageLevelEnum } from './constant';
 import { Type, Expose } from 'class-transformer';
 import { ObjectId } from 'mongodb';
 
@@ -265,6 +266,154 @@ export class ProfessionalExperienceResponseDto {
   endDate?: Date;
   @Expose()
   description?: string;
+  @Expose()
+  hide: boolean;
+}
+
+export class SkillDto {
+  @IsOptional()
+  @IsString()
+  _id?: ObjectId;
+
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsArray()
+  subSkills?: string[];
+
+  @IsOptional()
+  @IsEnum(SkillLevelEnum)
+  level?: SkillLevelEnum;
+
+  @IsBoolean()
+  hide: boolean;
+}
+
+export class SkillUpdateDto {
+  @IsOptional()
+  @IsString()
+  _id?: ObjectId;
+
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsArray()
+  subSkills?: string[];
+
+  @IsOptional()
+  @IsEnum(SkillLevelEnum)
+  level?: SkillLevelEnum;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
+}
+
+export class SkillResponseDto {
+  @Expose()
+  _id: string;
+  @Expose()
+  name: string;
+  @Expose()
+  subSkills?: string[];
+  @Expose()
+  level?: SkillLevelEnum;
+  @Expose()
+  hide: boolean;
+}
+
+export class LanguageDto {
+  @IsOptional()
+  @IsString()
+  _id?: ObjectId;
+
+  @IsNotEmpty()
+  @IsString()
+  name: string;
+
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  @IsOptional()
+  @IsEnum(LanguageLevelEnum)
+  level?: LanguageLevelEnum;
+
+  @IsBoolean()
+  hide: boolean;
+}
+
+export class LanguageResponseDto {
+  @Expose()
+  _id: string;
+  @Expose()
+  name: string;
+  @Expose()
+  additionalInfo?: string;
+  @Expose()
+  level?: LanguageLevelEnum;
+  @Expose()
+  hide: boolean;
+}
+
+export class CertificateDto {
+  @IsOptional()
+  @IsString()
+  _id?: ObjectId; 
+
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  @IsOptional()
+  @IsString()
+  issuer?: string;
+
+  @IsOptional()
+  @IsString()
+  license?: string;
+
+  @IsOptional()
+  @IsDate()
+  date?: Date;
+
+  @IsOptional()
+  @IsDate()
+  expirationDate?: Date;
+
+  @IsBoolean()
+  hide: boolean;
+} 
+
+export class CertificateResponseDto {
+  @Expose()
+  _id: string;
+  @Expose()
+  title: string;
+  @Expose()
+  link?: string;
+  @Expose()
+  additionalInfo?: string;
+  @Expose()
+  issuer?: string;
+  @Expose()
+  license?: string;
+  @Expose()
+  date?: Date;
+  @Expose()
+  expirationDate?: Date;
   @Expose()
   hide: boolean;
 }

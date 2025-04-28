@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { ProfileService, Education_ProfileService, Professional_ProfileService } from './profile.service';
+import { ProfileService, Education_ProfileService, Professional_ProfileService, Skill_ProfileService, Language_ProfileService, Certificate_ProfileService } from './profile.service';
 import {
   EducationDetailDto,
   EducationDetailResponseDto,
@@ -19,13 +19,19 @@ import {
   ProfessionalExperienceDto,
   ProfessionalExperienceResponseDto,
   ProfileSummaryRequestDto,
+  SkillResponseDto,
+  SkillDto,
+  LanguageDto,
+  LanguageResponseDto,
+  CertificateDto,
+  CertificateResponseDto,
 } from './dto/profile.dto';
 import { SuccessResponseDto } from 'src/dto/common.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService, private readonly educationProfileService: Education_ProfileService, private readonly professionalProfileService: Professional_ProfileService) {}
+  constructor(private readonly profileService: ProfileService, private readonly educationProfileService: Education_ProfileService, private readonly professionalProfileService: Professional_ProfileService, private readonly skillProfileService: Skill_ProfileService, private readonly languageProfileService: Language_ProfileService, private readonly certificateProfileService: Certificate_ProfileService) {}
 
   @Get('')
   getProfile(@GetUser() user): Promise<SuccessResponseDto<any>> {
@@ -117,7 +123,7 @@ export class ProfileController {
   }
 
   @Patch('professional-experiences/:recordId')
-  updateProfessionalExperience(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto>> {
+  updateProfessionalExperience(@GetUser() user, @Body() body: ProfessionalExperienceDto, @Param('recordId') recordId: string): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto>> {
     return this.professionalProfileService.updateProfessionalExperience(user.email, body, recordId);
   }
 
@@ -132,93 +138,78 @@ export class ProfileController {
   }
 
   @Get('skills')
-  getSkills() {
-    console.log('Get Skill');
-    return;
+  getSkills(@GetUser() user): Promise<SuccessResponseDto<SkillResponseDto[]>> {
+    return this.skillProfileService.getSkills(user.email);
   }
 
   @Post('skills')
-  addSkill() {
-    console.log('Add Another Skills');
-    return;
+  addSkill(@GetUser() user, @Body() body: SkillDto): Promise<SuccessResponseDto<SkillResponseDto>> {
+    return this.skillProfileService.addSkill(user.email, body);
   }
 
   @Patch('skills/:recordId')
-  updateSkill() {
-    console.log('Update Skill');
-    return;
+  updateSkill(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<SkillResponseDto>> {
+    return this.skillProfileService.updateSkill(user.email, recordId, body);
   }
 
   @Patch('skills/:recordId/toggle-visibility')
-  toggleSkillVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleSkillVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.skillProfileService.toggleSkillVisibility(user.email, recordId);
   }
 
   @Delete('skills/:recordId')
-  removeSkill() {
-    console.log('Delete Skill');
-    return;
+  removeSkill(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<SkillResponseDto[]>> {
+    return this.skillProfileService.deleteSkill(user.email, recordId);
   }
 
   @Get('languages')
-  getLanguages() {
-    console.log('Get Languages');
-    return;
+  getLanguages(@GetUser() user): Promise<SuccessResponseDto<LanguageResponseDto[]>> {
+    return this.languageProfileService.getLanguages(user.email);
   }
 
   @Post('languages')
-  addLanguage() {
-    console.log('Add Another Language');
-    return;
+  addLanguage(@GetUser() user, @Body() body: LanguageDto): Promise<SuccessResponseDto<LanguageResponseDto>> {
+    return this.languageProfileService.addLanguage(user.email, body);
   }
 
   @Patch('languages/:recordId')
-  updateLanguage() {
-    console.log('Update Language');
-    return;
+  updateLanguage(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<LanguageResponseDto>> {
+    return this.languageProfileService.updateLanguage(user.email, recordId, body);
   }
 
   @Patch('languages/:recordId/toggle-visibility')
-  toggleLanuageVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleLanguageVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.languageProfileService.toggleLanguageVisibility(user.email, recordId);
   }
 
   @Delete('languages/:recordId')
-  removeLanguage() {
-    console.log('Delete Langauge');
-    return;
+  removeLanguage(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<LanguageResponseDto[]>> {
+    return this.languageProfileService.deleteLanguage(user.email, recordId);
   }
 
   @Get('certificates')
-  getCertificates() {
-    console.log('Get Certificates');
-    return;
+  getCertificates(@GetUser() user): Promise<SuccessResponseDto<CertificateResponseDto[]>> {
+    return this.certificateProfileService.getCertificates(user.email);
   }
 
   @Post('certificates')
-  addCertificate() {
-    console.log('Add Another Certificate');
-    return;
+  addCertificate(@GetUser() user, @Body() body: CertificateDto): Promise<SuccessResponseDto<CertificateResponseDto>> {
+    return this.certificateProfileService.addCertificate(user.email, body);
   }
 
   @Patch('certificates/:recordId')
-  updateCertificate() {
-    console.log('Update Certificate');
-    return;
+  updateCertificate(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<CertificateResponseDto>> {
+    return this.certificateProfileService.updateCertificate(user.email, recordId, body);
   }
 
-  @Patch('certificate/:recordId/toggle-visibility')
-  toggleCertificateVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  @Patch('certificates/:recordId/toggle-visibility')
+  toggleCertificateVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.certificateProfileService.toggleCertificateVisibility(user.email, recordId);
   }
 
   @Delete('certificates/:recordId')
-  removeCertificate() {
-    console.log('Delete Certificate');
-    return;
+  removeCertificate(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<CertificateResponseDto[]>> {
+    return this.certificateProfileService.deleteCertificate(user.email, recordId);
   }
 
   @Get('projects')
