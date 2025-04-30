@@ -145,6 +145,68 @@ export class UserRepository {
     }
   }
 
+  async updateProfileImage(email: string, url: string, publicId: string) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $set: { profilePicture: url, profilePicturePublicId: publicId } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: updateProfileImage',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async removeProfileImage(email: string) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $set: { profilePicture: null, profilePicturePublicId: null } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: removeProfileImage',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async toggleProfileImageVisibility(email: string) {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        console.log('User not found');
+        return false;
+      }
+
+      const newVisibility = !user.hideProfilePicture;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $set: { hideProfilePicture: newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      return data.hideProfilePicture;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleProfileImageVisibility',
+        error,
+      );
+      return null;
+    }
+  }
+
   async addEducationDetail(email: string, details: any) {
     try {
       const data = await this.collection.findOneAndUpdate(
@@ -748,4 +810,764 @@ export class UserRepository {
       return null;
     }
   }
-} 
+
+  async addProject(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { projects: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: addProject',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async updateProject(email: string, recordId: string, details: any) {
+    try { 
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`projects.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'projects._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: updateProject',
+        error,
+      );
+      return null;
+    }
+  } 
+
+  async toggleProjectVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.projects || user.projects.length === 0) {
+        throw new HttpException(
+          'No Projects found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const project = user.projects.find((p) => p._id.toString() === recordId);
+      if (!project) {
+        throw new HttpException(
+          'No Project found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !project.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'projects._id': new ObjectId(recordId) },
+        { $set: { 'projects.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.projects.find((p) => p._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleProjectVisibility',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async deleteProject(email: string, recordId: string): Promise<User | null> {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'projects._id': new ObjectId(recordId) },
+        { $pull: { projects: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteProject',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async addAward(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { awards: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: addAward',
+        error,
+      );
+
+      return null;
+    }
+  }
+
+  async updateAward(email: string, recordId: string, details: any) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`awards.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'awards._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: updateAward',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async toggleAwardVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.awards || user.awards.length === 0) {
+        throw new HttpException(
+          'No Awards found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const award = user.awards.find((a) => a._id.toString() === recordId);
+      if (!award) {
+        throw new HttpException(
+          'No Award found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !award.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'awards._id': new ObjectId(recordId) },
+        { $set: { 'awards.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.awards.find((a) => a._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleAwardVisibility',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async deleteAward(email: string, recordId: string): Promise<User | null> {  
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'awards._id': new ObjectId(recordId) },
+        { $pull: { awards: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteAward',
+        error,
+      );
+      return null;
+    }
+  }
+
+  async addCourse(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },  
+        { $push: { courses: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: addCourse', error);
+      return null;
+    }
+  }
+
+  async updateCourse(email: string, recordId: string, details: any) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`courses.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'courses._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: updateCourse', error);
+      return null;
+    }
+  }
+
+  async toggleCourseVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.courses || user.courses.length === 0) {
+        throw new HttpException(
+          'No Courses found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const course = user.courses.find((c) => c._id.toString() === recordId);
+      if (!course) {
+        throw new HttpException(
+          'No Course found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !course.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'courses._id': new ObjectId(recordId) },
+        { $set: { 'courses.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.courses.find((c) => c._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: toggleCourseVisibility', error);
+      return null;
+    }
+  }
+
+  async deleteCourse(email: string, recordId: string): Promise<User | null> {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'courses._id': new ObjectId(recordId) },
+        { $pull: { courses: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: deleteCourse', error);
+      return null;
+    }
+  }
+
+  async addOrganization(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { organizations: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: addOrganization', error);
+      return null;
+    }
+  }
+
+  async updateOrganization(email: string, recordId: string, details: any) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`organizations.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'organizations._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: updateOrganization', error);
+      return null;
+    }
+  }
+
+  async toggleOrganizationVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.organizations || user.organizations.length === 0) {
+        throw new HttpException(
+          'No Organizations found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const organization = user.organizations.find((o) => o._id.toString() === recordId);
+      if (!organization) {
+        throw new HttpException(
+          'No Organization found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !organization.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'organizations._id': new ObjectId(recordId) },
+        { $set: { 'organizations.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.organizations.find((o) => o._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: toggleOrganizationVisibility', error);
+      return null;
+    }
+  }
+
+  async deleteOrganization(email: string, recordId: string): Promise<User | null> {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'organizations._id': new ObjectId(recordId) },
+        { $pull: { organizations: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: deleteOrganization', error);
+      return null;
+    }
+  }
+
+  async addPublication(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { publications: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: addPublication', error);
+      return null;
+    }
+  }
+
+  async updatePublication(email: string, recordId: string, details: any) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`publications.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'publications._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: updatePublication', error);
+      return null;
+    }
+  }
+
+  async togglePublicationVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.publications || user.publications.length === 0) {
+        throw new HttpException(
+          'No Publications found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const publication = user.publications.find((p) => p._id.toString() === recordId);
+      if (!publication) {
+        throw new HttpException(
+          'No Publication found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !publication.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'publications._id': new ObjectId(recordId) },
+        { $set: { 'publications.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.publications.find((p) => p._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: togglePublicationVisibility', error);
+      return null;
+    }
+  }
+
+  async deletePublication(email: string, recordId: string): Promise<User | null> {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'publications._id': new ObjectId(recordId) },
+        { $pull: { publications: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: deletePublication', error);
+      return null;
+    }
+  }
+
+  async addReference(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $push: { references: details } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: addReference', error);
+      return null;
+    }
+  }
+
+  async updateReference(email: string, recordId: string, details: any) {
+    try {
+      const updateFields = {};
+      for (const key in details) {
+        updateFields[`references.$.${key}`] = details[key];
+      }
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'references._id': new ObjectId(recordId) },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: updateReference', error);
+      return null;
+    }
+  }
+
+  async toggleReferenceVisibility(email: string, recordId: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found', 
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.references || user.references.length === 0) {
+        throw new HttpException(
+          'No References found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const reference = user.references.find((r) => r._id.toString() === recordId);
+      if (!reference) {
+        throw new HttpException(
+          'No Reference found with the given ID',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !reference.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'references._id': new ObjectId(recordId) },
+        { $set: { 'references.$.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.references.find((r) => r._id.toString() === recordId).hide;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: toggleReferenceVisibility', error);
+      return null;
+    }
+  }
+
+  async deleteReference(email: string, recordId: string): Promise<User | null> {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email, 'references._id': new ObjectId(recordId) },
+        { $pull: { references: { _id: new ObjectId(recordId) } } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: deleteReference', error);
+      return null;
+    }
+  }
+
+  async addDeclaration(email: string, details: any) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $set: { 'declaration.text': details.text } },
+        { returnDocument: 'after' },
+      );
+
+      return data;  
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: addDeclaration', error);
+      return null;
+    }
+  }
+
+  async updateDeclaration(email: string, details: any) {  
+    try {
+      // only update the fields that are passed in the details object if not passed then keep the existing value
+      const updateFields = {};
+      for (const key in details) {
+        if (details[key] !== undefined) {
+          updateFields[`declaration.${key}`] = details[key];
+        }
+      }
+      
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $set: updateFields },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: updateDeclaration', error);
+      return null;
+    }
+  }
+
+  async toggleDeclarationVisibility(email: string): Promise<Boolean> {
+    try {
+      const user = await this.collection.findOne({ email });
+      if (!user) {
+        throw new HttpException(
+          'User not found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      if (!user.declaration) {
+        throw new HttpException(
+          'No Declaration found',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const newVisibility = !user.declaration.hide;
+
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $set: { 'declaration.hide': newVisibility } },
+        { returnDocument: 'after' },
+      );
+
+      if (!data) {
+        console.log('No record found with the given ID');
+        return null;
+      }
+
+      return data.declaration.hide;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: toggleDeclarationVisibility', error);
+      return null;
+    }
+  }
+
+  async updateDeclarationSignature(email: string, url: string, publicId: string) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $set: { 'declaration.signature': url, 'declaration.signaturePublicId': publicId } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: updateDeclarationSignature', error);
+      return null;
+    }
+  }
+
+  async removeDeclarationSignature(email: string) {
+    try {
+      const data = await this.collection.findOneAndUpdate(
+        { email },
+        { $set: { 'declaration.signature': null, 'declaration.signaturePublicId': null } },
+        { returnDocument: 'after' },
+      );
+
+      return data;
+    } catch (error) {
+      console.log('Something went Wrong while performing Database Operation: removeDeclarationSignature', error);
+      return null;
+    }
+  }
+}

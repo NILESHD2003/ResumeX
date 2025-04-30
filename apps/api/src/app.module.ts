@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { RepositoryModule } from './repository/repository.module';
 import { ProfileModule } from './profile/profile.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { ProfileModule } from './profile/profile.module';
     RepositoryModule,
     AuthModule,
     ProfileModule,
+    CloudinaryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

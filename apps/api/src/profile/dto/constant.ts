@@ -24,3 +24,12 @@ export enum LanguageLevelEnum {
   FLUENT = 'FLUENT',
   NATIVE = 'NATIVE',
 }
+
+export enum ProjectTypeEnum {
+  GITHUB = 'GITHUB',
+  WEBSITE = 'WEBSITE',
+  APP_STORE = 'APP_STORE',
+  PLAY_STORE = 'PLAY_STORE',
+  OTHER = 'OTHER',
+}
+

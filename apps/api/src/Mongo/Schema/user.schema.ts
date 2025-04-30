@@ -168,12 +168,14 @@ export interface Reference {
 }
 
 export interface Declaration {
-  text: string;
+  text?: string;
   //TODO: later add signature image cdn url
   signature?: string;
   fullName: string;
   place?: string;
   date?: Date;
+
+  signaturePublicId?: string;
 
   hide: boolean;
 }

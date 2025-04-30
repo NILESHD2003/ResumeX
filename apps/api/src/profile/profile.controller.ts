@@ -7,10 +7,12 @@ import {
   Post,
   Body,
   Param,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
-import { ProfileService, Education_ProfileService, Professional_ProfileService, Skill_ProfileService, Language_ProfileService, Certificate_ProfileService } from './profile.service';
+import { ProfileService, Education_ProfileService, Professional_ProfileService, Skill_ProfileService, Language_ProfileService, Certificate_ProfileService, Project_ProfileService, Award_ProfileService, Course_ProfileService, Organization_ProfileService, Publication_ProfileService, Reference_ProfileService, Declaration_ProfileService } from './profile.service';
 import {
   EducationDetailDto,
   EducationDetailResponseDto,
@@ -25,13 +27,28 @@ import {
   LanguageResponseDto,
   CertificateDto,
   CertificateResponseDto,
+  ProjectResponseDto,
+  ProjectDto,
+  AwardResponseDto,
+  AwardDto,
+  CourseResponseDto,
+  CourseDto,
+  OrganizationResponseDto,
+  OrganizationDto,
+  PublicationResponseDto,
+  PublicationDto,
+  ReferenceResponseDto,
+  ReferenceDto,
+  DeclarationResponseDto,
+  DeclarationDto,
 } from './dto/profile.dto';
 import { SuccessResponseDto } from 'src/dto/common.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @UseGuards(JwtAuthGuard)
 @Controller('profile')
 export class ProfileController {
-  constructor(private readonly profileService: ProfileService, private readonly educationProfileService: Education_ProfileService, private readonly professionalProfileService: Professional_ProfileService, private readonly skillProfileService: Skill_ProfileService, private readonly languageProfileService: Language_ProfileService, private readonly certificateProfileService: Certificate_ProfileService) {}
+  constructor(private readonly profileService: ProfileService, private readonly educationProfileService: Education_ProfileService, private readonly professionalProfileService: Professional_ProfileService, private readonly skillProfileService: Skill_ProfileService, private readonly languageProfileService: Language_ProfileService, private readonly certificateProfileService: Certificate_ProfileService, private readonly projectProfileService: Project_ProfileService, private readonly awardProfileService: Award_ProfileService, private readonly courseProfileService: Course_ProfileService, private readonly organizationProfileService: Organization_ProfileService, private readonly publicationProfileService: Publication_ProfileService, private readonly referenceProfileService: Reference_ProfileService, private readonly declarationProfileService: Declaration_ProfileService) {}
 
   @Get('')
   getProfile(@GetUser() user): Promise<SuccessResponseDto<any>> {
@@ -56,25 +73,25 @@ export class ProfileController {
     return this.profileService.toggleSummaryVisibility(user.email);
   }
 
-  // TODO
   @Get('image')
-  getProfileImage() {
-    console.log('Get Profile Image');
-    return;
+  getProfileImage(@GetUser() user): Promise<SuccessResponseDto<string>> {
+    return this.profileService.getProfileImage(user.email);
   }
 
-  // TODO
+  @UseInterceptors(FileInterceptor('image'))
   @Patch('image')
-  updateProfileImage() {
-    console.log('Update Profile Image');
-    return;
+  updateProfileImage(@GetUser() user, @UploadedFile() image: Express.Multer.File) {
+    return this.profileService.updateProfileImage(user.email, image);
   }
 
-  // TODO
   @Patch('image/toggle-visibility')
-  toggleProfileImageVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleProfileImageVisibility(@GetUser() user): Promise<SuccessResponseDto<Boolean>> {
+    return this.profileService.toggleProfileImageVisibility(user.email);
+  }
+
+  @Delete('image')
+  removeProfileImage(@GetUser() user): Promise<SuccessResponseDto<string>> {
+    return this.profileService.removeProfileImage(user.email);
   }
 
   @Get('personal-details')
@@ -213,218 +230,187 @@ export class ProfileController {
   }
 
   @Get('projects')
-  getProjects() {
-    console.log('Get Projects');
-    return;
+  getProjects(@GetUser() user): Promise<SuccessResponseDto<ProjectResponseDto[]>> {
+    return this.projectProfileService.getProjects(user.email);
   }
 
   @Post('projects')
-  addProject() {
-    console.log('Add Another Project');
-    return;
+  addProject(@GetUser() user, @Body() body: ProjectDto): Promise<SuccessResponseDto<ProjectResponseDto>> {
+    return this.projectProfileService.addProject(user.email, body);
   }
 
   @Patch('projects/:recordId')
-  updateProject() {
-    console.log('Update Project');
-    return;
+  updateProject(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<ProjectResponseDto>> {
+    return this.projectProfileService.updateProject(user.email, recordId, body);
   }
 
-  @Patch('project/:recordId/toggle-visibility')
-  toggleProjectVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  @Patch('projects/:recordId/toggle-visibility')
+  toggleProjectVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.projectProfileService.toggleProjectVisibility(user.email, recordId);
   }
 
   @Delete('projects/:recordId')
-  removeProject() {
-    console.log('Delete Project');
-    return;
+  removeProject(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<ProjectResponseDto[]>> {
+    return this.projectProfileService.deleteProject(user.email, recordId);
   }
 
   @Get('awards')
-  getAwards() {
-    console.log('Get Awards');
-    return;
+  getAwards(@GetUser() user): Promise<SuccessResponseDto<AwardResponseDto[]>> {
+    return this.awardProfileService.getAwards(user.email);
   }
 
   @Post('awards')
-  addAward() {
-    console.log('Add Another Award');
-    return;
+  addAward(@GetUser() user, @Body() body: AwardDto): Promise<SuccessResponseDto<AwardResponseDto>> {
+    return this.awardProfileService.addAward(user.email, body);
   }
 
   @Patch('awards/:recordId')
-  updateAward() {
-    console.log('Update Award');
-    return;
+  updateAward(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<AwardResponseDto>> {
+    return this.awardProfileService.updateAward(user.email, recordId, body);
   }
 
   @Patch('awards/:recordId/toggle-visibility')
-  toggleAwardVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleAwardVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.awardProfileService.toggleAwardVisibility(user.email, recordId);
   }
 
   @Delete('awards/:recordId')
-  removeAward() {
-    console.log('Delete Award');
-    return;
+  removeAward(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<AwardResponseDto[]>> {
+    return this.awardProfileService.deleteAward(user.email, recordId);
   }
 
   @Get('courses')
-  getCourses() {
-    console.log('Get Courses');
-    return;
+  getCourses(@GetUser() user): Promise<SuccessResponseDto<CourseResponseDto[]>> {
+    return this.courseProfileService.getCourses(user.email);
   }
 
   @Post('courses')
-  addCourse() {
-    console.log('Add Another Course');
-    return;
+  addCourse(@GetUser() user, @Body() body: CourseDto): Promise<SuccessResponseDto<CourseResponseDto>> {
+    return this.courseProfileService.addCourse(user.email, body);
   }
 
   @Patch('courses/:recordId')
-  updateCourse() {
-    console.log('Update Course');
-    return;
+  updateCourse(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<CourseResponseDto>> {
+    return this.courseProfileService.updateCourse(user.email, recordId, body);
   }
 
   @Patch('courses/:recordId/toggle-visibility')
-  toggleCourseVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleCourseVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.courseProfileService.toggleCourseVisibility(user.email, recordId);
   }
 
   @Delete('courses/:recordId')
-  removeCourse() {
-    console.log('Delete Course');
-    return;
+  removeCourse(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<CourseResponseDto[]>> {
+    return this.courseProfileService.deleteCourse(user.email, recordId);
   }
 
   @Get('organizations')
-  getOrganizations() {
-    console.log('Get Organizations');
-    return;
+  getOrganizations(@GetUser() user): Promise<SuccessResponseDto<OrganizationResponseDto[]>> {
+    return this.organizationProfileService.getOrganizations(user.email);
   }
 
   @Post('organizations')
-  addOrganization() {
-    console.log('Add Organization');
-    return;
+  addOrganization(@GetUser() user, @Body() body: OrganizationDto): Promise<SuccessResponseDto<OrganizationResponseDto>> {
+    return this.organizationProfileService.addOrganization(user.email, body);
   }
 
   @Patch('organizations/:recordId')
-  updateOrganization() {
-    console.log('Update Organisation');
-    return;
+  updateOrganization(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<OrganizationResponseDto>> {
+    return this.organizationProfileService.updateOrganization(user.email, recordId, body);
   }
 
   @Patch('organizations/:recordId/toggle-visibility')
-  toggleOrganizationVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleOrganizationVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.organizationProfileService.toggleOrganizationVisibility(user.email, recordId);
   }
 
   @Delete('organizations/:recordId')
-  removeOrganization() {
-    console.log('Remove Organization');
-    return;
+  removeOrganization(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<OrganizationResponseDto[]>> {
+    return this.organizationProfileService.deleteOrganization(user.email, recordId);
   }
 
   @Get('publications')
-  getPublications() {
-    console.log('Get All Publications');
-    return;
+  getPublications(@GetUser() user): Promise<SuccessResponseDto<PublicationResponseDto[]>> {
+    return this.publicationProfileService.getPublications(user.email);
   }
 
   @Post('publications')
-  addPublication() {
-    console.log('Added Publication');
-    return;
+  addPublication(@GetUser() user, @Body() body: PublicationDto): Promise<SuccessResponseDto<PublicationResponseDto>> {
+    return this.publicationProfileService.addPublication(user.email, body);
   }
 
   @Patch('publications/:recordId')
-  updatePublication() {
-    console.log('Update Publication');
-    return;
+  updatePublication(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<PublicationResponseDto>> {
+    return this.publicationProfileService.updatePublication(user.email, recordId, body);
   }
 
-  @Patch('publication/:recordId/toggle-visibility')
-  togglePublicationVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  @Patch('publications/:recordId/toggle-visibility')
+  togglePublicationVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.publicationProfileService.togglePublicationVisibility(user.email, recordId);
   }
 
   @Delete('publications/:recordId')
-  removePublication() {
-    console.log('Remove Publication');
-    return;
+  removePublication(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<PublicationResponseDto[]>> {
+    return this.publicationProfileService.deletePublication(user.email, recordId);
   }
 
   @Get('references')
-  getReferences() {
-    console.log('Get All References');
-    return;
+  getReferences(@GetUser() user): Promise<SuccessResponseDto<ReferenceResponseDto[]>> {
+    return this.referenceProfileService.getReferences(user.email);
   }
 
   @Post('references')
-  addReferences() {
-    console.log('Add References');
-    return;
+  addReferences(@GetUser() user, @Body() body: ReferenceDto): Promise<SuccessResponseDto<ReferenceResponseDto>> {
+    return this.referenceProfileService.addReference(user.email, body);
   }
 
   @Patch('references/:recordId')
-  updateReferences() {
-    console.log('Update References');
-    return;
+  updateReferences(@GetUser() user, @Body() body: any, @Param('recordId') recordId: string): Promise<SuccessResponseDto<ReferenceResponseDto>> {
+    return this.referenceProfileService.updateReference(user.email, recordId, body);
   }
 
   @Patch('references/:recordId/toggle-visibility')
-  toggleReferenceVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleReferenceVisibility(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<Boolean>> {
+    return this.referenceProfileService.toggleReferenceVisibility(user.email, recordId);
   }
 
   @Delete('references/:recordId')
-  removeReferences() {
-    console.log('Remove References');
-    return;
+  removeReferences(@GetUser() user, @Param('recordId') recordId: string): Promise<SuccessResponseDto<ReferenceResponseDto[]>> {
+    return this.referenceProfileService.deleteReference(user.email, recordId);
   }
 
   @Get('declaration')
-  getDeclaration() {
-    console.log('Get Declaration');
-    return;
+  getDeclaration(@GetUser() user): Promise<SuccessResponseDto<DeclarationResponseDto>> {
+    return this.declarationProfileService.getDeclaration(user.email);
   }
 
   @Patch('declaration')
-  updateDeclaration() {
-    console.log('Update Declaration');
-    return;
+  updateDeclaration(@GetUser() user, @Body() body: DeclarationDto): Promise<SuccessResponseDto<DeclarationResponseDto>> {
+    return this.declarationProfileService.updateDeclaration(user.email, body);
   }
 
   @Patch('declaration/toggle-visibility')
-  toggleDeclarationVisibility() {
-    console.log('Visibility Toggle');
-    return;
+  toggleDeclarationVisibility(@GetUser() user): Promise<SuccessResponseDto<Boolean>> {
+    return this.declarationProfileService.toggleDeclarationVisibility(user.email);
   }
 
+
   @Get('declaration/signature')
-  getDeclarationSignature() {
-    console.log('Get Declaration Signature');
-    return;
+  getDeclarationSignature(@GetUser() user): Promise<SuccessResponseDto<string>> {
+    return this.declarationProfileService.getDeclarationSignature(user.email);
   }
 
   @Patch('declaration/signature')
-  updateDeclarationSignature() {
-    console.log('Upload Declaration Signature');
-    return;
+  @UseInterceptors(FileInterceptor('signature'))
+  updateDeclarationSignature(
+    @GetUser() user,
+    @UploadedFile() signature: Express.Multer.File,
+  ): Promise<SuccessResponseDto<{ url: string; publicId: string }>> {
+    return this.declarationProfileService.updateDeclarationSignature(user.email, signature);
   }
 
   @Delete('declaration/signature')
-  removeDeclarationSignature() {
-    console.log('Remove Declaration Signature');
-    return;
+  removeDeclarationSignature(@GetUser() user): Promise<SuccessResponseDto<string>> {
+    return this.declarationProfileService.removeDeclarationSignature(user.email);
   }
 }
