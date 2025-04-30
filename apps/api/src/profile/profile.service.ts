@@ -277,16 +277,22 @@ export class Education_ProfileService {
       );
     }
 
-    const preparedDetails = res.educationDetails.map((detail) => {
-      return {
-        ...detail,
-        _id: detail._id.toString(),
-      };
-    });
+    let data;
+    if(res.educationDetails && res.educationDetails.length > 0) {
+      const preparedDetails = res.educationDetails.map((detail) => {
+        return {
+          ...detail,
+          _id: detail._id.toString(),
+        };
+      });
 
-    const data = plainToInstance(EducationDetailResponseDto, preparedDetails, {
-      excludeExtraneousValues: true,
-    });
+      data = plainToInstance(EducationDetailResponseDto, preparedDetails, {
+        excludeExtraneousValues: true,
+      });
+    } else {
+      data = [];
+    }
+
 
     return {
       success: true,

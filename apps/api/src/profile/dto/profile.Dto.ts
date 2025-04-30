@@ -27,8 +27,15 @@ export class ProfileSummaryResponseDto {
   hide: boolean;
 }
 
-export class SocialLinkDto {
+export class SocialLinkDto_Platform {
   @IsEnum(PlatformEnum)
+  platform: string;
+  @IsUrl()
+  url: string;
+}
+
+export class SocialLinkDto_Project {
+  @IsEnum(ProjectTypeEnum)
   platform: string;
   @IsUrl()
   url: string;
@@ -93,8 +100,8 @@ export class PersonalDetailsDto {
 
   @IsOptional()
   @ValidateNested({ each: true })
-  @Type(() => SocialLinkDto)
-  socialLinks?: SocialLinkDto[];
+  @Type(() => SocialLinkDto_Platform)
+  socialLinks?: SocialLinkDto_Platform[];
 }
 
 export class PersonalDetailsResponseDto {
@@ -127,7 +134,7 @@ export class PersonalDetailsResponseDto {
   @Expose()
   visa?: string;
   @Expose()
-  socialLinks?: SocialLinkDto[];
+  socialLinks?: SocialLinkDto_Platform[];
 }
 
 export class EducationDetailDto {
@@ -428,8 +435,9 @@ export class ProjectDto {
   title: string;
 
   @IsOptional()
-  @IsArray()
-  links?: ProjectTypeEnum[];
+  @ValidateNested({ each: true })
+  @Type(() => SocialLinkDto_Project)
+  links?: SocialLinkDto_Project[];
 
   @IsOptional()
   @IsString()
@@ -457,7 +465,7 @@ export class ProjectResponseDto {
   @Expose()
   title: string;
   @Expose()
-  links?: ProjectTypeEnum[];
+  links?: SocialLinkDto_Project[];
   @Expose()
   subtitle?: string;
   @Expose()
