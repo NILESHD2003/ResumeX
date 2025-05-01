@@ -79,7 +79,7 @@ const SkillsDetailCard = () => {
   };
 
   return (
-    <Card className="max-w-2xl mx-auto p-6 bg-white rounded-3xl shadow-sm">
+    <Card className="max-w-2xl w-lg mx-auto p-6 bg-white rounded-3xl shadow-sm">
       <h1 className="text-3xl font-bold text-center mb-4">Skills Details</h1>
 
       {skills.map((skill, index) => (

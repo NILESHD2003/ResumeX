@@ -158,7 +158,7 @@ const PersonalDetailsForm = () => {
           onChange={handleInputChange}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             type="tel"
             id="phoneNo"
@@ -180,7 +180,7 @@ const PersonalDetailsForm = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
             type="text"
             id="nationality"
@@ -208,7 +208,7 @@ const PersonalDetailsForm = () => {
           onChange={handleInputChange}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Select value={maritalStatus}  onValueChange={handleMaritalStatusChange}>
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Marital Status" />
@@ -246,7 +246,7 @@ const PersonalDetailsForm = () => {
           </Select>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Input
             type="text"
             id="drivingLicense"
@@ -268,7 +268,7 @@ const PersonalDetailsForm = () => {
         <textarea
           id="personalInfo"
           placeholder="Personal Info"
-          className="w-full rounded-2xl border-gray-200 resize-none h-24 p-4"
+          className="w-full rounded-2xl border-gray-200 resize-none h-20 p-4"
           value={personalInfo}
           onChange={handleInputChange}
         />
