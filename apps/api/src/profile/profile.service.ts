@@ -57,7 +57,7 @@ export class ProfileService {
     delete filteredData.updatedAt;
     delete filteredData._id;
 
-    if(filteredData.declaration) {
+    if (filteredData.declaration) {
       delete filteredData.declaration.signaturePublicId;
     }
 
@@ -207,11 +207,18 @@ export class ProfileService {
     };
   }
 
-  async updateProfileImage(email: string, image: Express.Multer.File): Promise<SuccessResponseDto<string>> {
+  async updateProfileImage(
+    email: string,
+    image: Express.Multer.File,
+  ): Promise<SuccessResponseDto<string>> {
     const uploadedImage = await this.cloudinaryService.uploadImage(image);
 
-    const res = await this.userRepository.updateProfileImage(email, uploadedImage.url, uploadedImage.publicId);
-    
+    const res = await this.userRepository.updateProfileImage(
+      email,
+      uploadedImage.url,
+      uploadedImage.publicId,
+    );
+
     if (!res) {
       throw new HttpException(
         'Something went Wrong while updating Profile Image',
@@ -226,7 +233,9 @@ export class ProfileService {
     };
   }
 
-  async toggleProfileImageVisibility(email: string): Promise<SuccessResponseDto<Boolean>> {
+  async toggleProfileImageVisibility(
+    email: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
     const res = await this.userRepository.toggleProfileImageVisibility(email);
 
     if (res !== true && res !== false) {
@@ -245,7 +254,7 @@ export class ProfileService {
 
   async removeProfileImage(email: string): Promise<SuccessResponseDto<string>> {
     const res = await this.userRepository.removeProfileImage(email);
-    
+
     if (!res) {
       throw new HttpException(
         'Something went Wrong while removing Profile Image',
@@ -278,7 +287,7 @@ export class Education_ProfileService {
     }
 
     let data;
-    if(res.educationDetails && res.educationDetails.length > 0) {
+    if (res.educationDetails && res.educationDetails.length > 0) {
       const preparedDetails = res.educationDetails.map((detail) => {
         return {
           ...detail,
@@ -292,7 +301,6 @@ export class Education_ProfileService {
     } else {
       data = [];
     }
-
 
     return {
       success: true,
@@ -455,17 +463,21 @@ export class Professional_ProfileService {
     let preparedDetails;
     let data;
 
-    if(res.professionalExperience && res.professionalExperience.length > 0) {
+    if (res.professionalExperience && res.professionalExperience.length > 0) {
       preparedDetails = res.professionalExperience.map((detail) => {
         return {
           ...detail,
           _id: detail._id.toString(),
         };
       });
-  
-      data = plainToInstance(ProfessionalExperienceResponseDto, preparedDetails, {
-        excludeExtraneousValues: true,
-      });
+
+      data = plainToInstance(
+        ProfessionalExperienceResponseDto,
+        preparedDetails,
+        {
+          excludeExtraneousValues: true,
+        },
+      );
     } else {
       data = [];
     }
@@ -494,23 +506,27 @@ export class Professional_ProfileService {
       );
     }
 
-    const addedDetail = res.professionalExperience[
-      res.professionalExperience.length - 1
-    ];
+    const addedDetail =
+      res.professionalExperience[res.professionalExperience.length - 1];
 
     const preparedDetail = {
       ...addedDetail,
       _id: addedDetail._id.toString(),
     };
 
-    const data = plainToInstance(ProfessionalExperienceResponseDto, preparedDetail, {
-      excludeExtraneousValues: true,
-    });
+    const data = plainToInstance(
+      ProfessionalExperienceResponseDto,
+      preparedDetail,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
 
     return {
       success: true,
       message: 'Added Professional Experience Succesfully',
-      data: (instanceToPlain(data) as ProfessionalExperienceResponseDto) || null,
+      data:
+        (instanceToPlain(data) as ProfessionalExperienceResponseDto) || null,
     };
   }
 
@@ -548,14 +564,19 @@ export class Professional_ProfileService {
       _id: updatedDetail._id.toString(),
     };
 
-    const data = plainToInstance(ProfessionalExperienceResponseDto, preparedDetail, {
-      excludeExtraneousValues: true,
-    });
+    const data = plainToInstance(
+      ProfessionalExperienceResponseDto,
+      preparedDetail,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
 
     return {
       success: true,
       message: 'Updated Professional Experience Succesfully',
-      data: (instanceToPlain(data) as ProfessionalExperienceResponseDto) || null,
+      data:
+        (instanceToPlain(data) as ProfessionalExperienceResponseDto) || null,
     };
   }
 
@@ -563,10 +584,11 @@ export class Professional_ProfileService {
     email: string,
     recordId: string,
   ): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleProfessionalExperienceVisibility(
-      email,
-      recordId,
-    );
+    const res =
+      await this.userRepository.toggleProfessionalExperienceVisibility(
+        email,
+        recordId,
+      );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -605,14 +627,19 @@ export class Professional_ProfileService {
       };
     });
 
-    const data = plainToInstance(ProfessionalExperienceResponseDto, preparedDetails, {
-      excludeExtraneousValues: true,
-    });
+    const data = plainToInstance(
+      ProfessionalExperienceResponseDto,
+      preparedDetails,
+      {
+        excludeExtraneousValues: true,
+      },
+    );
 
     return {
       success: true,
       message: 'Deleted Professional Experience Succesfully',
-      data: (instanceToPlain(data) as ProfessionalExperienceResponseDto[]) || [],
+      data:
+        (instanceToPlain(data) as ProfessionalExperienceResponseDto[]) || [],
     };
   }
 }
@@ -621,7 +648,9 @@ export class Professional_ProfileService {
 export class Skill_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getSkills(email: string): Promise<SuccessResponseDto<SkillResponseDto[]>> {
+  async getSkills(
+    email: string,
+  ): Promise<SuccessResponseDto<SkillResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -634,14 +663,14 @@ export class Skill_ProfileService {
     let preparedDetails;
     let data;
 
-    if(res.skills && res.skills.length > 0) {
+    if (res.skills && res.skills.length > 0) {
       preparedDetails = res.skills.map((detail) => {
         return {
           ...detail,
           _id: detail._id?.toString(),
         };
       });
-  
+
       data = plainToInstance(SkillResponseDto, preparedDetails, {
         excludeExtraneousValues: true,
       });
@@ -656,7 +685,10 @@ export class Skill_ProfileService {
     };
   }
 
-  async addSkill(email: string, details: SkillDto): Promise<SuccessResponseDto<SkillResponseDto>> {
+  async addSkill(
+    email: string,
+    details: SkillDto,
+  ): Promise<SuccessResponseDto<SkillResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addSkill(email, details);
 
@@ -685,7 +717,11 @@ export class Skill_ProfileService {
     };
   }
 
-  async updateSkill(email: string, recordId: string, details: any): Promise<SuccessResponseDto<SkillResponseDto>> {
+  async updateSkill(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<SkillResponseDto>> {
     const res = await this.userRepository.updateSkill(email, recordId, details);
 
     if (!res) {
@@ -700,10 +736,7 @@ export class Skill_ProfileService {
     );
 
     if (!updatedDetail) {
-      throw new HttpException(
-        'Skill not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Skill not found', HttpStatus.NOT_FOUND);
     }
 
     const preparedDetail = {
@@ -722,8 +755,14 @@ export class Skill_ProfileService {
     };
   }
 
-  async toggleSkillVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleSkillVisibility(email, recordId);
+  async toggleSkillVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleSkillVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -739,7 +778,10 @@ export class Skill_ProfileService {
     };
   }
 
-  async deleteSkill(email: string, recordId: string): Promise<SuccessResponseDto<SkillResponseDto[]>> {
+  async deleteSkill(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<SkillResponseDto[]>> {
     const res = await this.userRepository.deleteSkill(email, recordId);
 
     if (!res) {
@@ -772,7 +814,9 @@ export class Skill_ProfileService {
 export class Language_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getLanguages(email: string): Promise<SuccessResponseDto<LanguageResponseDto[]>> {
+  async getLanguages(
+    email: string,
+  ): Promise<SuccessResponseDto<LanguageResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -785,7 +829,7 @@ export class Language_ProfileService {
     let preparedDetails;
     let data;
 
-    if(res.languages && res.languages.length > 0) {
+    if (res.languages && res.languages.length > 0) {
       preparedDetails = res.languages.map((detail) => {
         return {
           ...detail,
@@ -809,7 +853,10 @@ export class Language_ProfileService {
     };
   }
 
-  async addLanguage(email: string, details: LanguageDto): Promise<SuccessResponseDto<LanguageResponseDto>> {
+  async addLanguage(
+    email: string,
+    details: LanguageDto,
+  ): Promise<SuccessResponseDto<LanguageResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addLanguage(email, details);
 
@@ -838,8 +885,16 @@ export class Language_ProfileService {
     };
   }
 
-  async updateLanguage(email: string, recordId: string, details: any): Promise<SuccessResponseDto<LanguageResponseDto>> {
-    const res = await this.userRepository.updateLanguage(email, recordId, details);
+  async updateLanguage(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<LanguageResponseDto>> {
+    const res = await this.userRepository.updateLanguage(
+      email,
+      recordId,
+      details,
+    );
 
     if (!res) {
       throw new HttpException(
@@ -850,14 +905,11 @@ export class Language_ProfileService {
 
     const updatedDetail = res.languages.find(
       (detail) => detail._id.toString() === recordId,
-    );  
+    );
 
     if (!updatedDetail) {
-      throw new HttpException(
-        'Language not found',
-        HttpStatus.NOT_FOUND,
-      );
-    } 
+      throw new HttpException('Language not found', HttpStatus.NOT_FOUND);
+    }
 
     const preparedDetail = {
       ...updatedDetail,
@@ -875,8 +927,14 @@ export class Language_ProfileService {
     };
   }
 
-  async toggleLanguageVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleLanguageVisibility(email, recordId);
+  async toggleLanguageVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleLanguageVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -892,7 +950,10 @@ export class Language_ProfileService {
     };
   }
 
-  async deleteLanguage(email: string, recordId: string): Promise<SuccessResponseDto<LanguageResponseDto[]>> {
+  async deleteLanguage(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<LanguageResponseDto[]>> {
     const res = await this.userRepository.deleteLanguage(email, recordId);
 
     if (!res) {
@@ -912,7 +973,7 @@ export class Language_ProfileService {
     const data = plainToInstance(LanguageResponseDto, preparedDetails, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Deleted Language Succesfully',
@@ -925,7 +986,9 @@ export class Language_ProfileService {
 export class Certificate_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getCertificates(email: string): Promise<SuccessResponseDto<CertificateResponseDto[]>> {
+  async getCertificates(
+    email: string,
+  ): Promise<SuccessResponseDto<CertificateResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -938,7 +1001,7 @@ export class Certificate_ProfileService {
     let preparedDetails;
     let data;
 
-    if(res.certificates && res.certificates.length > 0) {
+    if (res.certificates && res.certificates.length > 0) {
       preparedDetails = res.certificates.map((detail) => {
         return {
           ...detail,
@@ -960,7 +1023,10 @@ export class Certificate_ProfileService {
     };
   }
 
-  async addCertificate(email: string, details: CertificateDto): Promise<SuccessResponseDto<CertificateResponseDto>> {
+  async addCertificate(
+    email: string,
+    details: CertificateDto,
+  ): Promise<SuccessResponseDto<CertificateResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addCertificate(email, details);
 
@@ -981,7 +1047,7 @@ export class Certificate_ProfileService {
     const data = plainToInstance(CertificateResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Added Certificate Succesfully',
@@ -989,8 +1055,16 @@ export class Certificate_ProfileService {
     };
   }
 
-  async updateCertificate(email: string, recordId: string, details: any): Promise<SuccessResponseDto<CertificateResponseDto>> {   
-    const res = await this.userRepository.updateCertificate(email, recordId, details);
+  async updateCertificate(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<CertificateResponseDto>> {
+    const res = await this.userRepository.updateCertificate(
+      email,
+      recordId,
+      details,
+    );
 
     if (!res) {
       throw new HttpException(
@@ -1004,10 +1078,7 @@ export class Certificate_ProfileService {
     );
 
     if (!updatedDetail) {
-      throw new HttpException(
-        'Certificate not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Certificate not found', HttpStatus.NOT_FOUND);
     }
 
     const preparedDetail = {
@@ -1018,16 +1089,22 @@ export class Certificate_ProfileService {
     const data = plainToInstance(CertificateResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Updated Certificate Succesfully',
       data: (instanceToPlain(data) as CertificateResponseDto) || null,
     };
   }
-  
-  async toggleCertificateVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleCertificateVisibility(email, recordId);
+
+  async toggleCertificateVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleCertificateVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -1043,8 +1120,11 @@ export class Certificate_ProfileService {
     };
   }
 
-  async deleteCertificate(email: string, recordId: string): Promise<SuccessResponseDto<CertificateResponseDto[]>> {
-    const res = await this.userRepository.deleteCertificate(email, recordId);     
+  async deleteCertificate(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<CertificateResponseDto[]>> {
+    const res = await this.userRepository.deleteCertificate(email, recordId);
 
     if (!res) {
       throw new HttpException(
@@ -1052,18 +1132,18 @@ export class Certificate_ProfileService {
         HttpStatus.NOT_FOUND,
       );
     }
-    
+
     const preparedDetails = res.certificates.map((detail) => {
       return {
         ...detail,
         _id: detail._id.toString(),
       };
-    }); 
+    });
 
     const data = plainToInstance(CertificateResponseDto, preparedDetails, {
       excludeExtraneousValues: true,
-    });   
-    
+    });
+
     return {
       success: true,
       message: 'Deleted Certificate Succesfully',
@@ -1076,7 +1156,9 @@ export class Certificate_ProfileService {
 export class Project_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getProjects(email: string): Promise<SuccessResponseDto<ProjectResponseDto[]>> {
+  async getProjects(
+    email: string,
+  ): Promise<SuccessResponseDto<ProjectResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -1085,11 +1167,11 @@ export class Project_ProfileService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    
+
     let preparedDetails;
     let data;
 
-    if(res.projects && res.projects.length > 0) {
+    if (res.projects && res.projects.length > 0) {
       preparedDetails = res.projects.map((detail) => {
         return {
           ...detail,
@@ -1101,7 +1183,7 @@ export class Project_ProfileService {
         excludeExtraneousValues: true,
       });
 
-      data = (instanceToPlain(data) as ProjectResponseDto[]);
+      data = instanceToPlain(data) as ProjectResponseDto[];
     } else {
       data = [];
     }
@@ -1113,7 +1195,10 @@ export class Project_ProfileService {
     };
   }
 
-  async addProject(email: string, details: ProjectDto): Promise<SuccessResponseDto<ProjectResponseDto>> {
+  async addProject(
+    email: string,
+    details: ProjectDto,
+  ): Promise<SuccessResponseDto<ProjectResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addProject(email, details);
 
@@ -1122,7 +1207,7 @@ export class Project_ProfileService {
         'Something went Wrong while adding Project',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    } 
+    }
 
     const addedDetail = res.projects[res.projects.length - 1];
 
@@ -1134,7 +1219,7 @@ export class Project_ProfileService {
     const data = plainToInstance(ProjectResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Added Project Succesfully',
@@ -1142,8 +1227,16 @@ export class Project_ProfileService {
     };
   }
 
-  async updateProject(email: string, recordId: string, details: any): Promise<SuccessResponseDto<ProjectResponseDto>> {
-    const res = await this.userRepository.updateProject(email, recordId, details);
+  async updateProject(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<ProjectResponseDto>> {
+    const res = await this.userRepository.updateProject(
+      email,
+      recordId,
+      details,
+    );
 
     if (!res) {
       throw new HttpException(
@@ -1157,10 +1250,7 @@ export class Project_ProfileService {
     );
 
     if (!updatedDetail) {
-      throw new HttpException(
-        'Project not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Project not found', HttpStatus.NOT_FOUND);
     }
 
     const preparedDetail = {
@@ -1170,17 +1260,23 @@ export class Project_ProfileService {
 
     const data = plainToInstance(ProjectResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
-    });   
-    
+    });
+
     return {
       success: true,
       message: 'Updated Project Succesfully',
       data: (instanceToPlain(data) as ProjectResponseDto) || null,
     };
-  } 
+  }
 
-  async toggleProjectVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleProjectVisibility(email, recordId);
+  async toggleProjectVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleProjectVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -1196,27 +1292,30 @@ export class Project_ProfileService {
     };
   }
 
-  async deleteProject(email: string, recordId: string): Promise<SuccessResponseDto<ProjectResponseDto[]>> {
+  async deleteProject(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<ProjectResponseDto[]>> {
     const res = await this.userRepository.deleteProject(email, recordId);
 
     if (!res) {
       throw new HttpException(
-        'No Project found with the given ID', 
+        'No Project found with the given ID',
         HttpStatus.NOT_FOUND,
       );
     }
-    
+
     const preparedDetails = res.projects.map((detail) => {
       return {
         ...detail,
         _id: detail._id.toString(),
       };
-    }); 
+    });
 
     const data = plainToInstance(ProjectResponseDto, preparedDetails, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Deleted Project Succesfully',
@@ -1229,7 +1328,9 @@ export class Project_ProfileService {
 export class Award_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getAwards(email: string): Promise<SuccessResponseDto<AwardResponseDto[]>> {
+  async getAwards(
+    email: string,
+  ): Promise<SuccessResponseDto<AwardResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -1237,13 +1338,13 @@ export class Award_ProfileService {
         'Something went Wrong while fetching Awards',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    } 
+    }
 
     let preparedDetails;
     let data;
 
-    if(res.awards && res.awards.length > 0) {
-      preparedDetails = res.awards.map((detail) => {  
+    if (res.awards && res.awards.length > 0) {
+      preparedDetails = res.awards.map((detail) => {
         return {
           ...detail,
           _id: detail._id.toString(),
@@ -1254,7 +1355,7 @@ export class Award_ProfileService {
         excludeExtraneousValues: true,
       });
 
-      data = (instanceToPlain(data) as AwardResponseDto[]);
+      data = instanceToPlain(data) as AwardResponseDto[];
     } else {
       data = [];
     }
@@ -1266,7 +1367,10 @@ export class Award_ProfileService {
     };
   }
 
-  async addAward(email: string, details: AwardDto): Promise<SuccessResponseDto<AwardResponseDto>> {
+  async addAward(
+    email: string,
+    details: AwardDto,
+  ): Promise<SuccessResponseDto<AwardResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addAward(email, details);
 
@@ -1276,7 +1380,7 @@ export class Award_ProfileService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    
+
     const addedDetail = res.awards[res.awards.length - 1];
 
     const preparedDetail = {
@@ -1287,15 +1391,19 @@ export class Award_ProfileService {
     const data = plainToInstance(AwardResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Added Award Succesfully',
       data: (instanceToPlain(data) as AwardResponseDto) || null,
     };
-  } 
+  }
 
-  async updateAward(email: string, recordId: string, details: any): Promise<SuccessResponseDto<AwardResponseDto>> {
+  async updateAward(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<AwardResponseDto>> {
     const res = await this.userRepository.updateAward(email, recordId, details);
 
     if (!res) {
@@ -1304,18 +1412,15 @@ export class Award_ProfileService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    
+
     const updatedDetail = res.awards.find(
       (detail) => detail._id.toString() === recordId,
     );
 
     if (!updatedDetail) {
-      throw new HttpException(
-        'Award not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Award not found', HttpStatus.NOT_FOUND);
     }
-    
+
     const preparedDetail = {
       ...updatedDetail,
       _id: updatedDetail._id.toString(),
@@ -1323,8 +1428,8 @@ export class Award_ProfileService {
 
     const data = plainToInstance(AwardResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
-    }); 
-    
+    });
+
     return {
       success: true,
       message: 'Updated Award Succesfully',
@@ -1332,16 +1437,22 @@ export class Award_ProfileService {
     };
   }
 
-  async toggleAwardVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleAwardVisibility(email, recordId);
+  async toggleAwardVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleAwardVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
-        'Something went Wrong while toggling Award Visibility', 
+        'Something went Wrong while toggling Award Visibility',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
-    
+
     return {
       success: true,
       message: 'Toggled Award Visibility Succesfully',
@@ -1349,7 +1460,10 @@ export class Award_ProfileService {
     };
   }
 
-  async deleteAward(email: string, recordId: string): Promise<SuccessResponseDto<AwardResponseDto[]>> {
+  async deleteAward(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<AwardResponseDto[]>> {
     const res = await this.userRepository.deleteAward(email, recordId);
 
     if (!res) {
@@ -1358,7 +1472,7 @@ export class Award_ProfileService {
         HttpStatus.NOT_FOUND,
       );
     }
-    
+
     const preparedDetails = res.awards.map((detail) => {
       return {
         ...detail,
@@ -1368,8 +1482,8 @@ export class Award_ProfileService {
 
     const data = plainToInstance(AwardResponseDto, preparedDetails, {
       excludeExtraneousValues: true,
-    }); 
-    
+    });
+
     return {
       success: true,
       message: 'Deleted Award Succesfully',
@@ -1382,7 +1496,9 @@ export class Award_ProfileService {
 export class Course_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getCourses(email: string): Promise<SuccessResponseDto<CourseResponseDto[]>> {
+  async getCourses(
+    email: string,
+  ): Promise<SuccessResponseDto<CourseResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -1390,13 +1506,13 @@ export class Course_ProfileService {
         'Something went Wrong while fetching Courses',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
-    }   
+    }
 
     let preparedDetails;
     let data;
 
-    if(res.courses && res.courses.length > 0) {
-      preparedDetails = res.courses.map((detail) => { 
+    if (res.courses && res.courses.length > 0) {
+      preparedDetails = res.courses.map((detail) => {
         return {
           ...detail,
           _id: detail._id.toString(),
@@ -1407,10 +1523,10 @@ export class Course_ProfileService {
         excludeExtraneousValues: true,
       });
 
-      data = (instanceToPlain(data) as CourseResponseDto[]);
+      data = instanceToPlain(data) as CourseResponseDto[];
     } else {
       data = [];
-    }   
+    }
 
     return {
       success: true,
@@ -1419,7 +1535,10 @@ export class Course_ProfileService {
     };
   }
 
-  async addCourse(email: string, details: CourseDto): Promise<SuccessResponseDto<CourseResponseDto>> {
+  async addCourse(
+    email: string,
+    details: CourseDto,
+  ): Promise<SuccessResponseDto<CourseResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addCourse(email, details);
 
@@ -1448,8 +1567,16 @@ export class Course_ProfileService {
     };
   }
 
-  async updateCourse(email: string, recordId: string, details: any): Promise<SuccessResponseDto<CourseResponseDto>> {
-    const res = await this.userRepository.updateCourse(email, recordId, details);
+  async updateCourse(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<CourseResponseDto>> {
+    const res = await this.userRepository.updateCourse(
+      email,
+      recordId,
+      details,
+    );
 
     if (!res) {
       throw new HttpException(
@@ -1463,17 +1590,14 @@ export class Course_ProfileService {
     );
 
     if (!updatedDetail) {
-      throw new HttpException(
-        'Course not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Course not found', HttpStatus.NOT_FOUND);
     }
 
     const preparedDetail = {
       ...updatedDetail,
       _id: updatedDetail._id.toString(),
     };
-    
+
     const data = plainToInstance(CourseResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
@@ -1485,8 +1609,14 @@ export class Course_ProfileService {
     };
   }
 
-  async toggleCourseVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleCourseVisibility(email, recordId);
+  async toggleCourseVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleCourseVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -1502,7 +1632,10 @@ export class Course_ProfileService {
     };
   }
 
-  async deleteCourse(email: string, recordId: string): Promise<SuccessResponseDto<CourseResponseDto[]>> {
+  async deleteCourse(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<CourseResponseDto[]>> {
     const res = await this.userRepository.deleteCourse(email, recordId);
 
     if (!res) {
@@ -1521,8 +1654,8 @@ export class Course_ProfileService {
 
     const data = plainToInstance(CourseResponseDto, preparedDetails, {
       excludeExtraneousValues: true,
-    });   
-    
+    });
+
     return {
       success: true,
       message: 'Deleted Course Succesfully',
@@ -1535,7 +1668,9 @@ export class Course_ProfileService {
 export class Organization_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getOrganizations(email: string): Promise<SuccessResponseDto<OrganizationResponseDto[]>> {
+  async getOrganizations(
+    email: string,
+  ): Promise<SuccessResponseDto<OrganizationResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -1548,7 +1683,7 @@ export class Organization_ProfileService {
     let preparedDetails;
     let data;
 
-    if(res.organizations && res.organizations.length > 0) {
+    if (res.organizations && res.organizations.length > 0) {
       preparedDetails = res.organizations.map((detail) => {
         return {
           ...detail,
@@ -1559,8 +1694,8 @@ export class Organization_ProfileService {
       data = plainToInstance(OrganizationResponseDto, preparedDetails, {
         excludeExtraneousValues: true,
       });
-      
-      data = (instanceToPlain(data) as OrganizationResponseDto[]);
+
+      data = instanceToPlain(data) as OrganizationResponseDto[];
     } else {
       data = [];
     }
@@ -1571,8 +1706,11 @@ export class Organization_ProfileService {
       data: data,
     };
   }
-  
-  async addOrganization(email: string, details: OrganizationDto): Promise<SuccessResponseDto<OrganizationResponseDto>> {
+
+  async addOrganization(
+    email: string,
+    details: OrganizationDto,
+  ): Promise<SuccessResponseDto<OrganizationResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addOrganization(email, details);
 
@@ -1589,7 +1727,7 @@ export class Organization_ProfileService {
       ...addedDetail,
       _id: addedDetail._id.toString(),
     };
-    
+
     const data = plainToInstance(OrganizationResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
@@ -1601,8 +1739,16 @@ export class Organization_ProfileService {
     };
   }
 
-  async updateOrganization(email: string, recordId: string, details: any): Promise<SuccessResponseDto<OrganizationResponseDto>> {
-    const res = await this.userRepository.updateOrganization(email, recordId, details);
+  async updateOrganization(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<OrganizationResponseDto>> {
+    const res = await this.userRepository.updateOrganization(
+      email,
+      recordId,
+      details,
+    );
 
     if (!res) {
       throw new HttpException(
@@ -1615,18 +1761,15 @@ export class Organization_ProfileService {
       (detail) => detail._id.toString() === recordId,
     );
 
-    if (!updatedDetail) { 
-      throw new HttpException(
-        'Organization not found',
-        HttpStatus.NOT_FOUND,
-      );
+    if (!updatedDetail) {
+      throw new HttpException('Organization not found', HttpStatus.NOT_FOUND);
     }
 
     const preparedDetail = {
       ...updatedDetail,
       _id: updatedDetail._id.toString(),
     };
-    
+
     const data = plainToInstance(OrganizationResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
@@ -1638,8 +1781,14 @@ export class Organization_ProfileService {
     };
   }
 
-  async toggleOrganizationVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleOrganizationVisibility(email, recordId);
+  async toggleOrganizationVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleOrganizationVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -1655,7 +1804,10 @@ export class Organization_ProfileService {
     };
   }
 
-  async deleteOrganization(email: string, recordId: string): Promise<SuccessResponseDto<OrganizationResponseDto[]>> {
+  async deleteOrganization(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<OrganizationResponseDto[]>> {
     const res = await this.userRepository.deleteOrganization(email, recordId);
 
     if (!res) {
@@ -1675,7 +1827,7 @@ export class Organization_ProfileService {
     const data = plainToInstance(OrganizationResponseDto, preparedDetails, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Deleted Organization Succesfully',
@@ -1688,7 +1840,9 @@ export class Organization_ProfileService {
 export class Publication_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getPublications(email: string): Promise<SuccessResponseDto<PublicationResponseDto[]>> {
+  async getPublications(
+    email: string,
+  ): Promise<SuccessResponseDto<PublicationResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -1701,7 +1855,7 @@ export class Publication_ProfileService {
     let preparedDetails;
     let data;
 
-    if(res.publications && res.publications.length > 0) {
+    if (res.publications && res.publications.length > 0) {
       preparedDetails = res.publications.map((detail) => {
         return {
           ...detail,
@@ -1712,8 +1866,8 @@ export class Publication_ProfileService {
       data = plainToInstance(PublicationResponseDto, preparedDetails, {
         excludeExtraneousValues: true,
       });
-      
-      data = (instanceToPlain(data) as PublicationResponseDto[]);
+
+      data = instanceToPlain(data) as PublicationResponseDto[];
     } else {
       data = [];
     }
@@ -1724,8 +1878,11 @@ export class Publication_ProfileService {
       data: data,
     };
   }
-  
-  async addPublication(email: string, details: PublicationDto): Promise<SuccessResponseDto<PublicationResponseDto>> {
+
+  async addPublication(
+    email: string,
+    details: PublicationDto,
+  ): Promise<SuccessResponseDto<PublicationResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addPublication(email, details);
 
@@ -1742,7 +1899,7 @@ export class Publication_ProfileService {
       ...addedDetail,
       _id: addedDetail._id.toString(),
     };
-    
+
     const data = plainToInstance(PublicationResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
@@ -1754,8 +1911,16 @@ export class Publication_ProfileService {
     };
   }
 
-  async updatePublication(email: string, recordId: string, details: any): Promise<SuccessResponseDto<PublicationResponseDto>> {
-    const res = await this.userRepository.updatePublication(email, recordId, details);
+  async updatePublication(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<PublicationResponseDto>> {
+    const res = await this.userRepository.updatePublication(
+      email,
+      recordId,
+      details,
+    );
 
     if (!res) {
       throw new HttpException(
@@ -1768,18 +1933,15 @@ export class Publication_ProfileService {
       (detail) => detail._id.toString() === recordId,
     );
 
-    if (!updatedDetail) { 
-      throw new HttpException(
-        'Publication not found',
-        HttpStatus.NOT_FOUND,
-      );
+    if (!updatedDetail) {
+      throw new HttpException('Publication not found', HttpStatus.NOT_FOUND);
     }
 
     const preparedDetail = {
       ...updatedDetail,
       _id: updatedDetail._id.toString(),
     };
-    
+
     const data = plainToInstance(PublicationResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
@@ -1791,8 +1953,14 @@ export class Publication_ProfileService {
     };
   }
 
-  async togglePublicationVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.togglePublicationVisibility(email, recordId);
+  async togglePublicationVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.togglePublicationVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -1808,7 +1976,10 @@ export class Publication_ProfileService {
     };
   }
 
-  async deletePublication(email: string, recordId: string): Promise<SuccessResponseDto<PublicationResponseDto[]>> {
+  async deletePublication(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<PublicationResponseDto[]>> {
     const res = await this.userRepository.deletePublication(email, recordId);
 
     if (!res) {
@@ -1823,12 +1994,12 @@ export class Publication_ProfileService {
         ...detail,
         _id: detail._id.toString(),
       };
-    }); 
+    });
 
     const data = plainToInstance(PublicationResponseDto, preparedDetails, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Deleted Publication Succesfully',
@@ -1841,7 +2012,9 @@ export class Publication_ProfileService {
 export class Reference_ProfileService {
   constructor(private readonly userRepository: UserRepository) {}
 
-  async getReferences(email: string): Promise<SuccessResponseDto<ReferenceResponseDto[]>> {
+  async getReferences(
+    email: string,
+  ): Promise<SuccessResponseDto<ReferenceResponseDto[]>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -1854,7 +2027,7 @@ export class Reference_ProfileService {
     let preparedDetails;
     let data;
 
-    if(res.references && res.references.length > 0) {
+    if (res.references && res.references.length > 0) {
       preparedDetails = res.references.map((detail) => {
         return {
           ...detail,
@@ -1865,8 +2038,8 @@ export class Reference_ProfileService {
       data = plainToInstance(ReferenceResponseDto, preparedDetails, {
         excludeExtraneousValues: true,
       });
-      
-      data = (instanceToPlain(data) as ReferenceResponseDto[]);
+
+      data = instanceToPlain(data) as ReferenceResponseDto[];
     } else {
       data = [];
     }
@@ -1877,8 +2050,11 @@ export class Reference_ProfileService {
       data: data,
     };
   }
-  
-  async addReference(email: string, details: ReferenceDto): Promise<SuccessResponseDto<ReferenceResponseDto>> {
+
+  async addReference(
+    email: string,
+    details: ReferenceDto,
+  ): Promise<SuccessResponseDto<ReferenceResponseDto>> {
     details._id = new ObjectId();
     const res = await this.userRepository.addReference(email, details);
 
@@ -1895,7 +2071,7 @@ export class Reference_ProfileService {
       ...addedDetail,
       _id: addedDetail._id.toString(),
     };
-    
+
     const data = plainToInstance(ReferenceResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
@@ -1907,8 +2083,16 @@ export class Reference_ProfileService {
     };
   }
 
-  async updateReference(email: string, recordId: string, details: any): Promise<SuccessResponseDto<ReferenceResponseDto>> {
-    const res = await this.userRepository.updateReference(email, recordId, details);
+  async updateReference(
+    email: string,
+    recordId: string,
+    details: any,
+  ): Promise<SuccessResponseDto<ReferenceResponseDto>> {
+    const res = await this.userRepository.updateReference(
+      email,
+      recordId,
+      details,
+    );
 
     if (!res) {
       throw new HttpException(
@@ -1921,18 +2105,15 @@ export class Reference_ProfileService {
       (detail) => detail._id.toString() === recordId,
     );
 
-    if (!updatedDetail) { 
-      throw new HttpException(
-        'Reference not found',
-        HttpStatus.NOT_FOUND,
-      );
+    if (!updatedDetail) {
+      throw new HttpException('Reference not found', HttpStatus.NOT_FOUND);
     }
 
     const preparedDetail = {
       ...updatedDetail,
       _id: updatedDetail._id.toString(),
     };
-    
+
     const data = plainToInstance(ReferenceResponseDto, preparedDetail, {
       excludeExtraneousValues: true,
     });
@@ -1944,8 +2125,14 @@ export class Reference_ProfileService {
     };
   }
 
-  async toggleReferenceVisibility(email: string, recordId: string): Promise<SuccessResponseDto<Boolean>> {
-    const res = await this.userRepository.toggleReferenceVisibility(email, recordId);
+  async toggleReferenceVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
+    const res = await this.userRepository.toggleReferenceVisibility(
+      email,
+      recordId,
+    );
 
     if (res !== true && res !== false) {
       throw new HttpException(
@@ -1961,7 +2148,10 @@ export class Reference_ProfileService {
     };
   }
 
-  async deleteReference(email: string, recordId: string): Promise<SuccessResponseDto<ReferenceResponseDto[]>> {
+  async deleteReference(
+    email: string,
+    recordId: string,
+  ): Promise<SuccessResponseDto<ReferenceResponseDto[]>> {
     const res = await this.userRepository.deleteReference(email, recordId);
 
     if (!res) {
@@ -1981,7 +2171,7 @@ export class Reference_ProfileService {
     const data = plainToInstance(ReferenceResponseDto, preparedDetails, {
       excludeExtraneousValues: true,
     });
-    
+
     return {
       success: true,
       message: 'Deleted Reference Succesfully',
@@ -1997,7 +2187,9 @@ export class Declaration_ProfileService {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  async getDeclaration(email: string): Promise<SuccessResponseDto<DeclarationResponseDto>> {
+  async getDeclaration(
+    email: string,
+  ): Promise<SuccessResponseDto<DeclarationResponseDto>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -2010,7 +2202,7 @@ export class Declaration_ProfileService {
     let preparedDetails;
     let data;
 
-    if(res.declaration) {
+    if (res.declaration) {
       preparedDetails = res.declaration;
       data = plainToInstance(DeclarationResponseDto, preparedDetails, {
         excludeExtraneousValues: true,
@@ -2026,7 +2218,10 @@ export class Declaration_ProfileService {
     };
   }
 
-  async updateDeclaration(email: string, details: DeclarationDto): Promise<SuccessResponseDto<DeclarationResponseDto>> {
+  async updateDeclaration(
+    email: string,
+    details: DeclarationDto,
+  ): Promise<SuccessResponseDto<DeclarationResponseDto>> {
     const res = await this.userRepository.updateDeclaration(email, details);
 
     if (!res) {
@@ -2051,7 +2246,9 @@ export class Declaration_ProfileService {
     };
   }
 
-  async toggleDeclarationVisibility(email: string): Promise<SuccessResponseDto<Boolean>> {
+  async toggleDeclarationVisibility(
+    email: string,
+  ): Promise<SuccessResponseDto<Boolean>> {
     const res = await this.userRepository.toggleDeclarationVisibility(email);
 
     if (res !== true && res !== false) {
@@ -2068,7 +2265,9 @@ export class Declaration_ProfileService {
     };
   }
 
-  async getDeclarationSignature(email: string): Promise<SuccessResponseDto<string>> {
+  async getDeclarationSignature(
+    email: string,
+  ): Promise<SuccessResponseDto<string>> {
     const res = await this.userRepository.findUserByEmail(email);
 
     if (!res) {
@@ -2079,10 +2278,7 @@ export class Declaration_ProfileService {
     }
 
     if (!res.declaration) {
-      throw new HttpException(
-        'Declaration not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Declaration not found', HttpStatus.NOT_FOUND);
     }
 
     const signature = res.declaration.signature;
@@ -2094,10 +2290,17 @@ export class Declaration_ProfileService {
     };
   }
 
-  async updateDeclarationSignature(email: string, signature: Express.Multer.File): Promise<SuccessResponseDto<{ url: string; publicId: string }>> {
+  async updateDeclarationSignature(
+    email: string,
+    signature: Express.Multer.File,
+  ): Promise<SuccessResponseDto<{ url: string; publicId: string }>> {
     const uploadedImage = await this.cloudinaryService.uploadImage(signature);
 
-    const res = await this.userRepository.updateDeclarationSignature(email, uploadedImage.url,  uploadedImage.publicId);
+    const res = await this.userRepository.updateDeclarationSignature(
+      email,
+      uploadedImage.url,
+      uploadedImage.publicId,
+    );
 
     if (!res) {
       throw new HttpException(
@@ -2108,14 +2311,16 @@ export class Declaration_ProfileService {
 
     return {
       success: true,
-      message: 'Updated Declaration Signature Succesfully', 
+      message: 'Updated Declaration Signature Succesfully',
       data: uploadedImage,
     };
   }
 
-  async removeDeclarationSignature(email: string): Promise<SuccessResponseDto<string>> {
+  async removeDeclarationSignature(
+    email: string,
+  ): Promise<SuccessResponseDto<string>> {
     const res = await this.userRepository.removeDeclarationSignature(email);
-    
+
     if (!res) {
       throw new HttpException(
         'Something went Wrong while removing Declaration Signature',

@@ -2,9 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Collection, ObjectId } from 'mongodb';
 import { MongoService } from '../Mongo/mongo.service';
 import { User, USER_COLLECTION } from '../Mongo/Schema/user.schema';
-import {
-  ProfileSummaryResponseDto,
-} from 'src/profile/dto/profile.dto';
+import { ProfileSummaryResponseDto } from 'src/profile/dto/profile.dto';
 
 // try{
 
@@ -258,10 +256,7 @@ export class UserRepository {
       const user = await this.collection.findOne({ email });
 
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.educationDetails || user.educationDetails.length === 0) {
@@ -353,7 +348,11 @@ export class UserRepository {
     }
   }
 
-  async updateProfessionalExperience(email: string, details: any, recordId: string) {
+  async updateProfessionalExperience(
+    email: string,
+    details: any,
+    recordId: string,
+  ) {
     try {
       const updateFields = {};
       for (const key in details) {
@@ -381,18 +380,21 @@ export class UserRepository {
     }
   }
 
-  async toggleProfessionalExperienceVisibility(email: string, recordId: string) {
+  async toggleProfessionalExperienceVisibility(
+    email: string,
+    recordId: string,
+  ) {
     try {
       const user = await this.collection.findOne({ email });
 
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
-      if (!user.professionalExperience || user.professionalExperience.length === 0) {
+      if (
+        !user.professionalExperience ||
+        user.professionalExperience.length === 0
+      ) {
         throw new HttpException(
           'No professional experience found',
           HttpStatus.NOT_FOUND,
@@ -414,7 +416,11 @@ export class UserRepository {
 
       const data = await this.collection.findOneAndUpdate(
         { email, 'professionalExperience._id': new ObjectId(recordId) },
-        { $set: { 'professionalExperience.$.hide': !professionalExperienceDetail.hide } },
+        {
+          $set: {
+            'professionalExperience.$.hide': !professionalExperienceDetail.hide,
+          },
+        },
         { returnDocument: 'after' },
       );
 
@@ -509,21 +515,18 @@ export class UserRepository {
     }
   }
 
-  async toggleSkillVisibility(email: string, recordId: string): Promise<Boolean> {
+  async toggleSkillVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.skills || user.skills.length === 0) {
-        throw new HttpException(
-          'No Skills found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No Skills found', HttpStatus.NOT_FOUND);
       }
 
       const skill = user.skills.find((s) => s._id.toString() === recordId);
@@ -628,24 +631,23 @@ export class UserRepository {
     }
   }
 
-  async toggleLanguageVisibility(email: string, recordId: string): Promise<Boolean> {
+  async toggleLanguageVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
-      } 
-
-      if (!user.languages || user.languages.length === 0) {
-        throw new HttpException(
-          'No Languages found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
-      const language = user.languages.find((l) => l._id.toString() === recordId);
+      if (!user.languages || user.languages.length === 0) {
+        throw new HttpException('No Languages found', HttpStatus.NOT_FOUND);
+      }
+
+      const language = user.languages.find(
+        (l) => l._id.toString() === recordId,
+      );
       if (!language) {
         throw new HttpException(
           'No Language found with the given ID',
@@ -679,7 +681,7 @@ export class UserRepository {
   async deleteLanguage(email: string, recordId: string): Promise<User | null> {
     try {
       const data = await this.collection.findOneAndUpdate(
-        { email, 'languages._id': new ObjectId(recordId) }, 
+        { email, 'languages._id': new ObjectId(recordId) },
         { $pull: { languages: { _id: new ObjectId(recordId) } } },
         { returnDocument: 'after' },
       );
@@ -745,24 +747,23 @@ export class UserRepository {
     }
   }
 
-  async toggleCertificateVisibility(email: string, recordId: string): Promise<Boolean> {
+  async toggleCertificateVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.certificates || user.certificates.length === 0) {
-        throw new HttpException(
-          'No Certificates found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No Certificates found', HttpStatus.NOT_FOUND);
       }
 
-      const certificate = user.certificates.find((c) => c._id.toString() === recordId);
+      const certificate = user.certificates.find(
+        (c) => c._id.toString() === recordId,
+      );
       if (!certificate) {
         throw new HttpException(
           'No Certificate found with the given ID',
@@ -793,7 +794,10 @@ export class UserRepository {
     }
   }
 
-  async deleteCertificate(email: string, recordId: string): Promise<User | null> {
+  async deleteCertificate(
+    email: string,
+    recordId: string,
+  ): Promise<User | null> {
     try {
       const data = await this.collection.findOneAndUpdate(
         { email, 'certificates._id': new ObjectId(recordId) },
@@ -835,7 +839,7 @@ export class UserRepository {
   }
 
   async updateProject(email: string, recordId: string, details: any) {
-    try { 
+    try {
       const updateFields = {};
       for (const key in details) {
         updateFields[`projects.$.${key}`] = details[key];
@@ -860,23 +864,20 @@ export class UserRepository {
       );
       return null;
     }
-  } 
+  }
 
-  async toggleProjectVisibility(email: string, recordId: string): Promise<Boolean> {
+  async toggleProjectVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.projects || user.projects.length === 0) {
-        throw new HttpException(
-          'No Projects found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No Projects found', HttpStatus.NOT_FOUND);
       }
 
       const project = user.projects.find((p) => p._id.toString() === recordId);
@@ -980,21 +981,18 @@ export class UserRepository {
     }
   }
 
-  async toggleAwardVisibility(email: string, recordId: string): Promise<Boolean> {
+  async toggleAwardVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.awards || user.awards.length === 0) {
-        throw new HttpException(
-          'No Awards found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No Awards found', HttpStatus.NOT_FOUND);
       }
 
       const award = user.awards.find((a) => a._id.toString() === recordId);
@@ -1028,7 +1026,7 @@ export class UserRepository {
     }
   }
 
-  async deleteAward(email: string, recordId: string): Promise<User | null> {  
+  async deleteAward(email: string, recordId: string): Promise<User | null> {
     try {
       const data = await this.collection.findOneAndUpdate(
         { email, 'awards._id': new ObjectId(recordId) },
@@ -1049,7 +1047,7 @@ export class UserRepository {
   async addCourse(email: string, details: any) {
     try {
       const data = await this.collection.findOneAndUpdate(
-        { email },  
+        { email },
         { $push: { courses: details } },
         { returnDocument: 'after' },
       );
@@ -1061,7 +1059,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: addCourse', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: addCourse',
+        error,
+      );
       return null;
     }
   }
@@ -1086,26 +1087,26 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: updateCourse', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: updateCourse',
+        error,
+      );
       return null;
     }
   }
 
-  async toggleCourseVisibility(email: string, recordId: string): Promise<Boolean> {
+  async toggleCourseVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.courses || user.courses.length === 0) {
-        throw new HttpException(
-          'No Courses found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No Courses found', HttpStatus.NOT_FOUND);
       }
 
       const course = user.courses.find((c) => c._id.toString() === recordId);
@@ -1131,7 +1132,10 @@ export class UserRepository {
 
       return data.courses.find((c) => c._id.toString() === recordId).hide;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: toggleCourseVisibility', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleCourseVisibility',
+        error,
+      );
       return null;
     }
   }
@@ -1146,7 +1150,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: deleteCourse', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteCourse',
+        error,
+      );
       return null;
     }
   }
@@ -1166,7 +1173,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: addOrganization', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: addOrganization',
+        error,
+      );
       return null;
     }
   }
@@ -1191,29 +1201,31 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: updateOrganization', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: updateOrganization',
+        error,
+      );
       return null;
     }
   }
 
-  async toggleOrganizationVisibility(email: string, recordId: string): Promise<Boolean> {
+  async toggleOrganizationVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.organizations || user.organizations.length === 0) {
-        throw new HttpException(
-          'No Organizations found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No Organizations found', HttpStatus.NOT_FOUND);
       }
 
-      const organization = user.organizations.find((o) => o._id.toString() === recordId);
+      const organization = user.organizations.find(
+        (o) => o._id.toString() === recordId,
+      );
       if (!organization) {
         throw new HttpException(
           'No Organization found with the given ID',
@@ -1236,12 +1248,18 @@ export class UserRepository {
 
       return data.organizations.find((o) => o._id.toString() === recordId).hide;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: toggleOrganizationVisibility', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleOrganizationVisibility',
+        error,
+      );
       return null;
     }
   }
 
-  async deleteOrganization(email: string, recordId: string): Promise<User | null> {
+  async deleteOrganization(
+    email: string,
+    recordId: string,
+  ): Promise<User | null> {
     try {
       const data = await this.collection.findOneAndUpdate(
         { email, 'organizations._id': new ObjectId(recordId) },
@@ -1251,7 +1269,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: deleteOrganization', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteOrganization',
+        error,
+      );
       return null;
     }
   }
@@ -1271,7 +1292,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: addPublication', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: addPublication',
+        error,
+      );
       return null;
     }
   }
@@ -1296,29 +1320,31 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: updatePublication', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: updatePublication',
+        error,
+      );
       return null;
     }
   }
 
-  async togglePublicationVisibility(email: string, recordId: string): Promise<Boolean> {
+  async togglePublicationVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.publications || user.publications.length === 0) {
-        throw new HttpException(
-          'No Publications found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No Publications found', HttpStatus.NOT_FOUND);
       }
 
-      const publication = user.publications.find((p) => p._id.toString() === recordId);
+      const publication = user.publications.find(
+        (p) => p._id.toString() === recordId,
+      );
       if (!publication) {
         throw new HttpException(
           'No Publication found with the given ID',
@@ -1341,12 +1367,18 @@ export class UserRepository {
 
       return data.publications.find((p) => p._id.toString() === recordId).hide;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: togglePublicationVisibility', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: togglePublicationVisibility',
+        error,
+      );
       return null;
     }
   }
 
-  async deletePublication(email: string, recordId: string): Promise<User | null> {
+  async deletePublication(
+    email: string,
+    recordId: string,
+  ): Promise<User | null> {
     try {
       const data = await this.collection.findOneAndUpdate(
         { email, 'publications._id': new ObjectId(recordId) },
@@ -1356,7 +1388,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: deletePublication', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: deletePublication',
+        error,
+      );
       return null;
     }
   }
@@ -1376,7 +1411,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: addReference', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: addReference',
+        error,
+      );
       return null;
     }
   }
@@ -1401,29 +1439,31 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: updateReference', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: updateReference',
+        error,
+      );
       return null;
     }
   }
 
-  async toggleReferenceVisibility(email: string, recordId: string): Promise<Boolean> {
+  async toggleReferenceVisibility(
+    email: string,
+    recordId: string,
+  ): Promise<Boolean> {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found', 
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.references || user.references.length === 0) {
-        throw new HttpException(
-          'No References found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No References found', HttpStatus.NOT_FOUND);
       }
 
-      const reference = user.references.find((r) => r._id.toString() === recordId);
+      const reference = user.references.find(
+        (r) => r._id.toString() === recordId,
+      );
       if (!reference) {
         throw new HttpException(
           'No Reference found with the given ID',
@@ -1446,7 +1486,10 @@ export class UserRepository {
 
       return data.references.find((r) => r._id.toString() === recordId).hide;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: toggleReferenceVisibility', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleReferenceVisibility',
+        error,
+      );
       return null;
     }
   }
@@ -1461,7 +1504,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: deleteReference', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: deleteReference',
+        error,
+      );
       return null;
     }
   }
@@ -1474,14 +1520,17 @@ export class UserRepository {
         { returnDocument: 'after' },
       );
 
-      return data;  
+      return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: addDeclaration', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: addDeclaration',
+        error,
+      );
       return null;
     }
   }
 
-  async updateDeclaration(email: string, details: any) {  
+  async updateDeclaration(email: string, details: any) {
     try {
       // only update the fields that are passed in the details object if not passed then keep the existing value
       const updateFields = {};
@@ -1490,7 +1539,7 @@ export class UserRepository {
           updateFields[`declaration.${key}`] = details[key];
         }
       }
-      
+
       const data = await this.collection.findOneAndUpdate(
         { email },
         { $set: updateFields },
@@ -1499,7 +1548,10 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: updateDeclaration', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: updateDeclaration',
+        error,
+      );
       return null;
     }
   }
@@ -1508,17 +1560,11 @@ export class UserRepository {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        throw new HttpException(
-          'User not found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
       }
 
       if (!user.declaration) {
-        throw new HttpException(
-          'No Declaration found',
-          HttpStatus.NOT_FOUND,
-        );
+        throw new HttpException('No Declaration found', HttpStatus.NOT_FOUND);
       }
 
       const newVisibility = !user.declaration.hide;
@@ -1536,22 +1582,37 @@ export class UserRepository {
 
       return data.declaration.hide;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: toggleDeclarationVisibility', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: toggleDeclarationVisibility',
+        error,
+      );
       return null;
     }
   }
 
-  async updateDeclarationSignature(email: string, url: string, publicId: string) {
+  async updateDeclarationSignature(
+    email: string,
+    url: string,
+    publicId: string,
+  ) {
     try {
       const data = await this.collection.findOneAndUpdate(
         { email },
-        { $set: { 'declaration.signature': url, 'declaration.signaturePublicId': publicId } },
+        {
+          $set: {
+            'declaration.signature': url,
+            'declaration.signaturePublicId': publicId,
+          },
+        },
         { returnDocument: 'after' },
       );
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: updateDeclarationSignature', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: updateDeclarationSignature',
+        error,
+      );
       return null;
     }
   }
@@ -1560,13 +1621,21 @@ export class UserRepository {
     try {
       const data = await this.collection.findOneAndUpdate(
         { email },
-        { $set: { 'declaration.signature': null, 'declaration.signaturePublicId': null } },
+        {
+          $set: {
+            'declaration.signature': null,
+            'declaration.signaturePublicId': null,
+          },
+        },
         { returnDocument: 'after' },
       );
 
       return data;
     } catch (error) {
-      console.log('Something went Wrong while performing Database Operation: removeDeclarationSignature', error);
+      console.log(
+        'Something went Wrong while performing Database Operation: removeDeclarationSignature',
+        error,
+      );
       return null;
     }
   }
