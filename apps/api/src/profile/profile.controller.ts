@@ -55,7 +55,7 @@ import {
   ReferenceDto,
   DeclarationResponseDto,
   DeclarationDto,
-} from './dto/profile.dto';
+} from './dto/profile';
 import { SuccessResponseDto } from 'src/dto/common.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 

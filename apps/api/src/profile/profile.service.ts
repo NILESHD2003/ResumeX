@@ -28,7 +28,7 @@ import {
   ReferenceDto,
   DeclarationResponseDto,
   DeclarationDto,
-} from './dto/profile.dto';
+} from './dto/profile';
 import { SuccessResponseDto } from 'src/dto/common.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
 import { ObjectId } from 'mongodb';

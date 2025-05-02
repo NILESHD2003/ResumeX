@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { Collection, ObjectId } from 'mongodb';
 import { MongoService } from '../Mongo/mongo.service';
 import { User, USER_COLLECTION } from '../Mongo/Schema/user.schema';
-import { ProfileSummaryResponseDto } from 'src/profile/dto/profile.dto';
+import { ProfileSummaryResponseDto } from 'src/profile/dto/profile';
 
 // try{
 
