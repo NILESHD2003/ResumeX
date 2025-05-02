@@ -12,6 +12,11 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
   }));
   app.useGlobalFilters(new GlobalExceptionFilter());
+  app.enableCors({
+    origin: ['http://localhost:5173', 'http://localhost:4173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+    credentials: true,
+  });
   const configService = app.get(ConfigService)
   await app.listen(process.env.PORT || 3000);
 }
