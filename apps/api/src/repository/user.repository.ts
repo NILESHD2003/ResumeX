@@ -127,17 +127,25 @@ export class UserRepository {
 
   async updateUserPersonalDetails(email: string, details: any) {
     try {
+      const updateFields = {};
+
+      for (const key in details) {
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`personalDetails.${key}`] = details[key];
+        }
+      }
+      
       const data = await this.collection.findOneAndUpdate(
         { email },
-        { $set: { personalDetails: details } },
-        { returnDocument: 'after' },
+        { $set: updateFields },
+        { returnDocument: 'after' }
       );
-
+      
       return data;
     } catch (error) {
       console.log(
         'Something went Wrong while performing Database Operation: updateUserPersonalDetails',
-        error,
+        error
       );
       return null;
     }

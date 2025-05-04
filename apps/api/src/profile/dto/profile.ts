@@ -68,6 +68,7 @@ export class PersonalDetailsDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   dateOfBirth?: Date;
 
   @IsOptional()
@@ -168,10 +169,12 @@ export class EducationDetailDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   startDate?: Date;
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   endDate?: Date;
 
   @IsOptional()
@@ -240,10 +243,12 @@ export class ProfessionalExperienceDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   startDate?: Date;
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   endDate?: Date;
 
   @IsOptional()
@@ -394,10 +399,12 @@ export class CertificateDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   date?: Date;
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   expirationDate?: Date;
 
   @IsBoolean()
@@ -449,10 +456,12 @@ export class ProjectDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   startDate?: Date;
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   endDate?: Date;
 
   @IsBoolean()
@@ -501,10 +510,12 @@ export class AwardDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   date?: Date;
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   expirationDate?: Date;
 
   @IsBoolean()
@@ -553,10 +564,12 @@ export class CourseDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   date?: Date;
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   expirationDate?: Date;
 
   @IsBoolean()
@@ -605,10 +618,12 @@ export class OrganizationDto {
   
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   startDate?: Date;
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   endDate?: Date;
 
   @IsOptional()
@@ -659,6 +674,7 @@ export class PublicationDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   date?: Date;
 
   @IsOptional()
@@ -763,6 +779,7 @@ export class DeclarationDto {
 
   @IsOptional()
   @IsDate()
+  @Type(() => Date)
   date?: Date;
 
   @IsBoolean()
