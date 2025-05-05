@@ -55,6 +55,15 @@ import {
   ReferenceDto,
   DeclarationResponseDto,
   DeclarationDto,
+  EducationDetailUpdateDto,
+  ProfessionalExperienceUpdateDto,
+  SkillUpdateDto,
+  LanguageUpdateDto,
+  CertificateUpdateDto,
+  ProjectUpdateDto,
+  AwardUpdateDto,
+  CourseUpdateDto,
+  OrganizationUpdateDto,
 } from './dto/profile';
 import { SuccessResponseDto } from 'src/dto/common.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -162,7 +171,7 @@ export class ProfileController {
   @Patch('education-details/:recordId')
   updateEducationDetails(
     @GetUser() user,
-    @Body() body: any,
+    @Body() body: EducationDetailUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<EducationDetailResponseDto>> {
     return this.educationProfileService.updateEducationDetail(
@@ -215,7 +224,7 @@ export class ProfileController {
   @Patch('professional-experiences/:recordId')
   updateProfessionalExperience(
     @GetUser() user,
-    @Body() body: ProfessionalExperienceDto,
+    @Body() body: ProfessionalExperienceUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto>> {
     return this.professionalProfileService.updateProfessionalExperience(
@@ -263,7 +272,7 @@ export class ProfileController {
   @Patch('skills/:recordId')
   updateSkill(
     @GetUser() user,
-    @Body() body: any,
+    @Body() body: SkillUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<SkillResponseDto>> {
     return this.skillProfileService.updateSkill(user.email, recordId, body);
@@ -303,7 +312,7 @@ export class ProfileController {
   @Patch('languages/:recordId')
   updateLanguage(
     @GetUser() user,
-    @Body() body: any,
+    @Body() body: LanguageUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<LanguageResponseDto>> {
     return this.languageProfileService.updateLanguage(
@@ -350,7 +359,7 @@ export class ProfileController {
   @Patch('certificates/:recordId')
   updateCertificate(
     @GetUser() user,
-    @Body() body: any,
+    @Body() body: CertificateUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<CertificateResponseDto>> {
     return this.certificateProfileService.updateCertificate(
@@ -400,7 +409,7 @@ export class ProfileController {
   @Patch('projects/:recordId')
   updateProject(
     @GetUser() user,
-    @Body() body: any,
+    @Body() body: ProjectUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<ProjectResponseDto>> {
     return this.projectProfileService.updateProject(user.email, recordId, body);
@@ -441,7 +450,7 @@ export class ProfileController {
   @Patch('awards/:recordId')
   updateAward(
     @GetUser() user,
-    @Body() body: any,
+    @Body() body: AwardUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<AwardResponseDto>> {
     return this.awardProfileService.updateAward(user.email, recordId, body);
@@ -481,7 +490,7 @@ export class ProfileController {
   @Patch('courses/:recordId')
   updateCourse(
     @GetUser() user,
-    @Body() body: any,
+    @Body() body: CourseUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<CourseResponseDto>> {
     return this.courseProfileService.updateCourse(user.email, recordId, body);
@@ -524,7 +533,7 @@ export class ProfileController {
   @Patch('organizations/:recordId')
   updateOrganization(
     @GetUser() user,
-    @Body() body: any,
+    @Body() body: OrganizationUpdateDto,
     @Param('recordId') recordId: string,
   ): Promise<SuccessResponseDto<OrganizationResponseDto>> {
     return this.organizationProfileService.updateOrganization(

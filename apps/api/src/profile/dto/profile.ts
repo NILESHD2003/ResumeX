@@ -189,6 +189,54 @@ export class EducationDetailDto {
   hide: boolean;
 }
 
+export class EducationDetailUpdateDto {
+  @IsOptional()
+  @IsString()
+  degree?: string;
+
+  @IsOptional()
+  @IsString()
+  school?: string;
+
+  @IsOptional()
+  @IsString()
+  university?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  startDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  endDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  grade?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
+}
+
 export class EducationDetailResponseDto {
   @Expose()
   _id: string;
@@ -259,6 +307,46 @@ export class ProfessionalExperienceDto {
   hide: boolean;
 }
 
+export class ProfessionalExperienceUpdateDto {
+  @IsOptional()
+  @IsString()
+  jobTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  employer?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  startDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  endDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
+}
+
 export class ProfessionalExperienceResponseDto {
   @Expose()
   _id: string;
@@ -304,10 +392,6 @@ export class SkillDto {
 }
 
 export class SkillUpdateDto {
-  @IsOptional()
-  @IsString()
-  _id?: ObjectId;
-
   @IsOptional()
   @IsString()
   name?: string;
@@ -357,6 +441,24 @@ export class LanguageDto {
 
   @IsBoolean()
   hide: boolean;
+}
+
+export class LanguageUpdateDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  @IsOptional()
+  @IsEnum(LanguageLevelEnum)
+  level?: LanguageLevelEnum;
+
+  @IsBoolean()
+  @IsOptional()
+  hide?: boolean;
 }
 
 export class LanguageResponseDto {
@@ -409,6 +511,42 @@ export class CertificateDto {
 
   @IsBoolean()
   hide: boolean;
+}
+
+export class CertificateUpdateDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  @IsOptional()
+  @IsString()
+  issuer?: string;
+
+  @IsOptional()
+  @IsString()
+  license?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  date?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  expirationDate?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
 } 
 
 export class CertificateResponseDto {
@@ -468,6 +606,39 @@ export class ProjectDto {
   hide: boolean;
 }
 
+export class ProjectUpdateDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @Type(() => SocialLinkDto_Project)
+  links?: SocialLinkDto_Project[];
+
+  @IsOptional()
+  @IsString()
+  subtitle?: string;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  startDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  endDate?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
+}
+
 export class ProjectResponseDto {
   @Expose()
   _id: string;
@@ -522,6 +693,38 @@ export class AwardDto {
   hide: boolean;
 }
 
+export class AwardUpdateDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+
+  @IsOptional()
+  @IsString()
+  issuer?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  date?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  expirationDate?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
+}
+
 export class AwardResponseDto {
   @Expose()
   _id: string;
@@ -574,6 +777,38 @@ export class CourseDto {
 
   @IsBoolean()
   hide: boolean;
+}
+
+export class CourseUpdateDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
+  
+  @IsOptional()
+  @IsString()
+  issuer?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  date?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  expirationDate?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
 }
 
 export class CourseResponseDto {
@@ -634,6 +869,42 @@ export class OrganizationDto {
   hide: boolean;
 }
 
+export class OrganizationUpdateDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+  
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  startDate?: Date;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  endDate?: Date;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
+}
+
 export class OrganizationResponseDto {
   @Expose()
   _id: string;
@@ -689,6 +960,37 @@ export class PublicationDto {
   hide: boolean;
 }
 
+export class PublicationUpdateDto {
+  @IsOptional()
+  @IsString()
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  publisher?: string;
+
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  date?: Date;
+
+  @IsOptional()
+  @IsString()
+  description?: string;
+
+  @IsOptional()
+  @IsString()
+  citation?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
+}
+
 export class PublicationResponseDto {
   @Expose()
   _id: string;
@@ -739,6 +1041,36 @@ export class ReferenceDto {
 
   @IsBoolean()
   hide: boolean;
+}
+
+export class ReferenceUpdateDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsString()
+  link?: string;
+
+  @IsOptional()
+  @IsString()
+  jobTitle?: string;
+
+  @IsOptional()
+  @IsString()
+  organization?: string;
+
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  phone?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  hide?: boolean;
 }
 
 export class ReferenceResponseDto {

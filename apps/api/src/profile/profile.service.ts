@@ -28,6 +28,17 @@ import {
   ReferenceDto,
   DeclarationResponseDto,
   DeclarationDto,
+  EducationDetailUpdateDto,
+  ProfessionalExperienceUpdateDto,
+  SkillUpdateDto,
+  LanguageUpdateDto,
+  CertificateUpdateDto,
+  ProjectUpdateDto,
+  AwardUpdateDto,
+  CourseUpdateDto,
+  OrganizationUpdateDto,
+  PublicationUpdateDto,
+  ReferenceUpdateDto,
 } from './dto/profile';
 import { SuccessResponseDto } from 'src/dto/common.dto';
 import { instanceToPlain, plainToInstance } from 'class-transformer';
@@ -343,7 +354,7 @@ export class Education_ProfileService {
 
   async updateEducationDetail(
     email: string,
-    details: any,
+    details: EducationDetailUpdateDto,
     recordId: string,
   ): Promise<SuccessResponseDto<EducationDetailResponseDto>> {
     const res = await this.userRepository.updateEducationDetail(
@@ -532,7 +543,7 @@ export class Professional_ProfileService {
 
   async updateProfessionalExperience(
     email: string,
-    details: any,
+    details: ProfessionalExperienceUpdateDto,
     recordId: string,
   ): Promise<SuccessResponseDto<ProfessionalExperienceResponseDto>> {
     const res = await this.userRepository.updateProfessionalExperience(
@@ -720,7 +731,7 @@ export class Skill_ProfileService {
   async updateSkill(
     email: string,
     recordId: string,
-    details: any,
+    details: SkillUpdateDto,
   ): Promise<SuccessResponseDto<SkillResponseDto>> {
     const res = await this.userRepository.updateSkill(email, recordId, details);
 
@@ -888,7 +899,7 @@ export class Language_ProfileService {
   async updateLanguage(
     email: string,
     recordId: string,
-    details: any,
+    details: LanguageUpdateDto,
   ): Promise<SuccessResponseDto<LanguageResponseDto>> {
     const res = await this.userRepository.updateLanguage(
       email,
@@ -1058,7 +1069,7 @@ export class Certificate_ProfileService {
   async updateCertificate(
     email: string,
     recordId: string,
-    details: any,
+    details: CertificateUpdateDto,
   ): Promise<SuccessResponseDto<CertificateResponseDto>> {
     const res = await this.userRepository.updateCertificate(
       email,
@@ -1230,7 +1241,7 @@ export class Project_ProfileService {
   async updateProject(
     email: string,
     recordId: string,
-    details: any,
+    details: ProjectUpdateDto,
   ): Promise<SuccessResponseDto<ProjectResponseDto>> {
     const res = await this.userRepository.updateProject(
       email,
@@ -1402,7 +1413,7 @@ export class Award_ProfileService {
   async updateAward(
     email: string,
     recordId: string,
-    details: any,
+    details: AwardUpdateDto,
   ): Promise<SuccessResponseDto<AwardResponseDto>> {
     const res = await this.userRepository.updateAward(email, recordId, details);
 
@@ -1570,7 +1581,7 @@ export class Course_ProfileService {
   async updateCourse(
     email: string,
     recordId: string,
-    details: any,
+    details: CourseUpdateDto,
   ): Promise<SuccessResponseDto<CourseResponseDto>> {
     const res = await this.userRepository.updateCourse(
       email,
@@ -1742,7 +1753,7 @@ export class Organization_ProfileService {
   async updateOrganization(
     email: string,
     recordId: string,
-    details: any,
+    details: OrganizationUpdateDto,
   ): Promise<SuccessResponseDto<OrganizationResponseDto>> {
     const res = await this.userRepository.updateOrganization(
       email,
@@ -1914,7 +1925,7 @@ export class Publication_ProfileService {
   async updatePublication(
     email: string,
     recordId: string,
-    details: any,
+    details: PublicationUpdateDto,
   ): Promise<SuccessResponseDto<PublicationResponseDto>> {
     const res = await this.userRepository.updatePublication(
       email,
@@ -2086,7 +2097,7 @@ export class Reference_ProfileService {
   async updateReference(
     email: string,
     recordId: string,
-    details: any,
+    details: ReferenceUpdateDto,
   ): Promise<SuccessResponseDto<ReferenceResponseDto>> {
     const res = await this.userRepository.updateReference(
       email,

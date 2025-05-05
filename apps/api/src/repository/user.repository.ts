@@ -235,7 +235,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`educationDetails.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`educationDetails.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -364,7 +366,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`professionalExperience.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`professionalExperience.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -499,7 +503,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`skills.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`skills.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -615,7 +621,9 @@ export class UserRepository {
       const updateFields = {};
 
       for (const key in details) {
-        updateFields[`languages.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`languages.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -731,7 +739,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`certificates.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`certificates.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -850,7 +860,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`projects.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`projects.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -965,7 +977,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`awards.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`awards.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -1079,7 +1093,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`courses.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`courses.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -1193,7 +1209,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`organizations.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`organizations.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -1312,7 +1330,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`publications.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`publications.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
@@ -1431,7 +1451,9 @@ export class UserRepository {
     try {
       const updateFields = {};
       for (const key in details) {
-        updateFields[`references.$.${key}`] = details[key];
+        if (details[key] !== null && details[key] !== undefined) {
+          updateFields[`references.$.${key}`] = details[key];
+        }
       }
 
       const data = await this.collection.findOneAndUpdate(
