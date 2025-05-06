@@ -755,6 +755,10 @@ export class CourseDto {
   issuer?: string;
 
   @IsOptional()
+  @IsString()
+  license?: string;
+
+  @IsOptional()
   @IsDate()
   @Type(() => Date)
   date?: Date;
@@ -786,6 +790,10 @@ export class CourseUpdateDto {
   issuer?: string;
 
   @IsOptional()
+  @IsString()
+  license?: string;
+
+  @IsOptional()
   @IsDate()
   @Type(() => Date)
   date?: Date;
@@ -811,6 +819,8 @@ export class CourseResponseDto {
   additionalInfo?: string;
   @Expose()
   issuer?: string;
+  @Expose()
+  license?: string;
   @Expose()
   date?: Date;
   @Expose()
