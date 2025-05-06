@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Dialog,
@@ -11,13 +11,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Eye, EyeOff, Pencil } from "lucide-react";
+import { Toaster, toast } from "sonner";
+import { 
+  getUserReferencesDetails,
+  addNewReferenceDetail,
+  updateReferenceDetail,
+  toggleReferenceDetailVisibility,
+  deleteReferenceDetail 
+} from "../services/operations/referenceDetailsAPIS";
 
 const ReferenceDetailCard = () => {
   const [references, setReferences] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
-
   const [formData, setFormData] = useState({
     name: "",
     link: "",
@@ -27,6 +34,19 @@ const ReferenceDetailCard = () => {
     phone: "",
     hide: false,
   });
+
+  function normalizeReferencesData(data) {
+    return {
+      name: data.name ?? '',
+      link: data.link ?? '',
+      jobTitle: data.jobTitle ?? '',
+      organization: data.organization ?? '',
+      email: data.email ?? '',
+      phone: data.phone ?? '',
+      hide: Boolean(data.hide),
+      _id: data._id, // keep id if present for editing
+    };
+  }
 
   const resetForm = () => {
     setFormData({
@@ -38,47 +58,107 @@ const ReferenceDetailCard = () => {
       phone: "",
       hide: false,
     });
-    setIsEditing(false);
-    setEditingIndex(null);
   };
 
-  const handleSave = () => {
-    if (isEditing) {
-      setReferences((prev) =>
-        prev.map((ref, idx) => (idx === editingIndex ? formData : ref))
-      );
-    } else {
-      setReferences((prev) => [...prev, formData]);
+  function getChangedFields(newData, originalData) {
+    return Object.fromEntries(
+      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+    );
+  }
+  
+  function getFilledFields(data) {
+    return Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) => value !== '' && value !== null && value !== undefined
+      )
+    );
+  }
+
+  const handleSave = async () => {
+    try {
+      if (!formData.name.trim()) {
+        toast.warning("Reference name is required.");
+        return;
+      }
+  
+      if (isEditing) {
+        const original = references[editingIndex];
+        const updatedFields = getChangedFields(formData, original);
+  
+        if (Object.keys(updatedFields).length > 0) {
+          await updateReferenceDetail(updatedFields, original._id);
+          const updatedReferences = [...references];
+          updatedReferences[editingIndex] = { ...original, ...updatedFields };
+          setReferences(updatedReferences);
+        }
+      } else {
+        const filledData = getFilledFields(formData);
+        const response = await addNewReferenceDetail(filledData);
+        if (response && response._id) {
+          setReferences((prev) => [...prev, { ...filledData, _id: response._id }]);
+        }
+      }
+  
+      resetForm();
+      setOpenDialog(false);
+      setIsEditing(false);
+      setEditingIndex(null);
+    } catch (error) {
+      console.error("Error saving reference detail:", error);
+      toast.error("Failed to save reference.");
     }
-    resetForm();
-    setOpenDialog(false);
-  };
+  };  
 
   const handleEdit = (index) => {
-    setFormData(references[index]);
+    const rawData = references[index];
+    const normalized = normalizeReferencesData(rawData);
+    setFormData(normalized);
     setIsEditing(true);
     setEditingIndex(index);
     setOpenDialog(true);
   };
 
-  const handleDelete = (index) => {
-    setReferences((prev) => prev.filter((_, idx) => idx !== index));
+  const handleDelete = async (index) => {
+    const id = references[index]._id;
+    try {
+      await deleteReferenceDetail(id);
+      setReferences((prev) => prev.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error("Error deleting references:", error);
+      toast.error("Failed to delete references.");
+    }
   };
 
-  const toggleVisibility = (index) => {
-    setReferences((prev) =>
-      prev.map((ref, idx) =>
-        idx === index ? { ...ref, hide: !ref.hide } : ref
-      )
-    );
-  };
+  const toggleVisibility = async (index) => {
+    const id = references[index]._id;
+    try {
+      await toggleReferenceDetailVisibility(id);
+      const updated = [...references];
+      updated[index].hide = !updated[index].hide;
+      setReferences(updated);
+    } catch (error) {
+      console.error("Error toggling references visibility:", error);
+      toast.error("Failed to toggle visibility.");
+    }
+  }; 
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+useEffect(() => {
+  const fetchData = async () => {
+    const data = await getUserReferencesDetails();
+    if (data) {
+      const normalizedList = data.map(normalizeReferencesData)
+      setReferences(normalizedList);
+    }
+  };
+  fetchData();
+}, []);
+
   return (
-    <Card className="max-w-2xl mx-auto p-6 bg-white rounded-3xl shadow-sm">
+    <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
       <h1 className="text-3xl font-bold text-center mb-4">Reference Details</h1>
 
       {references.map((ref, index) => (
@@ -116,7 +196,7 @@ const ReferenceDetailCard = () => {
             </Button>
           </div>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent aria-describedby="">
           <DialogHeader>
             <DialogTitle className="text-center">
               {isEditing ? "Edit" : "Add"} Reference Details

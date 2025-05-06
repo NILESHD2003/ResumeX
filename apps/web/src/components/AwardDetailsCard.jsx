@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Dialog,
@@ -12,20 +12,25 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Eye, EyeOff, Pencil } from "lucide-react";
 import { DatePicker } from "./DatePicker";
+import { Toaster, toast } from "sonner";
+import { 
+  getUserAwardsDetails,
+  addNewAwardDetail,
+  updateAwardDetail,
+  toggleAwardDetailVisibility,
+  deleteAwardDetail 
+} from "../services/operations/awardDetailsAPIS";
 
 const AwardDetailsCard = () => {
   const [awards, setAwards] = useState([]);
   const [isEditing, setIsEditing] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
-
   const [form, setForm] = useState({
     title: "",
     link: "",
     issuer: "",
-    license: "",
     date: "",
-    expDate: "",
     hide: false,
   });
 
@@ -34,9 +39,7 @@ const AwardDetailsCard = () => {
       title: "",
       link: "",
       issuer: "",
-      license: "",
       date: "",
-      expDate: "",
       hide: false,
     });
     setIsEditing(false);
@@ -47,46 +50,117 @@ const AwardDetailsCard = () => {
     setForm((prev) => ({ ...prev, [key]: value }));
   };
 
-  const handleSave = () => {
-    if (isEditing) {
-      const updatedAwards = [...awards];
-      updatedAwards[editingIndex] = form;
-      setAwards(updatedAwards);
-    } else {
-      setAwards([...awards, form]);
-    }
+  function normalizeAwardsData(data) {
+    return {
+      title: data.title ?? '',
+      link: data.link ?? '',
+      issuer: data.issuer ?? '',
+      date: data.date ?? '',
+      hide: Boolean(data.hide),
+      _id: data._id, // keep id if present for editing
+    };
+  }
+  function getChangedFields(newData, originalData) {
+    return Object.fromEntries(
+      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+    );
+  }
+  
+  function getFilledFields(data) {
+    return Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) => value !== '' && value !== null && value !== undefined
+      )
+    );
+  }
 
-    resetForm();
-    setOpenDialog(false);
-  };
+  const handleSave = async () => {
+      try {
+        if (!form.title.trim()) {
+          toast.warning("Award title is required.");
+          return;
+        }
+    
+        if (isEditing) {
+          const original = awards[editingIndex];
+          const updatedFields = getChangedFields(form, original);
+    
+          if (Object.keys(updatedFields).length > 0) {
+            await updateAwardDetail(updatedFields, original._id);
+            const updatedAwards = [...awards];
+            updatedAwards[editingIndex] = { ...original, ...updatedFields };
+            setAwards(updatedAwards);
+          }
+        } else {
+          const filledData = getFilledFields(form);
+          const response = await addNewAwardDetail(filledData);
+          if (response && response._id) {
+            setAwards((prev) => [...prev, { ...filledData, _id: response._id }]);
+          }
+        }
+    
+        resetForm();
+        setOpenDialog(false);
+        setIsEditing(false);
+        setEditingIndex(null);
+      } catch (error) {
+        console.error("Error saving award detail:", error);
+        toast.error("Failed to save award.");
+      }
+    };  
 
-  const handleEdit = (award, index) => {
-    setForm(award);
+  const handleEdit = (index) => {
+    const rawData = awards[index];
+    const normalized = normalizeAwardsData(rawData);
+    setForm(normalized);
     setIsEditing(true);
     setEditingIndex(index);
     setOpenDialog(true);
   };
 
-  const handleDelete = (index) => {
-    const updatedAwards = [...awards];
-    updatedAwards.splice(index, 1);
-    setAwards(updatedAwards);
-  };
+  const handleDelete = async (index) => {
+      const id = awards[index]._id;
+      try {
+        await deleteAwardDetail(id);
+        setAwards((prev) => prev.filter((_, i) => i !== index));
+      } catch (error) {
+        console.error("Error deleting award:", error);
+        toast.error("Failed to delete award.");
+      }
+    };
 
-  const toggleVisibility = (index) => {
-    const updatedAwards = [...awards];
-    updatedAwards[index].hide = !updatedAwards[index].hide;
-    setAwards(updatedAwards);
-  };
+  const toggleVisibility = async (index) => {
+      const id = awards[index]._id;
+      try {
+        await toggleAwardDetailVisibility(id);
+        const updated = [...awards];
+        updated[index].hide = !updated[index].hide;
+        setAwards(updated);
+      } catch (error) {
+        console.error("Error toggling Award visibility:", error);
+        toast.error("Failed to toggle visibility.");
+      }
+    };
+
+  useEffect(() => {
+        const fetchData = async () => {
+          const data = await getUserAwardsDetails();
+          if (data) {
+            const normalizedList = data.map(normalizeAwardsData)
+            setAwards(normalizedList);
+          }
+        };
+        fetchData();
+      }, []);
 
   return (
-    <Card className="max-w-2xl mx-auto p-6 bg-white rounded-3xl shadow-sm">
+    <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
       <h1 className="text-3xl font-bold text-center mb-4">Award Details</h1>
-
+      <Toaster />
       {awards.map((award, index) => (
         <Card key={index} className="mb-4 border p-4 rounded-md relative">
           <div className="absolute top-2 right-2 flex gap-2">
-            <Button size="icon" variant="ghost" onClick={() => handleEdit(award, index)}>
+            <Button size="icon" variant="ghost" onClick={() => handleEdit(index)}>
               <Pencil className="w-4 h-4" />
             </Button>
             <Button size="icon" variant="ghost" onClick={() => handleDelete(index)}>
@@ -157,20 +231,8 @@ const AwardDetailsCard = () => {
                 value={form.issuer}
                 onChange={(e) => handleChange("issuer", e.target.value)}
               />
-              <Input
-                type="text"
-                placeholder="License"
-                className="col-span-2"
-                value={form.license}
-                onChange={(e) => handleChange("license", e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
               <div className="col-span-2">
-                <DatePicker span="Date" value={form.date} onChange={(val) => handleChange("date", val)} />
-              </div>
-              <div className="col-span-2">
-                <DatePicker span="Exp Date" value={form.expDate} onChange={(val) => handleChange("expDate", val)} />
+                <DatePicker span="Date" selected={form.date} onChange={(val) => handleChange("date", val)} />
               </div>
             </div>
 

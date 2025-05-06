@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea"
 import {
   Dialog,
   DialogContent,
@@ -11,76 +12,170 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
 import { DatePicker } from "./DatePicker";
+import { 
+  getUserCertificatesDetails,
+  addNewCertificateDetail,
+  updateCertificateDetail,
+  toggleCertificateDetailVisibility,
+  deleteCertificateDetail 
+} from "../services/operations/certificateDetailsAPIS";
+import { Toaster, toast } from "sonner";
 
 const CertificationDetailCard = () => {
   const [certifications, setCertifications] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
-
   const [formData, setFormData] = useState({
     title: "",
     link: "",
     issuer: "",
     license: "",
-    startDate: null,
-    endDate: null,
+    additionalInfo: "",
+    date: "",
+    expirationDate: "",
     hide: false,
   });
+
+  function normalizeCertificationsData(data) {
+    return {
+      title: data.title ?? "",
+      link: data.link ?? "",
+      additionalInfo: data.additionalInfo ?? "",
+      license: data.license ?? "",
+      issuer: data.issuer ?? "",
+      date: data.date ?? "",
+      expirationDate: data.expirationDate ?? "",
+      hide: Boolean(data.hide),
+      _id: data._id, // keep id if present for editing
+    };
+  }
+
+  const handleDateChange = (date, field) => {
+    setFormData(prev => ({ ...prev, [field]: date }));
+  };
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
-  const handleSave = () => {
-    if (isEditing) {
-      const updated = [...certifications];
-      updated[editIndex] = formData;
-      setCertifications(updated);
+  function getChangedFields(newData, originalData) {
+    return Object.fromEntries(
+      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+    );
+  }
+  
+  function getFilledFields(data) {
+    return Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) => value !== '' && value !== null && value !== undefined
+      )
+    );
+  }
+
+  const handleSave = async () => {
+    try {
+      if (!formData.title.trim()) {
+        toast.warning("Certification title is required.");
+        return;
+      }
+  
+      if (isEditing) {
+        const original = certifications[editIndex];
+        const updatedFields = getChangedFields(formData, original);
+  
+        if (Object.keys(updatedFields).length > 0) {
+          await updateCertificateDetail(updatedFields, original._id);
+          const updatedCertifications = [...certifications];
+          updatedCertifications[editIndex] = { ...original, ...updatedFields };
+          setCertifications(updatedCertifications);
+        }
+      } else {
+        const filledData = getFilledFields(formData);
+        const response = await addNewCertificateDetail(filledData);
+        if (response && response._id) {
+          setCertifications((prev) => [...prev, { ...filledData, _id: response._id }]);
+        }
+      }
+  
+      resetForm();
+      setDialogOpen(false);
       setIsEditing(false);
       setEditIndex(null);
-    } else {
-      setCertifications((prev) => [...prev, formData]);
+    } catch (error) {
+      console.error("Error saving certifications detail:", error);
+      toast.error("Failed to save certifications.");
     }
-
-    resetForm();
-    setDialogOpen(false);
   };
 
   const handleEdit = (index) => {
-    setFormData(certifications[index]);
+    const rawData = certifications[index];
+    const normalized = normalizeCertificationsData(rawData);
+    setFormData(normalized);
     setIsEditing(true);
     setEditIndex(index);
     setDialogOpen(true);
   };
 
-  const handleDelete = (index) => {
-    setCertifications((prev) => prev.filter((_, i) => i !== index));
-  };
+  const handleDelete = async (index) => {
+      const id = certifications[index]._id;
+      try {
+        await deleteCertificateDetail(id);
+    
+        // Remove the item locally
+        const updatedList = certifications.filter((_, i) => i !== index);
+        setCertifications(updatedList);
+      } catch (error) {
+        console.error("Error deleting item:", error);
+      }
+    };
 
-  const toggleVisibility = (index) => {
-    const updated = [...certifications];
-    updated[index].hide = !updated[index].hide;
-    setCertifications(updated);
-  };
+  const toggleVisibility = async (index) => {
+      const id = certifications[index]._id;
+      try {
+        await toggleCertificateDetailVisibility(id);
+    
+        // Toggle the isVisible field locally
+        const updatedList = [...certifications];
+        updatedList[index] = {
+          ...updatedList[index],
+          hide: !updatedList[index].hide,
+        };
+        setCertifications(updatedList);
+      } catch (error) {
+        console.error("Error toggling visibility:", error);
+      }
+    };
+
+  useEffect(() => {
+      const fetchData = async () => {
+        const data = await getUserCertificatesDetails();
+        if (data) {
+          const normalizedList = data.map(normalizeCertificationsData)
+          setCertifications(normalizedList);
+        }
+      };
+      fetchData();
+    }, []);
 
   const resetForm = () => {
     setFormData({
       title: "",
       link: "",
+      additionalInfo: "",
       issuer: "",
       license: "",
-      startDate: null,
-      endDate: null,
+      date: "",
+      expirationDate: "",
       hide: false,
     });
   };
 
   return (
-    <Card className="max-w-2xl mx-auto p-6 bg-white rounded-3xl shadow-sm">
+    <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
       <h1 className="text-3xl font-bold text-center mb-4">Certification Details</h1>
-
+      <Toaster />
       {certifications.map((cert, index) => (
         <Card key={index} className="mb-4 p-4 rounded-xl relative">
           <div className="absolute top-2 right-2 flex gap-2">
@@ -104,7 +199,7 @@ const CertificationDetailCard = () => {
               <p><span className="font-semibold">Title:</span> {cert.title}</p>
             </div>
           ) : (
-            <p className="text-center italic text-gray-500">This certification is hidden.</p>
+            <p className="italic text-gray-500">Hidden</p>
           )}
         </Card>
       ))}
@@ -124,7 +219,7 @@ const CertificationDetailCard = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-describedby="">
           <DialogHeader>
             <DialogTitle className="text-center">
               {isEditing ? "Edit Certification" : "Add Certification Details"}
@@ -172,18 +267,26 @@ const CertificationDetailCard = () => {
             <div className="grid grid-cols-4 items-center gap-4 py-2">
               <div className="col-span-2">
                 <DatePicker
-                  span={"Date"}
-                  value={formData.startDate}
-                  onChange={(date) => setFormData((prev) => ({ ...prev, startDate: date }))}
+                  span={"Issue Date"}
+                  selected={formData.date}
+                  onChange={(date) => handleDateChange(date, 'date')}
                 />
               </div>
               <div className="col-span-2">
                 <DatePicker
-                  span={"End Date"}
-                  value={formData.endDate}
-                  onChange={(date) => setFormData((prev) => ({ ...prev, endDate: date }))}
+                  span={"Exp Date"}
+                  selected={formData.expirationDate}
+                  onChange={(date) => handleDateChange(date, 'expirationDate')}
                 />
               </div>
+              <div className='col-span-4'>
+              <Textarea
+                id="additionalInfo"
+                placeholder="Enter Professional Description"
+                value={formData.additionalInfo}
+                onChange={handleInputChange}
+              />
+            </div>
             </div>
           </form>
           <DialogFooter>

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Dialog,
@@ -7,14 +7,25 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2, X, Eye, EyeOff } from "lucide-react";
+import { Toaster, toast } from "sonner";
+import { 
+  getUserSkillsDetails,
+  addNewSkillDetail,
+  updateSkillDetail,
+  toggleSkillDetailVisibility,
+  deleteSkillDetail 
+} from "../services/operations/skillDetailsAPIS";
 
 const SkillsDetailCard = () => {
   const [skills, setSkills] = useState([]);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: "", subskills: [""], hide:false, });
+  const [formData, setFormData] = useState({ name: "", subSkills: [""], level: "", hide:false, });
   const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
@@ -23,65 +34,142 @@ const SkillsDetailCard = () => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const handleSelectChange = (id, val) => {
+    setFormData((prev) => ({ ...prev, [id]: val}))
+  }
+
   const resetForm = () => {
     setFormData({
       name: "",
-      subskills: [""],
+      subSkills: [""],
+      level: "",
       hide: false,
     });
   };
 
-  const toggleVisibility = (index) => {
-    const updated = [...skills];
-    updated[index].hide = !updated[index].hide;
-    setSkills(updated);
-  };
+  function normalizeSkillsData(data) {
+    return {
+      name: data.name ?? '',
+      subSkills: data.subSkills ?? [''],
+      level: data.level ?? '',
+      hide: Boolean(data.hide),
+      _id: data._id, // keep id if present for editing
+    };
+  }
+  
+  const toggleVisibility = async (index) => {
+    const id = skills[index]._id;
+    try {
+      await toggleSkillDetailVisibility(id);
+      const updated = [...skills];
+      updated[index].hide = !updated[index].hide;
+      setSkills(updated);
+    } catch (error) {
+      console.error("Error toggling skill visibility:", error);
+      toast.error("Failed to toggle visibility.");
+    }
+  }; 
 
   const handleSubSkillChange = (index, value) => {
-    const newSubskills = [...formData.subskills];
-    newSubskills[index] = value;
-    setFormData((prev) => ({ ...prev, subskills: newSubskills }));
+    const newSubSkills = [...formData.subSkills];
+    newSubSkills[index] = value;
+    setFormData((prev) => ({ ...prev, subSkills: newSubSkills }));
   };
 
   const addSubSkill = () => {
-    setFormData((prev) => ({ ...prev, subskills: [...prev.subskills, ""] }));
+    setFormData((prev) => ({ ...prev, subSkills: [...prev.subSkills, ""] }));
   };
 
   const removeSubSkill = (index) => {
-    const newSubskills = formData.subskills.filter((_, i) => i !== index);
-    setFormData((prev) => ({ ...prev, subskills: newSubskills }));
+    const newSubSkills = formData.subSkills.filter((_, i) => i !== index);
+    setFormData((prev) => ({ ...prev, subSkills: newSubSkills }));
   };
 
-  const handleSave = () => {
-    if (isEditing) {
-      const updatedSkills = [...skills];
-      updatedSkills[editIndex] = formData;
-      setSkills(updatedSkills);
+  function getChangedFields(newData, originalData) {
+    return Object.fromEntries(
+      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+    );
+  }
+  
+  function getFilledFields(data) {
+    return Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) => value !== '' && value !== null && value !== undefined
+      )
+    );
+  }
+
+  const handleSave = async () => {
+    try {
+      if (!formData.name.trim()) {
+        toast.warning("Skill name is required.");
+        return;
+      }
+  
+      if (isEditing) {
+        const original = skills[editIndex];
+        const updatedFields = getChangedFields(formData, original);
+  
+        if (Object.keys(updatedFields).length > 0) {
+          await updateSkillDetail(updatedFields, original._id);
+          const updatedSkills = [...skills];
+          updatedSkills[editIndex] = { ...original, ...updatedFields };
+          setSkills(updatedSkills);
+        }
+      } else {
+        const filledData = getFilledFields(formData);
+        const response = await addNewSkillDetail(filledData);
+        if (response && response._id) {
+          setSkills((prev) => [...prev, { ...filledData, _id: response._id }]);
+        }
+      }
+  
+      resetForm();
+      setDialogOpen(false);
       setIsEditing(false);
       setEditIndex(null);
-    } else {
-      setSkills((prev) => [...prev, formData]);
+    } catch (error) {
+      console.error("Error saving skill detail:", error);
+      toast.error("Failed to save skill.");
     }
-
-    setFormData({ name: "", subskills: [""] });
-    setDialogOpen(false);
-  };
+  };  
 
   const handleEdit = (index) => {
-    setFormData(skills[index]);
-    setEditIndex(index);
+    const rawData = skills[index];
+    const normalized = normalizeSkillsData(rawData);
+    setFormData(normalized);
     setIsEditing(true);
+    setEditIndex(index);
     setDialogOpen(true);
   };
 
-  const handleDelete = (index) => {
-    setSkills((prev) => prev.filter((_, i) => i !== index));
+  const handleDelete = async (index) => {
+    const id = skills[index]._id;
+    try {
+      await deleteSkillDetail(id);
+      setSkills((prev) => prev.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error("Error deleting skill:", error);
+      toast.error("Failed to delete skill.");
+    }
   };
+  
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getUserSkillsDetails();
+      if (data) {
+        const normalizedList = data.map(normalizeSkillsData)
+        setSkills(normalizedList);
+      }
+    };
+    fetchData();
+  }, []);
+  
   return (
-    <Card className="max-w-2xl w-lg mx-auto p-6 bg-white rounded-3xl shadow-sm">
+    <Card className="max-w-xl w-full mx-auto p-4 sm:p-6 bg-white rounded-3xl shadow-sm">
       <h1 className="text-3xl font-bold text-center mb-4">Skills Details</h1>
-
+      <Toaster />
       {skills.map((skill, index) => (
         <Card key={index} className="mb-4 p-4 rounded-lg relative">
           <div className="absolute top-2 right-2 flex gap-2">
@@ -101,10 +189,10 @@ const SkillsDetailCard = () => {
           </div>
           {!skill.hide ? (
             <div className="space-y-1">
-              <p><span className="font-semibold">Skill:</span> {skill.title}</p>
+              <p><span className="font-semibold">Skill:</span> {skill.name}</p>
             </div>
           ) : (
-            <p className="text-center italic text-gray-500">This Skill is hidden.</p>
+            <p className="italic text-gray-500">Hidden.</p>
           )}
         </Card>
       ))}
@@ -124,7 +212,7 @@ const SkillsDetailCard = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
+        <DialogContent aria-describedby="">
           <DialogHeader>
             <DialogTitle className="text-center">
               {isEditing ? "Edit Skill Details" : "Add Skill Details"}
@@ -134,16 +222,27 @@ const SkillsDetailCard = () => {
             <div className="grid grid-cols-4 items-center gap-4 py-4">
               <Input
                 type="text"
-                id="title"
+                id="name"
                 placeholder="Skill Name"
-                className="col-span-4"
-                value={formData.title}
+                className="col-span-2"
+                value={formData.name}
                 onChange={handleInputChange}
               />
-              
+              <Select value={formData.level} onValueChange={(val) => handleSelectChange('level', val)}>
+                <SelectTrigger className='w-full col-span-2'>
+                  <SelectValue placeholder="Skill Level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="BEGINEER">Begineer</SelectItem>
+                  <SelectItem value="AMATUER">Amatuer</SelectItem>
+                  <SelectItem value="COMPETENT">Competent</SelectItem>
+                  <SelectItem value="PROFICIENT">Proficient</SelectItem>
+                  <SelectItem value="EXPERT">Expert</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
-            {formData.subskills.map((subskill, index) => (
+            {formData.subSkills.map((subskill, index) => (
               <div
                 className="grid grid-cols-4 items-center gap-4 py-2"
                 key={index}

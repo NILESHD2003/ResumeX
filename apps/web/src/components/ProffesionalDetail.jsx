@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card } from "./ui/card";
 import {
   Dialog,
@@ -12,6 +12,14 @@ import { Button } from "./ui/button";
 import { Plus, Trash2, Pencil, Eye, EyeOff } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { DatePicker } from "./DatePicker";
+import {
+  getUserProfessionalExperiences,
+  addNewProfessionalExperience,
+  updateProfessionalExperience,
+  toggleProfessionalExperienceVisibility,
+  deleteProfessionalExperience 
+} from '../services/operations/professionalDetailsAPIS';
+import { Toaster, toast } from 'sonner';
 
 const ProffesionalCard = () => {
   const [proffesionalList, setProffesionalList] = useState([]);
@@ -20,6 +28,21 @@ const ProffesionalCard = () => {
   const [editIndex, setEditIndex] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  function normalizeProfessionalData(data) {
+    return {
+      jobTitle: data.jobTitle ?? '',
+      employer: data.employer ?? '',
+      link: data.link ?? '',
+      country: data.country ?? '',
+      city: data.city ?? '',
+      startDate: data.startDate ?? '',
+      endDate: data.endDate ?? '',
+      description: data.description ?? '',
+      hide: Boolean(data.hide),
+      _id: data._id, // keep id if present for editing
+    };
+  }
+
   function initialFormData() {
     return {
       jobTitle: '',
@@ -27,56 +50,130 @@ const ProffesionalCard = () => {
       link: '',
       country: '',
       city: '',
-      startDate: undefined,
-      endDate: undefined,
+      startDate: null,
+      endDate: null,
       description: '',
+      hide: false
     };
+  }
+
+  function getChangedFields(newData, originalData) {
+    return Object.fromEntries(
+      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+    );
+  }
+  
+  function getFilledFields(data) {
+    return Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) => value !== '' && value !== null && value !== undefined
+      )
+    );
   }
 
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-    const key = id === "jobtitle" ? "jobTitle" : id;
-    setFormData(prev => ({ ...prev, [key]: value }));
+    setFormData(prev => ({ ...prev, [id]: value }));
   };
 
   const handleDateChange = (date, field) => {
     setFormData(prev => ({ ...prev, [field]: date }));
   };
 
-  const handleSave = () => {
-    if (isEditing) {
-      const updatedList = [...proffesionalList];
-      updatedList[editIndex] = formData;
-      setProffesionalList(updatedList);
-      setIsEditing(false);
-      setEditIndex(null);
-    } else {
-      setProffesionalList(prevList => [...prevList, formData]);
+  const handleSave = async () => {
+    if (!formData.jobTitle.trim()) {
+      toast.warning("Please fill in required fields: Job Title.");
+      return;
     }
 
-    setFormData(initialFormData());
-    setDialogOpen(false);
+    try {
+      if (isEditing) {
+        console.log("Is editing");
+        const original = proffesionalList[editIndex];
+        const updatedFields = getChangedFields(formData, original);
+
+        if (Object.keys(updatedFields).length > 0) {
+          await updateProfessionalExperience(updatedFields, original._id);
+          console.log(updatedFields);
+        }
+
+        const updatedList = [...proffesionalList];
+        updatedList[editIndex] = { ...original, ...updatedFields };
+        setProffesionalList(updatedList);
+      } else {
+        const filledData = getFilledFields(formData);
+        const response = await addNewProfessionalExperience(filledData);
+
+        // Assuming response contains the newly created item (with `_id`)
+        if (response && response._id) {
+          const newItem = { ...filledData, _id: response._id };
+          setProffesionalList((prevList) => [...prevList, newItem]);
+        } else {
+          console.warn("New item not returned properly:", response);
+        }
+      }
+  
+      setFormData(initialFormData());
+      setDialogOpen(false);
+    } catch (error) {
+      console.error("Error saving:", error);
+    }
   };
+  
 
   const handleEdit = (index) => {
-    setFormData(proffesionalList[index]);
-    setIsEditing(true);
+    const rawData = proffesionalList[index];
+    const normalized = normalizeProfessionalData(rawData);
+    setFormData(normalized);
     setEditIndex(index);
+    setIsEditing(true);
     setDialogOpen(true);
   };
 
-  const toggleVisibility = (index) => {
-    const updated = [...proffesionalList];
-    updated[index].hide = !updated[index].hide;
-    setProffesionalList(updated);
+  const toggleVisibility = async (index) => {
+    const id = proffesionalList[index]._id;
+    try {
+      await toggleProfessionalExperienceVisibility(id);
+  
+      // Toggle the isVisible field locally
+      const updatedList = [...proffesionalList];
+      updatedList[index] = {
+        ...updatedList[index],
+        hide: !updatedList[index].hide,
+      };
+      setProffesionalList(updatedList);
+    } catch (error) {
+      console.error("Error toggling visibility:", error);
+    }
   };
 
-  const handleDelete = (index) => {
-    setProffesionalList(prevList => prevList.filter((_, i) => i !== index));
+  const handleDelete = async (index) => {
+    const id = proffesionalList[index]._id;
+    try {
+      await deleteProfessionalExperience(id);
+  
+      // Remove the item locally
+      const updatedList = proffesionalList.filter((_, i) => i !== index);
+      setProffesionalList(updatedList);
+    } catch (error) {
+      console.error("Error deleting item:", error);
+    }
   };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getUserProfessionalExperiences();
+      if (data) {
+        const normalizedList = data.map(normalizeProfessionalData)
+        setProffesionalList(normalizedList);
+      }
+    };
+    fetchData();
+  }, []);
 
   return (
-    <Card className="max-w-xl mx-auto p-6 bg-white rounded-3xl shadow-sm">
+    <Card className="w-full max-w-xl mx-auto p-4 sm:p-6 bg-white rounded-3xl shadow-sm">
+      <Toaster />
       <h1 className="text-3xl font-bold text-center mb-4">Professional Details</h1>
       {proffesionalList.map((exp, index) => (
         <Card key={index} className="mb-4 p-4 rounded-lg relative">
@@ -100,7 +197,7 @@ const ProffesionalCard = () => {
               <p><span className="font-semibold">Title:</span> {exp.title}</p>
             </div>
           ) : (
-            <p className="text-center italic text-gray-500">This Proffesion is hidden.</p>
+            <p className="italic text-gray-500">Hidden.</p>
           )}
         </Card>
       ))}
@@ -130,11 +227,12 @@ const ProffesionalCard = () => {
             <div className="grid grid-cols-4 items-center gap-4">
               <Input
                 type="text"
-                id="jobtitle"
+                id="jobTitle"
                 className='col-span-4'
                 placeholder="Job Title"
                 value={formData.jobTitle}
                 onChange={handleInputChange}
+                required
               />
               <Input
                 type="text"

@@ -14,6 +14,15 @@ import { Plus, Trash2, Pencil } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { DatePicker } from "./DatePicker";
 import { Eye, EyeOff } from 'lucide-react';
+import { useEffect } from 'react';
+import { 
+  getUserEducationDetails,
+  addNewEducationDetails,
+  updateEducationDetail,
+  toggleEducationDetailVisibility,
+  deleteEducationDetail
+} from '../services/operations/educationDetailsAPIS';
+import { Toaster, toast } from 'sonner';
 
 const EducationCard = () => {
   const [educationList, setEducationList] = useState([]);
@@ -31,13 +40,30 @@ const EducationCard = () => {
       link: '',
       country: '',
       city: '',
-      startDate: undefined,
-      endDate: undefined,
+      startDate: null,
+      endDate: null,
       description: '',
       hide: false,
     };
   }
 
+  function normalizeEducationData(data) {
+    return {
+      degree: data.degree ?? '',
+      grade: data.grade ?? '',
+      school: data.school ?? '',
+      university: data.university ?? '',
+      link: data.link ?? '',
+      country: data.country ?? '',
+      city: data.city ?? '',
+      startDate: data.startDate ?? '',
+      endDate: data.endDate ?? '',
+      description: data.description ?? '',
+      hide: data.hide ?? false, 
+      _id: data._id, // keep id if present for editing
+    };
+  }
+  
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -47,42 +73,91 @@ const EducationCard = () => {
     setFormData((prev) => ({ ...prev, [field]: date }));
   };
 
-  const handleSave = () => {
+  function getChangedFields(newData, originalData) {
+    return Object.fromEntries(
+      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+    );
+  }
+
+  function getFilledFields(data) {
+    return Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) => value !== '' && value !== null && value !== undefined
+      )
+    );
+  }
+
+  const handleSave = async () => {
+    if (!formData.degree.trim()) {
+      toast.warning("Please fill in required fields: Degree.");
+      return;
+    }
+
     if (isEditing) {
+      const original = educationList[editIndex];
+      const updatedFields = getChangedFields(formData, original);
+  
+      if (Object.keys(updatedFields).length > 0) {
+        await updateEducationDetail(updatedFields, original._id);
+      }
+  
       const updatedList = [...educationList];
-      updatedList[editIndex] = formData;
+      updatedList[editIndex] = { ...original, ...updatedFields };
       setEducationList(updatedList);
       setIsEditing(false);
       setEditIndex(null);
     } else {
-      setEducationList((prevList) => [...prevList, formData]);
+      const filledData = getFilledFields(formData);
+      await addNewEducationDetails(filledData);
+      const data = await getUserEducationDetails();
+      if (data) setEducationList(data);
     }
-
+  
     setFormData(initialFormData());
     setDialogOpen(false);
   };
-
-  const handleDelete = (index) => {
-    setEducationList((prevList) => prevList.filter((_, i) => i !== index));
+  
+  const handleDelete = async (index) => {
+    const id = educationList[index]._id;
+    await deleteEducationDetail(id);
+    setEducationList(prevList => prevList.filter((_, i) => i !== index));
   };
 
   const handleEdit = (index) => {
-    setFormData(educationList[index]);
+    const rawData = educationList[index];
+    const normalized = normalizeEducationData(rawData);
+    setFormData(normalized);
     setEditIndex(index);
     setIsEditing(true);
     setDialogOpen(true);
   };
+  
 
-  const toggleVisibility = (index) => {
+  const toggleVisibility = async (index) => {
+    const id = educationList[index]._id;
+    await toggleEducationDetailVisibility(id);
     const updated = [...educationList];
     updated[index].hide = !updated[index].hide;
     setEducationList(updated);
   };
-
+  
+  useEffect(() => {
+    async function fetchEducation() {
+      const data = await getUserEducationDetails();
+      if (data) {
+        const normalizedList = data.map(normalizeEducationData);
+        setEducationList(normalizedList);
+      }
+    }
+    fetchEducation();
+  }, []);
+  
+  
   return (
-    <Card className="max-w-xl mx-auto p-6 bg-white rounded-3xl shadow-sm">
-      <h1 className="text-3xl font-bold text-center mb-4">Educational Details</h1>
-      
+    <Card className="w-full max-w-xl mx-auto p-4 sm:p-6 bg-white rounded-3xl shadow-sm">
+      <Toaster />
+      <h1 className="text-2xl sm:text-3xl font-bold text-center mb-6">Educational Details</h1>
+
       {educationList.map((edu, index) => (
         <Card key={index} className="mb-4 p-4 rounded-lg relative">
           <div className="absolute top-2 right-2 flex gap-2">
@@ -100,18 +175,16 @@ const EducationCard = () => {
               )}
             </Button>
           </div>
-          
+
           {!edu.hide ? (
             <div className="space-y-1">
-              <p><span className="font-semibold">Title:</span> {edu.title}</p>
+              <p><span className="font-semibold">Title:</span> {edu.degree}</p>
             </div>
           ) : (
-            <p className="text-center italic text-gray-500">This Eduacation is hidden.</p>
+            <p className="italic text-gray-500">Hidden</p>
           )}
         </Card>
       ))}
-    
-    
 
       <div className="flex justify-center mt-6">
         <Button
@@ -128,7 +201,7 @@ const EducationCard = () => {
       </div>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent aria-describedby="">
+        <DialogContent aria-describedby="" className="max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-center">
               {isEditing ? "Edit Education Details" : "Add Education Details"}
@@ -136,14 +209,14 @@ const EducationCard = () => {
           </DialogHeader>
           <form>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <Input
                   type="text"
                   id="degree"
                   placeholder="Degree/Qualification"
-                  className="col-span-3"
                   value={formData.degree}
                   onChange={handleInputChange}
+                  required
                 />
                 <Input
                   type="text"
@@ -152,35 +225,34 @@ const EducationCard = () => {
                   value={formData.grade}
                   onChange={handleInputChange}
                 />
-              <Input
-                type="text"
-                id="school"
-                className='col-span-4'
-                placeholder="School/College"
-                value={formData.school}
-                onChange={handleInputChange}
-              />
-              <Input
-                type="text"
-                id="university"
-                className='col-span-4'
-                placeholder="University"
-                value={formData.university}
-                onChange={handleInputChange}
-              />
-              <Input
-                type="url"
-                id="link"
-                className='col-span-4'
-                placeholder="Link"
-                value={formData.link}
-                onChange={handleInputChange}
-              />
+                <Input
+                  type="text"
+                  id="school"
+                  placeholder="School/College"
+                  className="sm:col-span-2"
+                  value={formData.school}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  type="text"
+                  id="university"
+                  placeholder="University"
+                  className="sm:col-span-2"
+                  value={formData.university}
+                  onChange={handleInputChange}
+                />
+                <Input
+                  type="url"
+                  id="link"
+                  placeholder="Link"
+                  className="sm:col-span-2"
+                  value={formData.link}
+                  onChange={handleInputChange}
+                />
                 <Input
                   type="text"
                   id="country"
                   placeholder="Country"
-                  className="col-span-2"
                   value={formData.country}
                   onChange={handleInputChange}
                 />
@@ -188,30 +260,26 @@ const EducationCard = () => {
                   type="text"
                   id="city"
                   placeholder="City"
-                  className="col-span-2"
                   value={formData.city}
                   onChange={handleInputChange}
                 />
-                <div className="col-span-2">
-                  <DatePicker
-                    span={"Start Date"}
-                    selected={formData.startDate}
-                    onChange={(date) => handleDateChange(date, 'startDate')}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <DatePicker
-                    span={"End Date"}
-                    selected={formData.endDate}
-                    onChange={(date) => handleDateChange(date, 'endDate')}
-                  />
-                </div>
+                <DatePicker
+                  span="Start Date"
+                  selected={formData.startDate}
+                  onChange={(date) => handleDateChange(date, 'startDate')}
+                />
+                <DatePicker
+                  span="End Date"
+                  selected={formData.endDate}
+                  onChange={(date) => handleDateChange(date, 'endDate')}
+                />
               </div>
               <Textarea
                 id="description"
                 placeholder="Enter Education Description"
                 value={formData.description}
                 onChange={handleInputChange}
+                className="min-h-[100px]"
               />
             </div>
           </form>
