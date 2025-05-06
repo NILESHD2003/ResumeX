@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input"
-import { LoginSignUpPage } from "./pages/LoginSignUpPage";
+import { LoginSignUpPage } from "./pages/Login_Signup_Page";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PersonalDetails from "./pages/PersonalDetailsPage";
 // import Terms from "./components/shared/TermAndCondition";
