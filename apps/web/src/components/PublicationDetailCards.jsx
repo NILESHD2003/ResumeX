@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import {
   Dialog,
@@ -13,13 +13,19 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2, Eye, EyeOff, Pencil } from "lucide-react";
 import { DatePicker } from "./DatePicker";
 import { Textarea } from "@/components/ui/textarea";
+import { 
+  getUserPublicationsDetails,
+  addNewPublicationDetail,
+  updatePublicationDetail,
+  togglePublicationDetailVisibility,
+  deletePublicationDetail 
+} from "../services/operations/publicationDetailsAPIS";
 
 const PublicationDetailCard = () => {
   const [publications, setPublications] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingIndex, setEditingIndex] = useState(null);
-
   const [formData, setFormData] = useState({
     title: "",
     link: "",
@@ -27,7 +33,7 @@ const PublicationDetailCard = () => {
     date: "",
     description: "",
     citation: "",
-    hidden: false,
+    hide: false,
   });
 
   const resetForm = () => {
@@ -38,51 +44,122 @@ const PublicationDetailCard = () => {
       date: "",
       description: "",
       citation: "",
-      hidden: false,
+      hide: false,
     });
-    setIsEditing(false);
-    setEditingIndex(null);
   };
 
-  const handleSave = () => {
-    if (isEditing) {
-      setPublications((prev) =>
-        prev.map((pub, idx) => (idx === editingIndex ? formData : pub))
-      );
-    } else {
-      setPublications((prev) => [...prev, formData]);
-    }
+  function normalizePublicationsData(data) {
+    return {
+      title: data.title ?? '',
+      link: data.link ?? '',
+      publisher: data.publisher ?? '',
+      citation: data.citation ?? '',
+      date: data.date ?? '',
+      description: data.description ?? '',
+      hide: Boolean(data.hide),
+      _id: data._id, // keep id if present for editing
+    };
+  }
 
-    resetForm();
-    setOpenDialog(false);
+  function getChangedFields(newData, originalData) {
+    return Object.fromEntries(
+      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+    );
+  }
+  
+  function getFilledFields(data) {
+    return Object.fromEntries(
+      Object.entries(data).filter(
+        ([_, value]) => value !== '' && value !== null && value !== undefined
+      )
+    );
+  }
+
+  const handleSave = async () => {
+    try {
+      if (!formData.title.trim()) {
+        toast.warning("Publication title is required.");
+        return;
+      }
+  
+      if (isEditing) {
+        const original = publications[editingIndex];
+        const updatedFields = getChangedFields(formData, original);
+  
+        if (Object.keys(updatedFields).length > 0) {
+          await updatePublicationDetail(updatedFields, original._id);
+          const updatedPublications = [...publications];
+          updatedPublications[editingIndex] = { ...original, ...updatedFields };
+          setPublications(updatedPublications);
+        }
+      } else {
+        const filledData = getFilledFields(formData);
+        const response = await addNewPublicationDetail(filledData);
+        if (response && response._id) {
+          setPublications((prev) => [...prev, { ...filledData, _id: response._id }]);
+        }
+      }
+  
+      resetForm();
+      setOpenDialog(false);
+      setIsEditing(false);
+      setEditingIndex(null);
+    } catch (error) {
+      console.error("Error saving publication detail:", error);
+      toast.error("Failed to save publication.");
+    }
   };
 
   const handleEdit = (index) => {
-    const pub = publications[index];
-    setFormData(pub);
+    const rawData = publications[index];
+    const normalized = normalizePublicationsData(rawData);
+    setFormData(normalized);
     setIsEditing(true);
     setEditingIndex(index);
     setOpenDialog(true);
   };
 
-  const handleDelete = (index) => {
-    setPublications((prev) => prev.filter((_, idx) => idx !== index));
+  const handleDelete = async (index) => {
+    const id = publications[index]._id;
+    try {
+      await deletePublicationDetail(id);
+      setPublications((prev) => prev.filter((_, i) => i !== index));
+    } catch (error) {
+      console.error("Error deleting publication:", error);
+      toast.error("Failed to delete publication.");
+    }
   };
 
-  const toggleVisibility = (index) => {
-    setPublications((prev) =>
-      prev.map((pub, idx) =>
-        idx === index ? { ...pub, hidden: !pub.hidden } : pub
-      )
-    );
-  };
+  const toggleVisibility = async (index) => {
+    const id = publications[index]._id;
+    try {
+      await togglePublicationDetailVisibility(id);
+      const updated = [...publications];
+      updated[index].hide = !updated[index].hide;
+      setPublications(updated);
+    } catch (error) {
+      console.error("Error toggling publication visibility:", error);
+      toast.error("Failed to toggle visibility.");
+    }
+  }; 
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await getUserPublicationsDetails();
+      if (data) {
+        const normalizedList = data.map(normalizePublicationsData)
+        setPublications(normalizedList);
+      }
+    };
+    fetchData();
+  }, []);
+
   return (
-    <Card className="max-w-2xl mx-auto p-6 bg-white rounded-3xl shadow-sm">
+    <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
       <h1 className="text-3xl font-bold text-center mb-4">Publication Details</h1>
 
       {publications.map((pub, index) => (
@@ -102,12 +179,12 @@ const PublicationDetailCard = () => {
                 )}
             </Button>
           </div>
-          {!pub.hidden ? (
+          {!pub.hide ? (
             <div className="space-y-1">
                 <p><span className="font-semibold">Title:</span> {pub.title}</p>
             </div>
           ) : (
-            <p className="text-center italic text-gray-500">This Publication is hidden.</p>
+            <p className="text-center italic text-gray-500">This Publication is hide.</p>
           )}
         </Card>
       ))}
@@ -161,7 +238,7 @@ const PublicationDetailCard = () => {
               <div className="col-span-2">
                 <DatePicker
                   span="Date"
-                  value={formData.date}
+                  selected={formData.date}
                   onChange={(value) => handleChange("date", value)}
                 />
               </div>
