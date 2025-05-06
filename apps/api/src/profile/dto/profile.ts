@@ -684,11 +684,6 @@ export class AwardDto {
   @Type(() => Date)
   date?: Date;
 
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  expirationDate?: Date;
-
   @IsBoolean()
   hide: boolean;
 }
@@ -715,10 +710,6 @@ export class AwardUpdateDto {
   @Type(() => Date)
   date?: Date;
 
-  @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  expirationDate?: Date;
 
   @IsOptional()
   @IsBoolean()
@@ -738,8 +729,6 @@ export class AwardResponseDto {
   issuer?: string;
   @Expose()
   date?: Date;
-  @Expose()
-  expirationDate?: Date;
   @Expose()
   hide: boolean;
 }

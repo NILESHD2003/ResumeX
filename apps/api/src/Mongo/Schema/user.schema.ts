@@ -110,9 +110,7 @@ export interface Award {
   title: string;
   link?: string;
   issuer?: string;
-  license?: string;
   date?: Date;
-  expirationDate?: Date;
 
   hide: boolean;
 }
