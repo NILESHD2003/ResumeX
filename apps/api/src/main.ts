@@ -13,7 +13,7 @@ async function bootstrap() {
   }));
   app.useGlobalFilters(new GlobalExceptionFilter());
   app.enableCors({
-    origin: ['http://localhost:5173', 'http://localhost:4173'],
+    origin: ['http://localhost:5173', 'http://localhost:4173', 'https://resumex-stage.netlify.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
   });
