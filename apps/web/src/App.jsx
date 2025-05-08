@@ -19,9 +19,6 @@ import OrganizationDetails from "./pages/OrganizationDetails";
 import PublicationDetails from "./pages/PublicationDetails";
 import ReferenceDetails from "./pages/ReferenceDetails";
 import DeclarationDetails from "./pages/DeclarationDetails";
-
-
-
 import LandingPage from "./pages/LandingPage";
 
 function App() {
@@ -29,7 +26,6 @@ function App() {
     <div>
       <Router>
        <Routes>
-          
           <Route path="/" element={<LandingPage />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
