@@ -10,7 +10,7 @@ import Pricing from '../components/PricingSection'
 
 
 // importing carousel data to pass props
-import carouselData from "../data/carousel-data";
+import carouselData from "../data/carousel-data.js";
 
 function LandingPage() {
   return (
