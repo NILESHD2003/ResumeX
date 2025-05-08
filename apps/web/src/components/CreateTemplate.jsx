@@ -6,7 +6,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
 
-import carouselData from '../data/carousel-data';
+
 
 
 
