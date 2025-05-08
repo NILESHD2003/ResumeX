@@ -7,9 +7,6 @@ import { Pagination, Scrollbar, A11y, Autoplay } from 'swiper/modules';
 import 'swiper/swiper-bundle.css';
 
 
-
-
-
 const CreateTemplate = ({ slides }) => {
   return (
     <section className="p-8 my-8">
