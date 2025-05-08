@@ -2,8 +2,8 @@ import { Input } from "@/components/ui/input"
 import { LoginSignUpPage } from "./pages/Login_Signup_Page";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PersonalDetails from "./pages/PersonalDetailsPage";
-// import Terms from "./components/shared/TermAndCondition";
-// import PrivacyPolicy from "./components/shared/PrivacyPolicy";
+import Terms from './components/TermAndCondition'
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import { CreateAccountPage } from "./pages/CreateAccountPage";
 import AwardDetails from "./pages/AwardDetails"
 import ProfileSummaryPage from "./pages/ProfileSummayPage";
@@ -20,16 +20,21 @@ import PublicationDetails from "./pages/PublicationDetails";
 import ReferenceDetails from "./pages/ReferenceDetails";
 import DeclarationDetails from "./pages/DeclarationDetails";
 
+
+
+import LandingPage from "./pages/LandingPage";
+
 function App() {
   return (
     <div>
       <Router>
        <Routes>
-          <Route path="/login" element={<LoginSignUpPage />} />
-          {/* <Route path="/terms" element={<Terms />} /> */}
-          {/* <Route path="/privacy" element={<PrivacyPolicy />} /> */}
+          
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
-          {/* <Route path="/onboarding" element={<PrivacyPolicy />} /> */}
+          <Route path="/onboarding" element={<PrivacyPolicy />} />
           <Route path="/onboarding/personal-details" element={<PersonalDetails />} />
           <Route path="/onboarding/awards-section" element={<AwardDetails />} />
           <Route path="/onboarding/profile-image" element={<ProfileImagePage />} />
@@ -47,6 +52,7 @@ function App() {
           <Route path="/onboarding/declaration-section" element={<DeclarationDetails />} />
         </Routes>
       </Router>
+      
     </div>
   )
 }
