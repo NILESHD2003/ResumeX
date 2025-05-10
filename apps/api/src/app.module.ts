@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { RepositoryModule } from './repository/repository.module';
 import { ProfileModule } from './profile/profile.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { AgentModule } from './agent/agent.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     AuthModule,
     ProfileModule,
     CloudinaryModule,
+    AgentModule,
   ],
   controllers: [AppController],
   providers: [AppService],
