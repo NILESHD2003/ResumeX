@@ -1,5 +1,3 @@
-import { Input } from "@/components/ui/input"
-import { LoginSignUpPage } from "./pages/Login_Signup_Page";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PersonalDetails from "./pages/PersonalDetailsPage";
 import Terms from './components/TermAndCondition'
@@ -20,6 +18,8 @@ import PublicationDetails from "./pages/PublicationDetails";
 import ReferenceDetails from "./pages/ReferenceDetails";
 import DeclarationDetails from "./pages/DeclarationDetails";
 import LandingPage from "./pages/LandingPage";
+import { LoginPage } from "./pages/LoginPage";
+import { SignUpPage } from "./pages/SignUpPage";
 
 function App() {
   return (
@@ -27,10 +27,11 @@ function App() {
       <Router>
        <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
           <Route path="/terms" element={<Terms />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
-          <Route path="/onboarding" element={<PrivacyPolicy />} />
           <Route path="/onboarding/personal-details" element={<PersonalDetails />} />
           <Route path="/onboarding/awards-section" element={<AwardDetails />} />
           <Route path="/onboarding/profile-image" element={<ProfileImagePage />} />
