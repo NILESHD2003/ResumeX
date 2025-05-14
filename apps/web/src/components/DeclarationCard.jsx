@@ -1,13 +1,14 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { DatePicker } from "./DatePicker";
+import DatePicker from 'rsuite/DatePicker';
+import 'rsuite/DatePicker/styles/index.css';
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from './ui/label';
 import { 
   getUserDeclarationsDetails,
   updateDeclarationDetail,
-  toggleDeclarationDetailVisibility 
 } from "../services/operations/declarationDetailsAPIS";
 import { Toaster, toast } from "sonner";
 
@@ -43,14 +44,6 @@ const DeclarationCard = () => {
     );
   }
 
-  function getFilledFields(data) {
-    return Object.fromEntries(
-      Object.entries(data).filter(
-        ([_, value]) => value !== '' && value !== null && value !== undefined
-      )
-    );
-  }
-
   const handleSubmit = async () => {
     if (!formData.text) {
       toast.warning("Please fill in required fields: Text.");
@@ -58,8 +51,14 @@ const DeclarationCard = () => {
     }
   
     const changedFields = getChangedFields(formData, originalData || {});
-    const payload = getFilledFields(changedFields);
+    const payload = {}
   
+    for (const key in changedFields) {
+      if (changedFields.hasOwnProperty(key)) {
+        payload[key] = changedFields[key];
+      }
+    }
+
     if (Object.keys(payload).length === 0) {
       toast.info("No changes to update.");
       return;
@@ -77,35 +76,34 @@ const DeclarationCard = () => {
       console.error(error);
       toast.error("An error occurred during update.");
     }
-  };
-  
-  const handleToggleVisibility = async () => {
-    try {
-      const newVisibility = !formData.hide;
-      const success = await toggleDeclarationDetailVisibility();
-  
-      if (success) {
-        setFormData((prev) => ({ ...prev, hide: newVisibility }));
-        setOriginalData((prev) => ({ ...prev, hide: newVisibility }));
-        toast.success(`Visibility set to ${newVisibility ? "hidden" : "visible"}.`);
-      } else {
-        toast.error("Failed to update visibility.");
-      }
-    } catch (error) {
-      toast.error("Error toggling visibility.");
-      console.error(error);
-    }
-  };
-  
+  }; 
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const data = await getUserDeclarationsDetails();
         if (data) {
-          setFormData(data);
-          setOriginalData(data); // Keep a copy for comparison
-        }
+          const date = data.date ? new Date(data.date) : '';
+          setFormData({
+          fullName: data.fullName || "", // Use empty string as fallback
+          text: data.text || "",
+          signature: data.signature || "",
+          place: data.place || "",
+          date: date,
+          hide: data.hide || false,
+        });
+        setOriginalData({
+          fullName: data.fullName || "",
+          text: data.text || "",
+          signature: data.signature || "",
+          place: data.place || "",
+          date: date,
+          hide: data.hide || false,
+        }); // Keep a copy for comparison
+        } else {
+        // If data is null, you might want to keep the initial empty state
+        setOriginalData({ ...formData }); // Initialize originalData with the default empty state
+      }
       } catch (error) {
         toast.error("Failed to load declaration details.");
         console.error(error);
@@ -117,60 +115,60 @@ const DeclarationCard = () => {
 
   return (
     <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
-      <Toaster />
-      <h1 className="text-3xl font-bold text-center mb-4">Declaration</h1>
-        {!formData.hide && (
+    <Toaster />
         <div className="grid grid-cols-4 items-center gap-4 py-2">
-          <Textarea
-          type="text"
-          id="text"
-          placeholder="Text"
-          value={formData.text}
-          onChange={handleChange}
-          className="col-span-4 resize-none"
-        />
-        <Input
-          type="text"
-          id="fullName"
-          placeholder="Full Name"
-          value={formData.fullName}
-          onChange={handleChange}
-          className="col-span-2"
-        />
-        <Input
-          type="text"
-          id="signature"
-          placeholder="Signature"
-          value={formData.signature}
-          onChange={handleChange}
-          className="col-span-2"
-        />
-        <Input
-          type="text"
-          id="place"
-          placeholder="Place"
-          value={formData.place}
-          onChange={handleChange}
-          className="col-span-2"
-        />
-        <div className="col-span-2">
-          <DatePicker
-            span="Date"
-            selected={formData.date}
-            onChange={handleDateChange}
-          />
+            <div className="col-span-4">
+                <Label htmlFor="text" className="px-1 pb-1">Text</Label>
+                <Textarea
+                    id="text"
+                    placeholder="Text"
+                    value={formData.text}
+                    onChange={handleChange}
+                    className="resize-none"
+                />
+            </div>
+            <div className="col-span-4 sm:col-span-2">
+                <Label htmlFor="fullName" className="px-1 pb-1">Full Name</Label>
+                <Input
+                    type="text"
+                    id="fullName"
+                    placeholder="Full Name"
+                    value={formData.fullName}
+                    onChange={handleChange}
+                />
+            </div>
+            <div className="col-span-4 sm:col-span-2">
+                <Label htmlFor="signature" className="px-1 pb-1">Signature</Label>
+                <Input
+                    type="text"
+                    id="signature"
+                    placeholder="Signature"
+                    value={formData.signature}
+                    onChange={handleChange}
+                />
+            </div>
+            <div className="col-span-4 sm:col-span-2">
+                <Label htmlFor="place" className="px-1 pb-1">Place</Label>
+                <Input
+                    type="text"
+                    id="place"
+                    placeholder="Place"
+                    value={formData.place}
+                    onChange={handleChange}
+                />
+            </div>
+            <div className="col-span-4 sm:col-span-2">
+                <Label htmlFor="date" className="px-1 pb-1">Date</Label>
+                <DatePicker
+                    id="date"
+                    style={{ width: '100%' }}
+                    value={formData.date}
+                    onChange={handleDateChange}
+                />
+            </div>
         </div>
-      </div>
-      )}
         <div className="col-span-4 text-center mt-4">
-          <Button onClick={handleSubmit}>Submit</Button>
-          <Button
-            variant="outline"
-            onClick={handleToggleVisibility}
-            className="ml-4"
-          >
-            {formData.hide ? "Unhide" : "Hide"}
-          </Button>
+            <Button onClick={handleSubmit}>Submit</Button>
         </div>
     </Card>
   );

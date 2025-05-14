@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input"
-import { LoginSignUpPage } from "./pages/LoginSignUpPage";
+import { LoginSignUpPage } from "./pages/Login_Signup_Page";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import PersonalDetails from "./pages/PersonalDetailsPage";
 // import Terms from "./components/shared/TermAndCondition";
@@ -7,7 +7,6 @@ import PersonalDetails from "./pages/PersonalDetailsPage";
 import { CreateAccountPage } from "./pages/CreateAccountPage";
 import AwardDetails from "./pages/AwardDetails"
 import ProfileSummaryPage from "./pages/ProfileSummayPage";
-import ProfileImagePage from "./pages/ProfileImagePage";
 import EducationDetails from "./pages/EducationDetails";
 import ProffesionalDetails from "./pages/ProffesionalDetails";
 import SkillsDetails from "./pages/SkillsDetails";
@@ -19,6 +18,7 @@ import OrganizationDetails from "./pages/OrganizationDetails";
 import PublicationDetails from "./pages/PublicationDetails";
 import ReferenceDetails from "./pages/ReferenceDetails";
 import DeclarationDetails from "./pages/DeclarationDetails";
+import PreviewPage from "./pages/PreviewPage";
 
 function App() {
   return (
@@ -32,7 +32,6 @@ function App() {
           {/* <Route path="/onboarding" element={<PrivacyPolicy />} /> */}
           <Route path="/onboarding/personal-details" element={<PersonalDetails />} />
           <Route path="/onboarding/awards-section" element={<AwardDetails />} />
-          <Route path="/onboarding/profile-image" element={<ProfileImagePage />} />
           <Route path="/onboarding/profile-summary" element={<ProfileSummaryPage />} />
           <Route path="/onboarding/education-section" element={<EducationDetails />} />
           <Route path="/onboarding/professional-section" element={<ProffesionalDetails />} />
@@ -45,6 +44,7 @@ function App() {
           <Route path="/onboarding/publications-section" element={<PublicationDetails />} />
           <Route path="/onboarding/references-section" element={<ReferenceDetails />} />
           <Route path="/onboarding/declaration-section" element={<DeclarationDetails />} />
+          <Route path="/onboarding/preview" element={<PreviewPage />} />
         </Routes>
       </Router>
     </div>

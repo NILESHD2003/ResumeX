@@ -1,22 +1,15 @@
 import OrganizationDetailCard from '@/components/OrganizationCardDetails';
 import ProgressIndicator from '../components/ProgressIndicator';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import StaticBar from '../components/StaticBar';
 
 const OrganizationDetails = () => {
-    const navigate = useNavigate();
     return (
         <div className='min-h-screen flex flex-col items-center bg-[#F1F0FB]'>
-            <ProgressIndicator currentStep={12}/>
+            <StaticBar />
+            <ProgressIndicator currentStep={11}/>
+            <h1 className="text-3xl font-bold text-center">Organization Details</h1>
+            <span className='text-center font-semibold py-2'>"Doing good? Being awesome? <br />Your volunteering moments belong right here!"</span>
             <OrganizationDetailCard/>
-            <div className='w-full max-w-4xl px-4 mx-auto mt-10 mb-6 flex justify-between'>
-                <Button onClick={() => navigate('/onboarding/courses-section')} className='bg-gray-300 hover:bg-gray-400 text-black font-semibold py-2 px-6 rounded'>
-                    Back
-                </Button>
-                <Button onClick={() => navigate('/onboarding/publications-section')} className='bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded'>
-                    Continue
-                </Button>
-            </div>
         </div>
     )
 }

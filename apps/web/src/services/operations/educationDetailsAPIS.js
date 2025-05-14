@@ -39,6 +39,7 @@ export async function addNewEducationDetails(formData) {
         })
         if (response.data.success) {
             console.log(response.data.message);
+            return response.data.data
         } else {
             console.log(response.data.message)
         }
