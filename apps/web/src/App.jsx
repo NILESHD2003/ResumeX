@@ -1,9 +1,7 @@
-import { Input } from "@/components/ui/input"
-import { LoginSignUpPage } from "./pages/Login_Signup_Page";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import PersonalDetails from "./pages/PersonalDetailsPage";
-// import Terms from "./components/shared/TermAndCondition";
-// import PrivacyPolicy from "./components/shared/PrivacyPolicy";
+import Terms from './components/TermAndCondition'
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import { CreateAccountPage } from "./pages/CreateAccountPage";
 import AwardDetails from "./pages/AwardDetails"
 import ProfileSummaryPage from "./pages/ProfileSummayPage";
@@ -18,6 +16,12 @@ import OrganizationDetails from "./pages/OrganizationDetails";
 import PublicationDetails from "./pages/PublicationDetails";
 import ReferenceDetails from "./pages/ReferenceDetails";
 import DeclarationDetails from "./pages/DeclarationDetails";
+import LandingPage from "./pages/LandingPage";
+import { LoginPage } from "./pages/LoginPage";
+import { SignUpPage } from "./pages/SignUpPage";
+import DashboardPage from "./pages/DashboardPage";
+import ResumeSection from './components/ResumeSection';
+import CoverLetterSection from './components/CoverLetterSection';
 import PreviewPage from "./pages/PreviewPage";
 
 function App() {
@@ -25,11 +29,18 @@ function App() {
     <div>
       <Router>
        <Routes>
-          <Route path="/login" element={<LoginSignUpPage />} />
-          {/* <Route path="/terms" element={<Terms />} /> */}
-          {/* <Route path="/privacy" element={<PrivacyPolicy />} /> */}
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignUpPage />} />
+          <Route path="/dashboard" element={<DashboardPage />}>
+            <Route index element={<Navigate to="/dashboard/resumes" replace />} />
+            <Route path="resumes" element={<ResumeSection />} />
+            <Route path="cover-letters" element={<CoverLetterSection />} />
+            <Route path="settings" element={<div>Settings Content</div>} />
+          </Route>
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
-          {/* <Route path="/onboarding" element={<PrivacyPolicy />} /> */}
           <Route path="/onboarding/personal-details" element={<PersonalDetails />} />
           <Route path="/onboarding/awards-section" element={<AwardDetails />} />
           <Route path="/onboarding/profile-summary" element={<ProfileSummaryPage />} />
@@ -47,6 +58,7 @@ function App() {
           <Route path="/onboarding/preview" element={<PreviewPage />} />
         </Routes>
       </Router>
+      
     </div>
   )
 }
