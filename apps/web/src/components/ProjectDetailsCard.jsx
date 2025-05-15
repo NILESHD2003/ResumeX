@@ -1,16 +1,10 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
-import { DatePicker } from "./DatePicker";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import DatePicker from 'rsuite/DatePicker';
+import 'rsuite/DatePicker/styles/index.css';
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -20,26 +14,34 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Toaster, toast } from "sonner";
+import { Label } from './ui/label';
+import { useNavigate } from 'react-router-dom';
 import { 
   getUserProjectsDetails,
   addNewProjectDetail,
   updateProjectDetail,
-  toggleProjectDetailVisibility,
   deleteProjectDetail 
 } from "../services/operations/projectDetailsAPIS";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { format } from 'date-fns';
 
 const ProjectDetailsCard = () => {
   const [projects, setProjects] = useState([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
+  const [addData, setAddData] = useState(false);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
     subtitle: '',
     description: '',
     startDate: '',
     endDate: '',
-    links: [],
+    links: [{ url: '', platform: '' }],
     hide: false,
   });
 
@@ -48,9 +50,9 @@ const ProjectDetailsCard = () => {
       title: data.title ?? '',
       subtitle: data.subtitle ?? '',
       description: data.description ?? '',
-      startDate: data.startDate ?? '',
-      endDate: data.endDate ?? '',
-      links: data.links ?? [],
+      startDate: data.startDate ? new Date(data.startDate) : '',
+      endDate: data.endDate ? new Date(data.endDate) : '',
+      links: data.links ?? [{ url: '', platform: '' }],
       hide: Boolean(data.hide),
       _id: data._id, // keep id if present for editing
     };
@@ -61,9 +63,28 @@ const ProjectDetailsCard = () => {
     setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
+  const handleDateChange = (date, field) => {
+    setFormData((prev) => ({ ...prev, [field]: date }));
+  };
+
+  const isStartDateDisabled = (date) => {
+    return formData.endDate && date > formData.endDate;
+  };
+
+  const isEndDateDisabled = (date) => {
+    return formData.startDate && date < formData.startDate;
+  };
+
   function getChangedFields(newData, originalData) {
     return Object.fromEntries(
-      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+      Object.entries(newData).filter(([key, value]) => {
+        if (key === 'startDate' || key === 'endDate') {
+          const originalDate = originalData[key] ? new Date(originalData[key]).toISOString().split('T')[0] : '';
+          const newDate = value ? new Date(value).toISOString().split('T')[0] : '';
+          return originalDate !== newDate;
+        }
+        return originalData[key] !== value;
+      })
     );
   }
   
@@ -82,7 +103,7 @@ const ProjectDetailsCard = () => {
           return;
         }
     
-        if (isEditing) {
+        if (editIndex !== null) {
           const original = projects[editIndex];
           const updatedFields = getChangedFields(formData, original);
     
@@ -99,11 +120,9 @@ const ProjectDetailsCard = () => {
             setProjects((prev) => [...prev, { ...filledData, _id: response._id }]);
           }
         }
-    
-        resetForm();
-        setDialogOpen(false);
-        setIsEditing(false);
+        setAddData(false);
         setEditIndex(null);
+        resetForm();
       } catch (error) {
         console.error("Error saving project detail:", error);
         toast.error("Failed to save project.");
@@ -111,12 +130,10 @@ const ProjectDetailsCard = () => {
     };    
 
   const handleEdit = (index) => {
+    setEditIndex(index);
     const rawData = projects[index]
     const normalized = normalizeProjectsData(rawData)
     setFormData(normalized);
-    setIsEditing(true);
-    setEditIndex(index);
-    setDialogOpen(true);
   };
 
   const handleDelete = async (index) => {
@@ -130,19 +147,6 @@ const ProjectDetailsCard = () => {
       }
     };
 
-  const toggleVisibility = async (index) => {
-      const id = projects[index]._id;
-      try {
-        await toggleProjectDetailVisibility(id);
-        const updated = [...projects];
-        updated[index].hide = !updated[index].hide;
-        setProjects(updated);
-      } catch (error) {
-        console.error("Error toggling project visibility:", error);
-        toast.error("Failed to toggle visibility.");
-      }
-    };
-
   const resetForm = () => {
     setFormData({
       title: '',
@@ -150,7 +154,7 @@ const ProjectDetailsCard = () => {
       description: '',
       startDate: '',
       endDate: '',
-      links: [],
+      links: [{ url: '', platform: '' }],
       hide: false,
     });
   };
@@ -185,168 +189,194 @@ const ProjectDetailsCard = () => {
       }, []);
 
   return (
-    <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
-      <h1 className="text-3xl font-bold text-center mb-4">Project Details</h1>
-      <Toaster />
-      {projects.map((project, index) => (
-        <Card key={project.id || index} className="mb-4 border p-4 rounded-lg relative">
-          <div className="absolute top-2 right-2 flex gap-2">
-            <Button variant="ghost" onClick={() => handleEdit(index)}>
-              <Pencil className="w-4 h-4" />
-            </Button>
-            <Button variant="ghost" onClick={() => handleDelete(index)}>
-              <Trash2 className="w-4 h-4 text-red-500" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => toggleVisibility(index)}>
-                {project.hide ? (
-                <EyeOff className="w-4 h-4 text-gray-500" />
-                ) : (
-                <Eye className="w-4 h-4 text-green-600" />
-                )}
-            </Button>
+    <div className='flex flex-col w-full'>
+      <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
+        <Toaster />
+        
+        {(projects.length === 0 || editIndex !== null || addData) && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">
+              {editIndex !== null ? 'Update Project' : 'Add Project'}
+            </h2>
+            <FormInputs
+              formData={formData}
+              onChange={handleInputChange}
+              onDateChange={handleDateChange}
+              addLinkField={addLinkField}
+              updateLink={updateLink}
+              deleteLink={deleteLink}
+              onSubmit={handleSave}
+              isEndDateDisabled={isEndDateDisabled}
+              isStartDateDisabled={isStartDateDisabled}
+              submitLabel={editIndex !== null ? "Update" : "Save"}
+            />
           </div>
-          {!project.hide ? (
-            <div className="space-y-1">
-                <p><span className="font-semibold">Title:</span> {project.title}</p>
+        )}
+
+        {projects.length > 0 && editIndex === null && addData === false && (
+          <div className="justify-center">
+            <Accordion type="multiple" className="w-full space-y-2 pt-2">
+              {projects.map((project, index) => (
+                <AccordionItem key={index} value={`item-${index}`} className="p-2">
+                  <div className="flex justify-center items-center pr-2">
+                    <AccordionTrigger className="w-full flex justify-between items-center">
+                      <p className="text-center text-2xl font-semibold">
+                        {project.title || "Untitled Project"}
+                      </p>
+                    </AccordionTrigger>
+                  </div>
+                  <AccordionContent>                
+                      <div className="text-center pt-2 space-y-1 text-muted-foreground text-lg">
+                        <p><strong>Subtitle:</strong> {project.subtitle}</p>
+                        <p><strong>Duration:</strong> {project.startDate ? format(new Date(project.startDate), 'MMM yyyy') : ''} - {project.endDate ? format(new Date(project.endDate), 'MMM yyyy') : ''}</p>
+                        <p><strong>Description:</strong> {project.description}</p>
+                        <strong>Link:</strong>{" "}
+                        <ul>
+                          {project.links.map((link, index) => (
+                            <li key={index}>{link.platform}: {link.url}</li>
+                          ))}
+                        </ul>                     
+                      </div>
+                    
+                    <div className="flex justify-end gap-2 pr-4">
+                      <Button size="icon" variant="ghost" onClick={() => handleEdit(index)} title="Edit">
+                        <Pencil className="w-4 h-4 text-blue-600" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => handleDelete(index)} title="Delete">
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <div className="flex justify-center mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddData(true)}
+              >
+                Add <Plus className="ml-2 h-4 w-4" />
+              </Button>
             </div>
-          ) : (
-            <p className="text-center italic text-gray-500">This certification is hidden.</p>
-          )}
-        </Card>
-      ))}
-
-      <div className="flex justify-center mt-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            resetForm();
-            setIsEditing(false);
-            setDialogOpen(true);
-          }}
-        >
-          Add <Plus className="ml-2 w-4 h-4" />
-        </Button>
+          </div>
+        )}
+      </Card>
+      <div className='w-full max-w-4xl px-4 mx-auto mt-10 mb-6 flex justify-between'>
+          <Button variant="outline" onClick={() => navigate('/onboarding/certificates-section')} className='font-semibold py-2 px-6 rounded'>
+              Back
+          </Button>
+          <Button onClick={() => navigate('/onboarding/awards-section')} className='font-semibold py-2 px-6 rounded'>
+              {projects.length === 0 ? 'Skip' : 'Continue'}
+          </Button>
       </div>
+    </div>
+  );
+};
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent aria-describedby="">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              {isEditing ? "Edit Project" : "Add Project Details"}
-            </DialogTitle>
-          </DialogHeader>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSave();
-            }}
-          >
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Input
+const FormInputs = ({ formData, onChange, onDateChange, onSubmit, updateLink, addLinkField, deleteLink, isEndDateDisabled, isStartDateDisabled, submitLabel = "Save" }) => (
+  <div className='space-y-4'>
+    <div className="grid grid-cols-4 items-center gap-4">
+        <div className="col-span-4">
+            <Label htmlFor="title" className="px-1 pb-1">Project Title</Label>
+            <Input
                 type="text"
                 id="title"
                 placeholder="Project Title"
                 className="col-span-4"
                 value={formData.title}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <Input
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4">
+            <Label htmlFor="subtitle" className="px-1 pb-1">Subtitle</Label>
+            <Input
                 type="text"
                 id="subtitle"
                 placeholder="Subtitle"
                 className="col-span-4"
                 value={formData.subtitle}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <Textarea
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4">
+            <Label htmlFor="description" className="px-1 pb-1">Description</Label>
+            <Textarea
+                id="description"
                 className="col-span-4"
                 placeholder="Enter Description"
                 value={formData.description}
-                onChange={(e) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    description: e.target.value,
-                  }))
-                }
-              />
-            </div>
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-2">
+            <Label htmlFor="startDate" className="px-1 pb-1">Start Date</Label>
+            <DatePicker
+                id="startDate"
+                style={{ width: '100%' }}
+                value={formData.startDate}
+                shouldDisableDate={isStartDateDisabled}
+                onChange={(date) =>
+                onDateChange(date, 'startDate')}
+            />
+        </div>
+        <div className="col-span-2">
+            <Label htmlFor="endDate" className="px-1 pb-1">End Date</Label>
+            <DatePicker
+                id="endDate"
+                style={{ width: '100%' }}
+                value={formData.endDate}
+                shouldDisableDate={isEndDateDisabled}
+                onChange={(date) =>
+                onDateChange(date, 'endDate')}
+            />
+        </div>
+    </div>
 
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <div className="col-span-2">
-                <DatePicker
-                  span="Start Date"
-                  selected={formData.startDate}
-                  onChange={(date) =>
-                    setFormData((prev) => ({ ...prev, startDate: date }))
-                  }
-                />
-              </div>
-              <div className="col-span-2">
-                <DatePicker
-                  span="End Date"
-                  selected={formData.endDate}
-                  onChange={(date) =>
-                    setFormData((prev) => ({ ...prev, endDate: date }))
-                  }
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2 py-2">
-              {formData.links.map((link, index) => (
-                <div key={index} className="grid grid-cols-4 gap-2 items-center">
-                  <Input
+    <div className="space-y-2">
+        <Label className="px-1">Project Links</Label>
+        {formData.links.map((link, index) => (
+            <div key={index} className="grid grid-cols-4 gap-2 items-center">
+                <Input
                     placeholder="Link"
                     className="col-span-3"
                     value={link.url}
                     onChange={(e) => updateLink(index, "url", e.target.value)}
-                  />
-                  <Select
+                />
+                <Select
                     value={link.platform}
                     onValueChange={(val) => updateLink(index, "platform", val)}
-                  >
+                >
                     <SelectTrigger className="w-full">
-                      <SelectValue placeholder="Type" />
+                        <SelectValue placeholder="Type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="GITHUB">GitHub</SelectItem>
-                      <SelectItem value="WEBSITE">Website</SelectItem>
-                      <SelectItem value="APP_STORE">App Store</SelectItem>
-                      <SelectItem value="PLAY_STORE">Play Store</SelectItem>
-                      <SelectItem value="OTHER">Other</SelectItem>
+                        <SelectItem value="GITHUB">GitHub</SelectItem>
+                        <SelectItem value="WEBSITE">Website</SelectItem>
+                        <SelectItem value="APP_STORE">App Store</SelectItem>
+                        <SelectItem value="PLAY_STORE">Play Store</SelectItem>
+                        <SelectItem value="OTHER">Other</SelectItem>
                     </SelectContent>
-                  </Select>
-                  <Button
+                </Select>
+                <Button
                     variant="destructive"
                     size="icon"
                     className="rounded-full"
                     onClick={() => deleteLink(index)}
                     type="button"
-                  >
+                >
                     <Trash2 size={16} />
-                  </Button>
-                </div>
-              ))}
-              <Button variant="ghost" className="w-full" type="button" onClick={addLinkField}>
-                Add Another Link <Plus size={14} />
-              </Button>
+                </Button>
             </div>
-
-            <DialogFooter>
-              <Button type="submit">{isEditing ? "Update" : "Save"}</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </Card>
-  );
-};
+        ))}
+        <Button variant="ghost" className="w-full" type="button" onClick={addLinkField}>
+            Add Another Link <Plus size={14} />
+        </Button>
+    </div>
+    <div className="text-right">
+        <Button onClick={onSubmit}>{submitLabel}</Button>
+    </div>
+  </div>
+)
 
 export default ProjectDetailsCard;

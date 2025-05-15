@@ -1,31 +1,31 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Eye, EyeOff, Pencil } from "lucide-react";
-import { DatePicker } from "./DatePicker";
+import { Plus, Trash2, Pencil } from "lucide-react";
+import DatePicker from 'rsuite/DatePicker';
+import 'rsuite/DatePicker/styles/index.css';
 import { Toaster, toast } from "sonner";
+import { Label } from './ui/label';
+import { useNavigate } from 'react-router-dom';
 import { 
   getUserAwardsDetails,
   addNewAwardDetail,
   updateAwardDetail,
-  toggleAwardDetailVisibility,
   deleteAwardDetail 
 } from "../services/operations/awardDetailsAPIS";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { format } from 'date-fns';
 
 const AwardDetailsCard = () => {
   const [awards, setAwards] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
+  const [addData, setAddData] = useState(false);
   const [form, setForm] = useState({
     title: "",
     link: "",
@@ -33,6 +33,7 @@ const AwardDetailsCard = () => {
     date: "",
     hide: false,
   });
+  const navigate = useNavigate();
 
   const resetForm = () => {
     setForm({
@@ -42,12 +43,15 @@ const AwardDetailsCard = () => {
       date: "",
       hide: false,
     });
-    setIsEditing(false);
-    setEditingIndex(null);
   };
 
-  const handleChange = (key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setForm((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleDateChange = (date, field) => {
+    setForm((prev) => ({ ...prev, [field]: date }));
   };
 
   function normalizeAwardsData(data) {
@@ -55,14 +59,22 @@ const AwardDetailsCard = () => {
       title: data.title ?? '',
       link: data.link ?? '',
       issuer: data.issuer ?? '',
-      date: data.date ?? '',
+      date: data.date ? new Date(data.date) : '',
       hide: Boolean(data.hide),
       _id: data._id, // keep id if present for editing
     };
   }
+
   function getChangedFields(newData, originalData) {
     return Object.fromEntries(
-      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+      Object.entries(newData).filter(([key, value]) => {
+        if (key === 'date') {
+          const originalDate = originalData[key] ? new Date(originalData[key]).toISOString().split('T')[0] : '';
+          const newDate = value ? new Date(value).toISOString().split('T')[0] : '';
+          return originalDate !== newDate;
+        }
+        return originalData[key] !== value;
+      })
     );
   }
   
@@ -81,14 +93,14 @@ const AwardDetailsCard = () => {
           return;
         }
     
-        if (isEditing) {
-          const original = awards[editingIndex];
+        if (editIndex !== null) {
+          const original = awards[editIndex];
           const updatedFields = getChangedFields(form, original);
     
           if (Object.keys(updatedFields).length > 0) {
             await updateAwardDetail(updatedFields, original._id);
             const updatedAwards = [...awards];
-            updatedAwards[editingIndex] = { ...original, ...updatedFields };
+            updatedAwards[editIndex] = { ...original, ...updatedFields };
             setAwards(updatedAwards);
           }
         } else {
@@ -98,11 +110,9 @@ const AwardDetailsCard = () => {
             setAwards((prev) => [...prev, { ...filledData, _id: response._id }]);
           }
         }
-    
+        setAddData(false);
+        setEditIndex(null);
         resetForm();
-        setOpenDialog(false);
-        setIsEditing(false);
-        setEditingIndex(null);
       } catch (error) {
         console.error("Error saving award detail:", error);
         toast.error("Failed to save award.");
@@ -110,12 +120,10 @@ const AwardDetailsCard = () => {
     };  
 
   const handleEdit = (index) => {
+    setEditIndex(index);
     const rawData = awards[index];
     const normalized = normalizeAwardsData(rawData);
     setForm(normalized);
-    setIsEditing(true);
-    setEditingIndex(index);
-    setOpenDialog(true);
   };
 
   const handleDelete = async (index) => {
@@ -126,19 +134,6 @@ const AwardDetailsCard = () => {
       } catch (error) {
         console.error("Error deleting award:", error);
         toast.error("Failed to delete award.");
-      }
-    };
-
-  const toggleVisibility = async (index) => {
-      const id = awards[index]._id;
-      try {
-        await toggleAwardDetailVisibility(id);
-        const updated = [...awards];
-        updated[index].hide = !updated[index].hide;
-        setAwards(updated);
-      } catch (error) {
-        console.error("Error toggling Award visibility:", error);
-        toast.error("Failed to toggle visibility.");
       }
     };
 
@@ -154,96 +149,135 @@ const AwardDetailsCard = () => {
       }, []);
 
   return (
-    <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
-      <h1 className="text-3xl font-bold text-center mb-4">Award Details</h1>
-      <Toaster />
-      {awards.map((award, index) => (
-        <Card key={index} className="mb-4 border p-4 rounded-md relative">
-          <div className="absolute top-2 right-2 flex gap-2">
-            <Button size="icon" variant="ghost" onClick={() => handleEdit(index)}>
-              <Pencil className="w-4 h-4" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => handleDelete(index)}>
-              <Trash2 className="w-4 h-4 text-red-500" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => toggleVisibility(index)}>
-              {award.hide ? (
-                <EyeOff className="w-4 h-4 text-gray-500" />
-              ) : (
-                <Eye className="w-4 h-4 text-green-600" />
-              )}
-            </Button>
+    <div className='flex flex-col w-full'>
+      <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
+        <Toaster />
+        {(awards.length === 0 || editIndex !== null || addData) && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">
+              {editIndex !== null ? 'Update Award' : 'Add Award'}
+            </h2>
+            <FormInputs
+              form={form}
+              onChange={handleInputChange}
+              onDateChange={handleDateChange}
+              onSubmit={handleSave}
+              submitLabel={editIndex !== null ? "Update" : "Save"}
+            />
           </div>
+        )}
 
-          {!award.hide ? (
-            <div className="space-y-1">
-              <p><span className="font-semibold">Title:</span> {award.title}</p>
+        {awards.length > 0 && editIndex === null && addData === false && (
+          <div className="justify-center">
+            <Accordion type="multiple" className="w-full space-y-2 pt-2">
+              {awards.map((award, index) => (
+                <AccordionItem key={index} value={`item-${index}`} className="p-2">
+                  <div className="flex justify-center items-center pr-2">
+                    <AccordionTrigger className="w-full flex justify-between items-center">
+                      <p className="text-center text-2xl font-semibold">
+                        {award.title || "Untitled Award"}
+                      </p>
+                    </AccordionTrigger>
+                  </div>
+                  <AccordionContent>
+                      <div className="text-center pt-2 space-y-1 text-muted-foreground text-lg">
+                        <p><strong>Issuer:</strong> {award.issuer}</p>
+                        <p><strong>Date:</strong> {award.date ? format(new Date(award.date), 'MMM yyyy') : ''}</p>
+                        {award.link && (
+                          <p>
+                            <strong>Link:</strong>{" "}                     
+                              {award.link}                  
+                          </p>
+                        )}
+                      </div>
+                    
+                    <div className="flex justify-end gap-2 pr-4">
+                      <Button size="icon" variant="ghost" onClick={() => handleEdit(index)} title="Edit">
+                        <Pencil className="w-4 h-4 text-blue-600" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => handleDelete(index)} title="Delete">
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <div className="flex justify-center mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddData(true)}
+              >
+                Add <Plus className="ml-2 h-4 w-4" />
+              </Button>
             </div>
-          ) : (
-            <p className="text-center italic text-gray-500">This award is hidden.</p>
-          )}
-        </Card>
-      ))}
-
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogTrigger asChild>
-          <div className="flex justify-center">
-            <Button variant="outline" size="sm" onClick={resetForm}>
-              Add <Plus />
-            </Button>
           </div>
-        </DialogTrigger>
-        <DialogContent aria-describedby="">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              {isEditing ? "Edit" : "Add"} Award Details
-            </DialogTitle>
-          </DialogHeader>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSave();
-            }}
-          >
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Input
+        )}
+      </Card>
+      <div className='w-full max-w-4xl px-4 mx-auto mt-10 mb-6 flex justify-between'>
+          <Button variant="outline" onClick={() => navigate('/onboarding/projects-section')} className='font-semibold py-2 px-6 rounded'>
+              Back
+          </Button>
+          <Button onClick={() => navigate('/onboarding/courses-section')} className='font-semibold py-2 px-6 rounded'>
+              {awards.length === 0 ? 'Skip' : 'Continue'}
+          </Button>
+      </div>
+    </div>
+  );
+};
+
+const FormInputs = ({ form, onChange, onDateChange, onSubmit, submitLabel = "Save" }) => (
+  <div className='space-y-4'>
+    <div className="grid grid-cols-4 items-center gap-4">
+        <div className="col-span-4">
+            <Label htmlFor="title" className="px-1 pb-1">Award Title</Label>
+            <Input
                 type="text"
+                id="title"
                 placeholder="Award Title"
                 className="col-span-4"
                 value={form.title}
-                onChange={(e) => handleChange("title", e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <Input
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4">
+            <Label htmlFor="link" className="px-1 pb-1">Award Link</Label>
+            <Input
                 type="text"
+                id="link"
                 placeholder="Award Link"
                 className="col-span-4"
                 value={form.link}
-                onChange={(e) => handleChange("link", e.target.value)}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <Input
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4 sm:col-span-2">
+            <Label htmlFor="issuer" className="px-1 pb-1">Issuer</Label>
+            <Input
                 type="text"
+                id="issuer"
                 placeholder="Issuer"
-                className="col-span-2"
+                className="col-span-4 sm:col-span-2"
                 value={form.issuer}
-                onChange={(e) => handleChange("issuer", e.target.value)}
-              />
-              <div className="col-span-2">
-                <DatePicker span="Date" selected={form.date} onChange={(val) => handleChange("date", val)} />
-              </div>
-            </div>
-
-            <DialogFooter>
-              <Button type="submit">{isEditing ? "Update" : "Save"}</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </Card>
-  );
-};
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4 sm:col-span-2">
+            <Label htmlFor="date" className="px-1 pb-1">Award Date</Label>
+            <DatePicker
+                id="date"
+                style={{ width: '100%' }}
+                value={form.date}
+                onChange={(date) =>
+                onDateChange(date, 'date')}
+            />
+        </div>
+    </div>
+    <div className="text-right">
+        <Button onClick={onSubmit}>{submitLabel}</Button>
+    </div>
+  </div>
+)
 
 export default AwardDetailsCard;

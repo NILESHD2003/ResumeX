@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from './ui/label';
 import { Textarea } from "@/components/ui/textarea"
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import DatePicker from 'rsuite/DatePicker';
+import 'rsuite/DatePicker/styles/index.css';
+import { useNavigate } from 'react-router-dom';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Plus, Pencil, Trash2, Eye, EyeOff } from "lucide-react";
-import { DatePicker } from "./DatePicker";
-import { 
   getUserCertificatesDetails,
   addNewCertificateDetail,
   updateCertificateDetail,
-  toggleCertificateDetailVisibility,
   deleteCertificateDetail 
 } from "../services/operations/certificateDetailsAPIS";
 import { Toaster, toast } from "sonner";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { format } from 'date-fns';
 
 const CertificationDetailCard = () => {
   const [certifications, setCertifications] = useState([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
   const [formData, setFormData] = useState({
     title: "",
@@ -36,6 +36,8 @@ const CertificationDetailCard = () => {
     expirationDate: "",
     hide: false,
   });
+  const [addData, setAddData] = useState(false);
+  const navigate = useNavigate();
 
   function normalizeCertificationsData(data) {
     return {
@@ -44,8 +46,8 @@ const CertificationDetailCard = () => {
       additionalInfo: data.additionalInfo ?? "",
       license: data.license ?? "",
       issuer: data.issuer ?? "",
-      date: data.date ?? "",
-      expirationDate: data.expirationDate ?? "",
+      date: data.date ? new Date(data.date) : "",
+      expirationDate: data.expirationDate ? new Date(data.expirationDate) : "",
       hide: Boolean(data.hide),
       _id: data._id, // keep id if present for editing
     };
@@ -55,6 +57,14 @@ const CertificationDetailCard = () => {
     setFormData(prev => ({ ...prev, [field]: date }));
   };
 
+  const isDateDisabled = (date) => {
+    return formData.expirationDate && date > formData.expirationDate;
+  };
+
+  const isExpirationDateDisabled = (date) => {
+    return formData.date && date < formData.date;
+  };
+
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
@@ -62,7 +72,14 @@ const CertificationDetailCard = () => {
 
   function getChangedFields(newData, originalData) {
     return Object.fromEntries(
-      Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
+      Object.entries(newData).filter(([key, value]) => {
+        if (key === 'date' || key === 'expirationDate') {
+          const originalDate = originalData[key] ? new Date(originalData[key]).toISOString().split('T')[0] : '';
+          const newDate = value ? new Date(value).toISOString().split('T')[0] : '';
+          return originalDate !== newDate;
+        }
+        return originalData[key] !== value;
+      })
     );
   }
   
@@ -81,7 +98,7 @@ const CertificationDetailCard = () => {
         return;
       }
   
-      if (isEditing) {
+      if (editIndex !== null) {
         const original = certifications[editIndex];
         const updatedFields = getChangedFields(formData, original);
   
@@ -96,13 +113,13 @@ const CertificationDetailCard = () => {
         const response = await addNewCertificateDetail(filledData);
         if (response && response._id) {
           setCertifications((prev) => [...prev, { ...filledData, _id: response._id }]);
+        } else {
+          console.warn("New item not returned properly:", response);
         }
       }
-  
-      resetForm();
-      setDialogOpen(false);
-      setIsEditing(false);
+      setAddData(false);
       setEditIndex(null);
+      resetForm();
     } catch (error) {
       console.error("Error saving certifications detail:", error);
       toast.error("Failed to save certifications.");
@@ -110,12 +127,10 @@ const CertificationDetailCard = () => {
   };
 
   const handleEdit = (index) => {
+    setEditIndex(index);
     const rawData = certifications[index];
     const normalized = normalizeCertificationsData(rawData);
     setFormData(normalized);
-    setIsEditing(true);
-    setEditIndex(index);
-    setDialogOpen(true);
   };
 
   const handleDelete = async (index) => {
@@ -128,23 +143,6 @@ const CertificationDetailCard = () => {
         setCertifications(updatedList);
       } catch (error) {
         console.error("Error deleting item:", error);
-      }
-    };
-
-  const toggleVisibility = async (index) => {
-      const id = certifications[index]._id;
-      try {
-        await toggleCertificateDetailVisibility(id);
-    
-        // Toggle the isVisible field locally
-        const updatedList = [...certifications];
-        updatedList[index] = {
-          ...updatedList[index],
-          hide: !updatedList[index].hide,
-        };
-        setCertifications(updatedList);
-      } catch (error) {
-        console.error("Error toggling visibility:", error);
       }
     };
 
@@ -173,131 +171,170 @@ const CertificationDetailCard = () => {
   };
 
   return (
-    <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
-      <h1 className="text-3xl font-bold text-center mb-4">Certification Details</h1>
-      <Toaster />
-      {certifications.map((cert, index) => (
-        <Card key={index} className="mb-4 p-4 rounded-xl relative">
-          <div className="absolute top-2 right-2 flex gap-2">
-            <Button size="icon" variant="ghost" onClick={() => handleEdit(index)}>
-              <Pencil className="w-4 h-4" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => handleDelete(index)}>
-              <Trash2 className="w-4 h-4 text-red-500" />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => toggleVisibility(index)}>
-              {cert.hide ? (
-                <EyeOff className="w-4 h-4 text-gray-500" />
-              ) : (
-                <Eye className="w-4 h-4 text-green-600" />
-              )}
-            </Button>
+    <div className='flex flex-col w-full'>
+      <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
+        <Toaster />
+
+        {(certifications.length === 0 || editIndex !== null || addData) && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">
+              {editIndex !== null ? 'Update Certification' : 'Add Certification'}
+            </h2>
+            <FormInputs
+              formData={formData}
+              onChange={handleInputChange}
+              onDateChange={handleDateChange}
+              onSubmit={handleSave}
+              isDateDisabled={isDateDisabled}
+              isExpirationDateDisabled={isExpirationDateDisabled}
+              submitLabel={editIndex !== null ? "Update" : "Save"}
+            />
           </div>
+        )}
 
-          {!cert.hide ? (
-            <div className="space-y-1">
-              <p><span className="font-semibold">Title:</span> {cert.title}</p>
+        {certifications.length > 0 && editIndex === null && addData === false && (
+          <div className="justify-center">
+            <Accordion type="multiple" className="w-full space-y-2 pt-2">
+              {certifications.map((cer, index) => (
+                <AccordionItem key={index} value={`item-${index}`} className="p-2">
+                  <div className="flex justify-center items-center pr-2">
+                    <AccordionTrigger className="w-full flex justify-between items-center">
+                      <p className="text-center text-2xl font-semibold">
+                        {cer.title || "Untitled Certificate"}
+                      </p>
+                    </AccordionTrigger>
+                  </div>
+                  <AccordionContent>
+                      <div className="text-center pt-2 space-y-1 text-muted-foreground text-lg">
+                        <p><strong>Issuer:</strong> {cer.issuer}</p>
+                        <p><strong>License:</strong> {cer.license}</p>
+                        <p><strong>Duration:</strong> {cer.date ? format(new Date(cer.date), 'MMM yyyy') : ''} - {cer.expirationDate ? format(new Date(cer.expirationDate), 'MMM yyyy') : ''}</p>
+                        <p><strong>Addtional Info:</strong> {cer.additionalInfo}</p>
+                        {cer.link && (
+                          <p>
+                            <strong>Link:</strong>{" "}                     
+                              {cer.link}                  
+                          </p>
+                        )}
+                      </div>
+                    
+                    <div className="flex justify-end gap-2 pr-4">
+                      <Button size="icon" variant="ghost" onClick={() => handleEdit(index)} title="Edit">
+                        <Pencil className="w-4 h-4 text-blue-600" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => handleDelete(index)} title="Delete">
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <div className="flex justify-center mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddData(true)}
+              >
+                Add <Plus className="ml-2 w-4 h-4" />
+              </Button>
             </div>
-          ) : (
-            <p className="italic text-gray-500">Hidden</p>
-          )}
-        </Card>
-      ))}
-
-      <div className="flex justify-center mt-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => {
-            resetForm();
-            setIsEditing(false);
-            setDialogOpen(true);
-          }}
-        >
-          Add <Plus className="ml-2 w-4 h-4" />
-        </Button>
+          </div>
+        )}
+      </Card>
+      <div className='w-full max-w-4xl px-4 mx-auto mt-10 mb-6 flex justify-between'>
+          <Button variant="outline" onClick={() => navigate('/onboarding/languages-section')} className='font-semibold py-2 px-6 rounded'>
+              Back
+          </Button>
+          <Button onClick={() => navigate('/onboarding/projects-section')} className='font-semibold py-2 px-6 rounded'>
+              {certifications.length === 0 ? 'Skip' : 'Continue'}
+          </Button>
       </div>
+    </div>
+  );
+};
 
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent aria-describedby="">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              {isEditing ? "Edit Certification" : "Add Certification Details"}
-            </DialogTitle>
-          </DialogHeader>
-          <form>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Input
+const FormInputs = ({ formData, onChange, onDateChange, onSubmit, isExpirationDateDisabled, isDateDisabled, submitLabel = "Save" }) => (
+  <div className='space-y-4'>
+    <div className="grid grid-cols-4 items-center gap-4">
+        <div className="col-span-4">
+            <Label htmlFor="title" className="px-1 pb-1">Certification Title</Label>
+            <Input
                 type="text"
                 id="title"
                 placeholder="Certification Title"
                 className="col-span-4"
                 value={formData.title}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <Input
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4">
+            <Label htmlFor="link" className="px-1 pb-1">Certification Link</Label>
+            <Input
                 type="text"
                 id="link"
                 placeholder="Certification Link"
                 className="col-span-4"
                 value={formData.link}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <Input
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4 sm:col-span-2">
+            <Label htmlFor="issuer" className="px-1 pb-1">Issuer</Label>
+            <Input
                 type="text"
                 id="issuer"
                 placeholder="Issuer"
-                className="col-span-2"
+                className="col-span-4 sm:col-span-2"
                 value={formData.issuer}
-                onChange={handleInputChange}
-              />
-              <Input
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4 sm:col-span-2">
+            <Label htmlFor="license" className="px-1 pb-1">License</Label>
+            <Input
                 type="text"
                 id="license"
                 placeholder="License"
-                className="col-span-2"
+                className="col-span-4 sm:col-span-2"
                 value={formData.license}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <div className="col-span-2">
-                <DatePicker
-                  span={"Issue Date"}
-                  selected={formData.date}
-                  onChange={(date) => handleDateChange(date, 'date')}
-                />
-              </div>
-              <div className="col-span-2">
-                <DatePicker
-                  span={"Exp Date"}
-                  selected={formData.expirationDate}
-                  onChange={(date) => handleDateChange(date, 'expirationDate')}
-                />
-              </div>
-              <div className='col-span-4'>
-              <Textarea
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4 sm:col-span-2">
+            <Label htmlFor="date" className="px-1 pb-1">Issue Date</Label>
+            <DatePicker
+                id="date"
+                style={{ width: '100%' }}
+                value={formData.date}
+                shouldDisableDate={isDateDisabled}
+                onChange={(date) => onDateChange(date, 'date')}
+            />
+        </div>
+        <div className="col-span-4 sm:col-span-2">
+            <Label htmlFor="expirationDate" className="px-1 pb-1">Expiration Date</Label>
+            <DatePicker
+                id="expirationDate"
+                style={{ width: '100%' }}
+                value={formData.expirationDate}
+                shouldDisableDate={isExpirationDateDisabled}
+                onChange={(date) => onDateChange(date, 'expirationDate')}
+            />
+        </div>
+        <div className='col-span-4'>
+            <Label htmlFor="additionalInfo" className="px-1 pb-1">Professional Description</Label>
+            <Textarea
                 id="additionalInfo"
                 placeholder="Enter Professional Description"
                 value={formData.additionalInfo}
-                onChange={handleInputChange}
-              />
-            </div>
-            </div>
-          </form>
-          <DialogFooter>
-            <Button type="button" onClick={handleSave}>
-              {isEditing ? "Update" : "Save"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </Card>
-  );
-};
+                onChange={onChange}
+            />
+        </div>
+    </div>
+    <div className="text-right">
+        <Button onClick={onSubmit}>{submitLabel}</Button>
+    </div>
+  </div>
+)
 
 export default CertificationDetailCard;

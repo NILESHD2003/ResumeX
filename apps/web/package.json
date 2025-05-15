@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@radix-ui/react-accordion": "^1.2.10",
     "@radix-ui/react-checkbox": "^1.2.3",
     "@radix-ui/react-dialog": "^1.1.13",
     "@radix-ui/react-label": "^2.1.4",
@@ -35,6 +36,7 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.5.3",
     "react-scroll": "^1.9.3",
+    "rsuite": "^5.80.2",
     "sonner": "^2.0.3",
     "swiper": "^11.2.6",
     "tailwind-merge": "^3.2.0",

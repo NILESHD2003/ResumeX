@@ -41,6 +41,6 @@ export async function updateProfileSummaryDetails(summary) {
             console.log(response.data.message)
         }
     } catch(error) {
-        confirm.log("Data was not updated", error)
+        console.log("Data was not fetched", error);
     }
 }

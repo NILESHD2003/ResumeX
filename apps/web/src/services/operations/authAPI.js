@@ -74,6 +74,3 @@ export function login(email, password, navigate) {
         }
     }
 }
-
-
-login("")

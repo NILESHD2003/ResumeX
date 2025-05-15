@@ -5,7 +5,6 @@ import PrivacyPolicy from "./components/PrivacyPolicy";
 import { CreateAccountPage } from "./pages/CreateAccountPage";
 import AwardDetails from "./pages/AwardDetails"
 import ProfileSummaryPage from "./pages/ProfileSummayPage";
-import ProfileImagePage from "./pages/ProfileImagePage";
 import EducationDetails from "./pages/EducationDetails";
 import ProffesionalDetails from "./pages/ProffesionalDetails";
 import SkillsDetails from "./pages/SkillsDetails";
@@ -23,6 +22,7 @@ import { SignUpPage } from "./pages/SignUpPage";
 import DashboardPage from "./pages/DashboardPage";
 import ResumeSection from './components/ResumeSection';
 import CoverLetterSection from './components/CoverLetterSection';
+import PreviewPage from "./pages/PreviewPage";
 
 function App() {
   return (
@@ -43,7 +43,6 @@ function App() {
           <Route path="/create-account" element={<CreateAccountPage />} />
           <Route path="/onboarding/personal-details" element={<PersonalDetails />} />
           <Route path="/onboarding/awards-section" element={<AwardDetails />} />
-          <Route path="/onboarding/profile-image" element={<ProfileImagePage />} />
           <Route path="/onboarding/profile-summary" element={<ProfileSummaryPage />} />
           <Route path="/onboarding/education-section" element={<EducationDetails />} />
           <Route path="/onboarding/professional-section" element={<ProffesionalDetails />} />
@@ -56,6 +55,7 @@ function App() {
           <Route path="/onboarding/publications-section" element={<PublicationDetails />} />
           <Route path="/onboarding/references-section" element={<ReferenceDetails />} />
           <Route path="/onboarding/declaration-section" element={<DeclarationDetails />} />
+          <Route path="/onboarding/preview" element={<PreviewPage />} />
         </Routes>
       </Router>
       

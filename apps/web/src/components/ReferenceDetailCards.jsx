@@ -1,30 +1,28 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Eye, EyeOff, Pencil } from "lucide-react";
+import { Plus, Trash2, Pencil } from "lucide-react";
 import { Toaster, toast } from "sonner";
+import { useNavigate } from 'react-router-dom';
 import { 
   getUserReferencesDetails,
   addNewReferenceDetail,
   updateReferenceDetail,
-  toggleReferenceDetailVisibility,
   deleteReferenceDetail 
 } from "../services/operations/referenceDetailsAPIS";
+import { Label } from './ui/label';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const ReferenceDetailCard = () => {
   const [references, setReferences] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [editingIndex, setEditingIndex] = useState(null);
+  const [editIndex, setEditIndex] = useState(null);
+  const [addData, setAddData] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     link: "",
@@ -34,6 +32,7 @@ const ReferenceDetailCard = () => {
     phone: "",
     hide: false,
   });
+  const navigate = useNavigate();
 
   function normalizeReferencesData(data) {
     return {
@@ -81,14 +80,14 @@ const ReferenceDetailCard = () => {
         return;
       }
   
-      if (isEditing) {
-        const original = references[editingIndex];
+      if (editIndex !== null) {
+        const original = references[editIndex];
         const updatedFields = getChangedFields(formData, original);
   
         if (Object.keys(updatedFields).length > 0) {
           await updateReferenceDetail(updatedFields, original._id);
           const updatedReferences = [...references];
-          updatedReferences[editingIndex] = { ...original, ...updatedFields };
+          updatedReferences[editIndex] = { ...original, ...updatedFields };
           setReferences(updatedReferences);
         }
       } else {
@@ -98,11 +97,9 @@ const ReferenceDetailCard = () => {
           setReferences((prev) => [...prev, { ...filledData, _id: response._id }]);
         }
       }
-  
+      setAddData(false);
+      setEditIndex(null);
       resetForm();
-      setOpenDialog(false);
-      setIsEditing(false);
-      setEditingIndex(null);
     } catch (error) {
       console.error("Error saving reference detail:", error);
       toast.error("Failed to save reference.");
@@ -110,12 +107,10 @@ const ReferenceDetailCard = () => {
   };  
 
   const handleEdit = (index) => {
+    setEditIndex(index);
     const rawData = references[index];
     const normalized = normalizeReferencesData(rawData);
     setFormData(normalized);
-    setIsEditing(true);
-    setEditingIndex(index);
-    setOpenDialog(true);
   };
 
   const handleDelete = async (index) => {
@@ -129,21 +124,9 @@ const ReferenceDetailCard = () => {
     }
   };
 
-  const toggleVisibility = async (index) => {
-    const id = references[index]._id;
-    try {
-      await toggleReferenceDetailVisibility(id);
-      const updated = [...references];
-      updated[index].hide = !updated[index].hide;
-      setReferences(updated);
-    } catch (error) {
-      console.error("Error toggling references visibility:", error);
-      toast.error("Failed to toggle visibility.");
-    }
-  }; 
-
-  const handleChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleInputChange = (e) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({ ...prev, [id]: value }));
   };
 
 useEffect(() => {
@@ -158,111 +141,163 @@ useEffect(() => {
 }, []);
 
   return (
-    <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
-      <h1 className="text-3xl font-bold text-center mb-4">Reference Details</h1>
-
-      {references.map((ref, index) => (
-        <div key={index} className="mb-4 border p-4 rounded-md relative">
-          <div className="absolute top-2 right-2 flex gap-2">
-            <Button variant="ghost" onClick={() => handleEdit(index)}>
-              <Pencil size={16} />
-            </Button>
-            <Button variant="ghost" onClick={() => handleDelete(index)}>
-              <Trash2 size={16} />
-            </Button>
-            <Button size="icon" variant="ghost" onClick={() => toggleVisibility(index)}>
-                {ref.hide ? (
-                <EyeOff className="w-4 h-4 text-gray-500" />
-                ) : (
-                <Eye className="w-4 h-4 text-green-600" />
-                )}
-            </Button>
+    <div className='flex flex-col w-full'>
+      <Card className="max-w-xl w-full mx-auto p-6 bg-white rounded-3xl shadow-sm">
+        <Toaster />
+        
+        {(references.length === 0 || editIndex !== null || addData) && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">
+              {editIndex !== null ? 'Update Reference' : 'Add Reference'}
+            </h2>
+            <FormInputs
+              formData={formData}
+              onChange={handleInputChange}
+              onSubmit={handleSave}
+              submitLabel={editIndex !== null ? "Update" : "Save"}
+            />
           </div>
-          {!ref.hide ? (
-            <div className="space-y-1">
-                <p><span className="font-semibold">Title:</span> {ref.name}</p>
+        )}
+
+        {references.length > 0 && editIndex === null && addData === false && (
+          <div className="justify-center">
+            <Accordion type="multiple" className="w-full space-y-2 pt-2">
+              {references.map((reference, index) => (
+                <AccordionItem key={index} value={`item-${index}`} className="p-2">
+                  <div className="flex justify-center items-center pr-2">
+                    <AccordionTrigger className="w-full flex justify-between items-center">
+                      <p className="text-center text-2xl font-semibold">
+                        {reference.name || "Untitled Reference"}
+                      </p>
+                    </AccordionTrigger>
+                  </div>
+                  <AccordionContent>           
+                      <div className="text-center pt-2 space-y-1 text-muted-foreground text-lg">
+                        <p><strong>Job Title:</strong> {reference.jobTitle}</p>
+                        <p><strong>Organization:</strong> {reference.organization}</p>
+                        <p><strong>Phone No:</strong> {reference.phone}</p>
+                        <p><strong>Email:</strong> {reference.email}</p>
+                        
+                        {reference.link && (
+                          <p>
+                            <strong>Link:</strong>{" "}                     
+                              {reference.link}                  
+                          </p>
+                        )}
+                      </div>
+                    <div className="flex justify-end gap-2 pr-4">
+                      <Button size="icon" variant="ghost" onClick={() => handleEdit(index)} title="Edit">
+                        <Pencil className="w-4 h-4 text-blue-600" />
+                      </Button>
+                      <Button size="icon" variant="ghost" onClick={() => handleDelete(index)} title="Delete">
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </Button>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+            <div className="flex justify-center mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAddData(true)}
+              >
+                Add <Plus className="ml-2 h-4 w-4" />
+              </Button>
             </div>
-          ) : (
-            <p className="text-center italic text-gray-500">This reference is hidden.</p>
-          )}
-        </div>
-      ))}
-
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogTrigger asChild>
-          <div className="flex justify-center">
-            <Button variant="outline" size="sm" onClick={resetForm}>
-              Add <Plus />
-            </Button>
           </div>
-        </DialogTrigger>
-        <DialogContent aria-describedby="">
-          <DialogHeader>
-            <DialogTitle className="text-center">
-              {isEditing ? "Edit" : "Add"} Reference Details
-            </DialogTitle>
-          </DialogHeader>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSave();
-            }}
-          >
-            <div className="grid grid-cols-4 items-center gap-4 py-2">
-              <Input
+        )}
+      </Card>
+      <div className='w-full max-w-4xl px-4 mx-auto mt-10 mb-6 flex justify-between'>
+          <Button variant="outline" onClick={() => navigate('/onboarding/publications-section')} className='font-semibold py-2 px-6 rounded'>
+              Back
+          </Button>
+          <Button onClick={() => navigate('/onboarding/declaration-section')} className='font-semibold py-2 px-6 rounded'>
+              {references.length === 0 ? 'Skip' : 'Continue'}
+          </Button>
+      </div>
+    </div>
+  );
+};
+
+const FormInputs = ({ formData, onChange, onSubmit, submitLabel = "Save" }) => (
+  <div className='space-y-4'>
+    <div className="grid grid-cols-4 items-center gap-4 py-2">
+        <div className="col-span-4">
+            <Label htmlFor="name" className="px-1 pb-1">Reference Name</Label>
+            <Input
                 type="text"
+                id="name"
                 placeholder="Reference Name"
                 className="col-span-4"
                 value={formData.name}
-                onChange={(e) => handleChange("name", e.target.value)}
-              />
-           
-              <Input
+                onChange={onChange}
+            />
+        </div>
+
+        <div className="col-span-4">
+            <Label htmlFor="link" className="px-1 pb-1">Reference Link</Label>
+            <Input
                 type="text"
+                id="link"
                 placeholder="Reference Link"
                 className="col-span-4"
                 value={formData.link}
-                onChange={(e) => handleChange("link", e.target.value)}
-              />
-            
-              <Input
+                onChange={onChange}
+            />
+        </div>
+
+        <div className="col-span-4 sm:col-span-2">
+            <Label htmlFor="jobTitle" className="px-1 pb-1">Job Title</Label>
+            <Input
                 type="text"
+                id="jobTitle"
                 placeholder="Job Title"
-                className="col-span-2"
+                className="col-span-4 sm:col-span-2"
                 value={formData.jobTitle}
-                onChange={(e) => handleChange("jobTitle", e.target.value)}
-              />
-              <Input
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4 sm:col-span-2">
+            <Label htmlFor="organization" className="px-1 pb-1">Organization</Label>
+            <Input
                 type="text"
+                id="organization"
                 placeholder="Organization"
-                className="col-span-2"
+                className="col-span-4 sm:col-span-2"
                 value={formData.organization}
-                onChange={(e) => handleChange("organization", e.target.value)}
-              />
-            
-              <Input
+                onChange={onChange}
+            />
+        </div>
+
+        <div className="col-span-4">
+            <Label htmlFor="email" className="px-1 pb-1">Email</Label>
+            <Input
                 type="email"
+                id="email"
                 placeholder="Email"
                 className="col-span-4"
                 value={formData.email}
-                onChange={(e) => handleChange("email", e.target.value)}
-              />
-              <Input
+                onChange={onChange}
+            />
+        </div>
+        <div className="col-span-4">
+            <Label htmlFor="phone" className="px-1 pb-1">Phone no.</Label>
+            <Input
                 type="text"
+                id="phone"
                 placeholder="Phone no."
                 className="col-span-4"
                 value={formData.phone}
-                onChange={(e) => handleChange("phone", e.target.value)}
-              />
-            </div>
-            <DialogFooter>
-              <Button type="submit">{isEditing ? "Update" : "Save"}</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
-    </Card>
-  );
-};
+                onChange={onChange}
+            />
+        </div>
+    </div>
+    <div className="text-right">
+        <Button onClick={onSubmit}>{submitLabel}</Button>
+    </div>
+  </div>
+)
 
 export default ReferenceDetailCard;
