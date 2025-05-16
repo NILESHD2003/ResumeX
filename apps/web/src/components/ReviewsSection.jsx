@@ -8,7 +8,7 @@ const ReviewsSection = () => {
   const reviews = [
     {
       rating: 5,
-      text: '"ResumeFlow helped me land my dream job! The templates are beautiful and the editor is so easy to use. I created a professional resume in less than 30 minutes."',
+      text: '"ResumeX helped me land my dream job! The templates are beautiful and the editor is so easy to use. I created a professional resume in less than 30 minutes."',
       author: 'Sarah Johnson',
       title: 'Marketing Manager',
       image: avatar,
@@ -22,7 +22,7 @@ const ReviewsSection = () => {
     },
     {
       rating: 5,
-      text: '"The ATS optimization feature is incredible. I started getting more interview calls almost immediately after switching to a resume I made with ResumeFlow."',
+      text: '"The ATS optimization feature is incredible. I started getting more interview calls almost immediately after switching to a resume I made with ResumeX."',
       author: 'Emily Rodriguez',
       title: 'HR Specialist',
       image: avatar,
@@ -57,7 +57,7 @@ const ReviewsSection = () => {
               What our users say
             </h2>
             <p className="mt-3 text-lg text-gray-500">
-              Thousands of job seekers have used ResumeFlow to create standout
+              Thousands of job seekers have used ResumeX to create standout
               resumes.
             </p>
           </div>

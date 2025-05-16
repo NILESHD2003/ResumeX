@@ -24,6 +24,7 @@ import ResumeSection from './components/ResumeSection';
 import CoverLetterSection from './components/CoverLetterSection';
 import PreviewPage from "./pages/PreviewPage";
 
+
 function App() {
   return (
     <div>
@@ -58,6 +59,7 @@ function App() {
           <Route path="/onboarding/preview" element={<PreviewPage />} />
         </Routes>
       </Router>
+        
       
     </div>
   )

@@ -22,6 +22,7 @@ import { MdAlternateEmail } from 'react-icons/md';
 
 // toast component
 import { toast, Toaster } from 'sonner';
+import NavBar from './NavBar';
 
 function SignUp() {
   // sign in logic
@@ -54,6 +55,7 @@ function SignUp() {
   return (
     <div>
       <Toaster />
+      <NavBar/>
       <form
         onSubmit={handleSignin}
         className="min-h-screen flex items-center justify-center bg-[#F1F0FB] px-4 sm:px-2"

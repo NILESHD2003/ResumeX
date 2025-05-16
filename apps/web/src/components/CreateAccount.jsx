@@ -1,108 +1,141 @@
-import React from 'react'
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { toast, Toaster } from "sonner";
-import { Input } from "@/components/ui/input";
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { FaFingerprint, FaRegEye, FaRegEyeSlash } from 'react-icons/fa';
+import { toast, Toaster } from 'sonner';
 import { signUp } from '../services/operations/authAPI';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
-export function CreateAccount() {
-    const [username, setUsername] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setconfirmPassword] = useState("");
-    const navigate = useNavigate();
-    const magicLink = useSelector(state => state.auth.magicLink)
-    console.log(magicLink);
+function CreateAccount() {
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [buttonClickable, setButtonClickable] = useState(false);
 
-    function handleCreateAccount(event) {
-        event.preventDefault(); // prevent page reload on form submit
-    
-        if ((password === confirmPassword) && (password.length > 6 && confirmPassword.length > 6)) {
-            console.log("working");
-            signUp(username, password, confirmPassword, navigate, magicLink);
-        } else {
-            toast.error('Passwords need to match');
-        }
+  const magicLink = useSelector(state => state.auth.magicLink);
+  const navigate = useNavigate();
+
+  // Toggle functions
+  const togglePasswordVisibility = () => setShowPassword(prev => !prev);
+  const toggleConfirmPasswordVisibility = () => setShowConfirmPassword(prev => !prev);
+
+  // Validate input
+  const handleValidation = () => {
+    const isValid =
+      username.trim().length > 0 &&
+      password.length >= 6 &&
+      confirmPassword.length >= 6 &&
+      password === confirmPassword;
+    setButtonClickable(isValid);
+  };
+
+  useEffect(() => {
+    handleValidation();
+  }, [username, password, confirmPassword]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (password.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
     }
 
-    useEffect(() => {
-        console.log(username, password, confirmPassword)
-    }, [username, password, confirmPassword])
+    if (password !== confirmPassword) {
+      toast.error("Passwords don't match!");
+      return;
+    }
 
-    return (
-        <form onSubmit={handleCreateAccount}>
-            <Toaster />
-            <Card className="max-w-2xl w-sm mx-auto bg-white rounded-3xl shadow-sm">
-                <CardHeader>
-                    <CardTitle>
-                        <h1>
-                            Create Account
-                        </h1>
-                    </CardTitle>
-                    <CardDescription>
-                        Enter details to create account
-                    </CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className='grid grid-cols-1'>
-                        <div className='col-span-1 w-full py-1'>
-                            <Input
-                                className='col-span-1'
-                                required
-                                id='name'
-                                value={username}
-                                placeholder='Enter Username'
-                                onChange={(e) => {
-                                    setUsername(e.target.value)
-                                }}
-                            />
-                        </div>
-                        <div className='col-span-1 w-full py-1'>
-                            <Input
-                                className='col-span-1'
-                                id='password'
-                                required
-                                value={password}
-                                placeholder='Enter Password'
-                                onChange={(e) => {
-                                    setPassword(e.target.value)
-                                }}
-                            />
-                        </div>
-                        <div className='col-span-1 w-full py-1'>
-                            <Input
-                                className='col-span-1'
-                                required
-                                id='confirmPassword'
-                                value={confirmPassword}
-                                placeholder='Confirm Password'
-                                onChange={(e) => {
-                                    setconfirmPassword(e.target.value)
-                                }}
-                            />
-                        </div>
-                    </div>
-                </CardContent>
-                <CardFooter>
-                    <div className="grid w-full">
-                        <Button
-                            type="submit"
-                            className="w-full p-3 rounded-xl mt-3 text-sm md:text-base text-white font-semibold bg-gradient-to-r from-[#1C7EFF] to-[#CA79FF] cursor-pointer"
-                        >
-                            SignUp
-                        </Button>
-                    </div>
-                </CardFooter>
-            </Card>
-        </form>
-    )
+    signUp(username, password, confirmPassword, navigate, magicLink);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <Toaster />
+      <Card className="w-[90%] sm:w-[80%] md:w-[500px] lg:w-[500px] mx-auto bg-white rounded-3xl shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-xl font-bold">Create Account</CardTitle>
+          <CardDescription>Enter your details to create an account</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {/* Username */}
+          <div className="mb-4">
+            <Input
+              required
+              placeholder="Enter Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
+
+          {/* Password */}
+          <div className="relative mb-4">
+            <FaFingerprint className="absolute text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              placeholder="Enter Password"
+              className="pl-10"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            {showPassword ? (
+              <FaRegEye
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                onClick={togglePasswordVisibility}
+              />
+            ) : (
+              <FaRegEyeSlash
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                onClick={togglePasswordVisibility}
+              />
+            )}
+          </div>
+
+          {/* Confirm Password */}
+          <div className="relative mb-4">
+            <FaFingerprint className="absolute text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
+            <Input
+              type={showConfirmPassword ? 'text' : 'password'}
+              placeholder="Confirm Password"
+              className="pl-10"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
+            {showConfirmPassword ? (
+              <FaRegEye
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                onClick={toggleConfirmPasswordVisibility}
+              />
+            ) : (
+              <FaRegEyeSlash
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                onClick={toggleConfirmPasswordVisibility}
+              />
+            )}
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button
+            type="submit"
+            disabled={!buttonClickable}
+            className={`w-full p-3 rounded-xl text-sm md:text-base text-white font-semibold ${
+              buttonClickable
+                ? 'bg-gradient-to-r from-[#1C7EFF] to-[#CA79FF] cursor-pointer'
+                : 'bg-gray-400 cursor-not-allowed'
+            }`}
+          >
+            Sign Up
+          </Button>
+        </CardFooter>
+      </Card>
+    </form>
+  );
 }
+
+export default CreateAccount;

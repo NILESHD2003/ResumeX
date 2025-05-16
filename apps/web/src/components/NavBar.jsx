@@ -45,14 +45,18 @@ const NavBar = () => {
               <>
                 <li>
                     <button
-                     onClick={()=>{navigate('/login')}}
+                     onClick={()=>{
+                      closeNav();
+                      navigate('/signup')}}
                      className="px-5 py-3 text-4xl rounded-lg cursor-pointer bg-gradient-to-r from-purple-500 to-blue-400 text-gray-800 hover:bg-[#CA79FF]">
                       Sign Up
                     </button>
                 </li>
                 <li>
                   <span
-                    onClick={()=>{navigate('/login')}}
+                    onClick={()=>{
+                      closeNav();
+                      navigate('/login')}}
                     className="text-black my-2 text-5xl cursor-pointer hover:text-purple-200 transition-all"
                   >
                     Login
