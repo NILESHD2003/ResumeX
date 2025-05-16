@@ -98,11 +98,7 @@ function SignUp() {
               </div>
             </div>
 
-            {/* Magic link */}
-
-
             <div className="flex flex-col space-y-4 items-center max-w-sm sm:max-w-md">
-              
               {/* Checkbox Section */}
               <div className="flex items-center space-x-2 w-full ">
                 <Checkbox
@@ -167,3 +163,7 @@ function SignUp() {
 }
 
 export default SignUp;
+            
+
+
+              
