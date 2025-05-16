@@ -72,6 +72,12 @@ const SkillsDetailCard = () => {
     setFormData((prev) => ({ ...prev, subSkills: newSubSkills }));
   };
 
+  const handleCancel = () => {
+    resetForm();
+    setAddData(false);
+    setEditIndex(null);
+  };
+
   function getChangedFields(newData, originalData) {
     return Object.fromEntries(
       Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
@@ -167,6 +173,8 @@ const SkillsDetailCard = () => {
               handleSubSkillChange={handleSubSkillChange}
               addSubSkill={addSubSkill}
               removeSubSkill={removeSubSkill}
+              cancel={editIndex === null ? addData : editIndex + 1}
+              onCancel={handleCancel}
               submitLabel={editIndex !== null ? "Update" : "Save"}
             />
           </div>
@@ -233,7 +241,7 @@ const SkillsDetailCard = () => {
   );
 };
 
-const FormInputs = ({ formData, onChange, onSelectChange, onSubmit, handleSubSkillChange, addSubSkill, removeSubSkill, submitLabel = "Save" }) => (
+const FormInputs = ({ formData, onChange, onSelectChange, onSubmit, handleSubSkillChange, addSubSkill, removeSubSkill, cancel, onCancel, submitLabel = "Save" }) => (
   <div className='space-y-4'>
     <div className="grid grid-cols-4 items-center gap-4">
         <div className="col-span-2">
@@ -297,8 +305,15 @@ const FormInputs = ({ formData, onChange, onSelectChange, onSubmit, handleSubSki
             Add Sub-skill <Plus className="ml-2 w-4 h-4" />
         </Button>
     </div>
-    <div className="text-right">
-        <Button onClick={onSubmit}>{submitLabel}</Button>
+    <div className="flex justify-end">
+      {cancel && (
+        <div className="text-right mx-2">
+            <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        </div>
+      )}
+      <div className="text-right mx-2">
+          <Button onClick={onSubmit}>{submitLabel}</Button>
+      </div>
     </div>
   </div>
 )
