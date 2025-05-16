@@ -1,4 +1,4 @@
-import { useMediaQuery } from "@/hooks/useMediaQuery"; // Adjust import path as needed
+import { useMediaQuery } from "@/hooks/UseMediaQuery"; // Adjust import path as needed
 
 const ProgressIndicator = ({ currentStep }) => {
   const isMobile = useMediaQuery("(max-width: 767px)");
