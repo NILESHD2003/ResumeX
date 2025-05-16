@@ -1,6 +1,6 @@
 import React from 'react'
 import CreateTemplate from "../components/CreateTemplate";
-import NavBar from '../components/NavBar';
+import NavBar from '../components/NavBar.jsx'
 import Hero from '../components/Hero';
 import ReviewSection from '../components/ReviewsSection'
 import Features from '../components/ResumeFeatures'

@@ -22,6 +22,7 @@ import {
 
 import { MdAlternateEmail } from 'react-icons/md';
 import { toast, Toaster } from 'sonner';
+import NavBar from './NavBar';
 
 function Login() {
   const [showPassword, setShowPassword] = useState(false);
@@ -55,7 +56,11 @@ function Login() {
     };
 
   return (
-    <form className="min-h-screen flex items-center justify-center bg-[#F1F0FB] px-4 sm:px-2">
+    <>
+      <NavBar/>
+      
+      <form className="min-h-screen flex items-center justify-center bg-[#F1F0FB] px-4 sm:px-2">
+
       <Toaster />
       <Card className="shadow-xl w-md max-w-3xl sm:max-w-2xl p-6">
         <CardHeader>
@@ -149,7 +154,8 @@ function Login() {
           </div>
         </CardFooter>
       </Card>
-    </form>
+      </form>
+    </>
   );
 }
 

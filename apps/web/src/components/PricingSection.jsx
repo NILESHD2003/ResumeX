@@ -41,10 +41,11 @@ const PricingSection = () => {
           <div className=" rounded-lg p-6 text-center shadow-md">
             <h2 className="text-xl font-semibold mb-2">Free</h2>
             <p className="text-4xl font-bold">Free</p>
-            <ul className="text-gray-500 mt-4 space-y-1">
-              <li>List item</li>
-              <li>List item</li>
-              <li>List item</li>
+            <ul className="text-gray-500 mt-4 space-y-1 list-disc pl-5 text-left">
+              <li>1 resume download (PDF)</li>
+              <li>Basic resume templates</li>
+              <li>Limited customization</li>
+              <li>AI suggestions (limited per month)</li>
             </ul>
           </div>
 
@@ -57,10 +58,12 @@ const PricingSection = () => {
                 /{plan === 'monthly' ? 'mo' : 'yr'}
               </span>
             </p>
-            <ul className="text-gray-500 mt-4 space-y-1">
-              <li>List item</li>
-              <li>List item</li>
-              <li>List item</li>
+            <ul className="text-gray-500 mt-4 space-y-1 list-disc pl-5 text-left">
+              <li>All Pro features</li>
+              <li>Job matching alerts</li>
+              <li>PDF/Word/Google Docs export</li>
+              <li>Interview prep questions based on resume</li>
+              <li>ChatGPT-powered custom resume sections</li>
             </ul>
           </div>
 
@@ -73,10 +76,12 @@ const PricingSection = () => {
                 /{plan === 'monthly' ? 'mo' : 'yr'}
               </span>
             </p>
-            <ul className="text-gray-500 mt-4 space-y-1">
-              <li>List item</li>
-              <li>List item</li>
-              <li>List item</li>
+            <ul className="text-gray-500 mt-4 space-y-1 list-disc pl-5 text-left">
+              <li>Unlimited resumes and downloads</li>
+              <li>All professional templates</li>
+              <li>AI-powered content suggestions</li>
+              <li>Advanced customization (fonts, colors, sections)</li>
+              <li>Priority support</li>
             </ul>
           </div>
         </div>
