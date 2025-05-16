@@ -97,6 +97,12 @@ const ProfessionalCard = () => {
     return formData.startDate && date < formData.startDate;
   };
 
+  const handleCancel = () => {
+    setFormData(initialFormData());
+    setAddData(false);
+    setEditIndex(null);
+  };
+
   const handleSave = async () => {
     try {
       if (!formData.jobTitle.trim()) {
@@ -188,6 +194,8 @@ const ProfessionalCard = () => {
               onSubmit={handleSave}
               isEndDateDisabled={isEndDateDisabled}
               isStartDateDisabled={isStartDateDisabled}
+              cancel={editIndex === null ? addData : editIndex + 1}
+              onCancel={handleCancel}
               submitLabel={editIndex !== null ? "Update" : "Save"}
             />
           </div>
@@ -253,7 +261,7 @@ const ProfessionalCard = () => {
   );
 };
 
-const FormInputs = ({ formData, onChange, onDateChange, onSubmit, isEndDateDisabled, isStartDateDisabled, submitLabel = "Save" }) => (
+const FormInputs = ({ formData, onChange, onDateChange, onSubmit, isEndDateDisabled, isStartDateDisabled, cancel, onCancel, submitLabel = "Save" }) => (
   <div className="space-y-4">
     <div className="grid grid-cols-4 items-center gap-4">
         <div className="col-span-4">
@@ -339,8 +347,15 @@ const FormInputs = ({ formData, onChange, onDateChange, onSubmit, isEndDateDisab
                 onChange={onChange} />
         </div>
     </div>
-    <div className="text-right">
-        <Button onClick={onSubmit}>{submitLabel}</Button>
+    <div className="flex justify-end">
+      {cancel && (
+        <div className="text-right mx-2">
+            <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        </div>
+      )}
+      <div className="text-right mx-2">
+          <Button onClick={onSubmit}>{submitLabel}</Button>
+      </div>
     </div>
   </div>
 );

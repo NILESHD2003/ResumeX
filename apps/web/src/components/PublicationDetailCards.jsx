@@ -69,6 +69,12 @@ const PublicationDetailCard = () => {
     setFormData((prev) => ({ ...prev, [field]: date }));
   };
 
+  const handleCancel = () => {
+    resetForm();
+    setAddData(false);
+    setEditIndex(null);
+  };
+
   function getChangedFields(newData, originalData) {
     return Object.fromEntries(
       Object.entries(newData).filter(([key, value]) => {
@@ -166,6 +172,8 @@ const PublicationDetailCard = () => {
               onChange={handleInputChange}
               onDateChange={handleDateChange}
               onSubmit={handleSave}
+              cancel={editIndex === null ? addData : editIndex + 1}
+              onCancel={handleCancel}
               submitLabel={editIndex !== null ? "Update" : "Save"}
             />
           </div>
@@ -231,7 +239,7 @@ const PublicationDetailCard = () => {
   );
 };
 
-const FormInputs = ({ formData, onChange, onDateChange, onSubmit, submitLabel = "Save" }) => (
+const FormInputs = ({ formData, onChange, onDateChange, onSubmit, cancel, onCancel, submitLabel = "Save" }) => (
 <div className='space-y-4'>
     <div className="grid grid-cols-4 items-center gap-4">
         <div className="col-span-4">
@@ -288,8 +296,15 @@ const FormInputs = ({ formData, onChange, onDateChange, onSubmit, submitLabel = 
             />
         </div>
     </div>
-    <div className="text-right">
-        <Button onClick={onSubmit}>{submitLabel}</Button>
+    <div className="flex justify-end">
+      {cancel && (
+        <div className="text-right mx-2">
+            <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        </div>
+      )}
+      <div className="text-right mx-2">
+          <Button onClick={onSubmit}>{submitLabel}</Button>
+      </div>
     </div>
   </div>
 )

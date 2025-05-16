@@ -1,7 +1,8 @@
-import React from 'react';
-import { cn } from "@/lib/utils";
+import { useMediaQuery } from "@/hooks/useMediaQuery"; // Adjust import path as needed
 
 const ProgressIndicator = ({ currentStep }) => {
+  const isMobile = useMediaQuery("(max-width: 767px)");
+
   const steps = [
     "Personal Details",
     "Profile Summary",
@@ -19,22 +20,50 @@ const ProgressIndicator = ({ currentStep }) => {
     "Declaration",
   ];
 
-  const themeColors = "bg-gradient-to-r from-[#1C7EFF] to-[#CA79FF] text-white";
+  const totalSteps = steps.length;
+  const themeColors = "bg-gradient-to-r from-[#1C7EFF] to-[#CA79FF]";
 
+  if (isMobile) {
+    // Mobile layout
+    return (
+      <div className="w-full py-5 px-4">
+        <div className="text-center mb-2 font-medium text-sm text-gray-700">
+           {currentStep > totalSteps ? "Completed" : `Step ${currentStep}/${totalSteps}`}
+        </div>
+        <div className="flex items-center justify-between">
+          {steps.map((_, index) => (
+            <div
+              key={index}
+              className={`flex-1 h-1 mx-0.5 rounded ${
+                index < currentStep ? themeColors : 'bg-gray-300'
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop layout
   return (
-    <div className="flex justify-center items-center w-full py-5">
+    <div className="flex justify-center items-center w-full py-5 px-4">
       {steps.map((step, index) => (
         <div key={index} className="relative md:gap-4 lg:gap-7 flex items-center">
           {index > 0 && (
-            <div className={`flex-grow h-0.5 ${
+            <div
+              className={`flex-grow h-0.5 ${
                 index < currentStep ? themeColors : 'bg-gray-300'
-              }`}>
-            </div>
+              }`}
+            ></div>
           )}
           <div
             className={`flex items-center justify-center rounded-full border-2 border-gray-300 w-8 h-8 sm:w-10 sm:h-10 ${
-              index < currentStep - 1 ? `border-transparent ${themeColors}` : ''
-            } ${index === currentStep - 1 ? `border-transparent ${themeColors}` : ''}`}
+              index < currentStep - 1
+                ? `border-transparent ${themeColors} text-white`
+                : index === currentStep - 1
+                ? `border-transparent ${themeColors} text-white`
+                : 'text-gray-700'
+            }`}
           >
             {index < currentStep - 1 ? (
               <svg
@@ -49,9 +78,7 @@ const ProgressIndicator = ({ currentStep }) => {
                 />
               </svg>
             ) : (
-              <span className={`${index < currentStep ? 'text-white' : 'text-gray-700'}`}>
-                {index + 1}
-              </span>
+              <span>{index + 1}</span>
             )}
           </div>
         </div>

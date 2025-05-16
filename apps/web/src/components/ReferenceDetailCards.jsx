@@ -59,6 +59,12 @@ const ReferenceDetailCard = () => {
     });
   };
 
+  const handleCancel = () => {
+    resetForm();
+    setAddData(false);
+    setEditIndex(null);
+  };
+
   function getChangedFields(newData, originalData) {
     return Object.fromEntries(
       Object.entries(newData).filter(([key, value]) => originalData[key] !== value)
@@ -154,6 +160,8 @@ useEffect(() => {
               formData={formData}
               onChange={handleInputChange}
               onSubmit={handleSave}
+              cancel={editIndex === null ? addData : editIndex + 1}
+              onCancel={handleCancel}
               submitLabel={editIndex !== null ? "Update" : "Save"}
             />
           </div>
@@ -221,7 +229,7 @@ useEffect(() => {
   );
 };
 
-const FormInputs = ({ formData, onChange, onSubmit, submitLabel = "Save" }) => (
+const FormInputs = ({ formData, onChange, onSubmit, cancel, onCancel, submitLabel = "Save" }) => (
   <div className='space-y-4'>
     <div className="grid grid-cols-4 items-center gap-4 py-2">
         <div className="col-span-4">
@@ -294,8 +302,15 @@ const FormInputs = ({ formData, onChange, onSubmit, submitLabel = "Save" }) => (
             />
         </div>
     </div>
-    <div className="text-right">
-        <Button onClick={onSubmit}>{submitLabel}</Button>
+    <div className="flex justify-end">
+      {cancel && (
+        <div className="text-right mx-2">
+            <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        </div>
+      )}
+      <div className="text-right mx-2">
+          <Button onClick={onSubmit}>{submitLabel}</Button>
+      </div>
     </div>
   </div>
 )
