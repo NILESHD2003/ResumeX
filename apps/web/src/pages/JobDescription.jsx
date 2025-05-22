@@ -49,28 +49,29 @@ export default function JobDescriptionPage() {
 }
     
  return (
-   <>
+   <div className="min-h-screen bg-[#f1effd] overflow-hidden m-0 p-0 flex flex-col">
    <Toaster/>
-    <StaticBar/>
+    <StaticBar />
+
     {/* Parent container along with heading */}
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#f1effd] px-4">
+    <div className="flex flex-col items-center py-4 px-4">
      <h1 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-[#CA79FF] to-[#1C7EFF] bg-clip-text text-transparent mb-2">
         Generate Custom Resume based on <br /> Job Description
      </h1>
 
-      <p className="text-sm text-gray-600 mb-8 text-center">
+      <p className="text-sm text-gray-600 mb-6 text-center">
         Optimize your resume for a specific job by analyzing the job description
       </p>
 
-      <Tabs defaultValue="url" className="w-full max-w-md px-4 mt-4">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
+      <Tabs defaultValue="url" className="w-full max-w-md px-4 mt-2">
+        <TabsList className="grid w-full grid-cols-2 mb-3">
           <TabsTrigger value="url">🔗 Job URL</TabsTrigger>
           <TabsTrigger value="description">📄 Job description</TabsTrigger>
         </TabsList>
 
         {/* Url Section */}
         <TabsContent value="url">
-          <Card>
+          <Card className='max-h-[70vh] overflow-auto'>
             <CardHeader>
               <CardTitle className="text-center font-bold text-2xl">
                 Enter Job Description
@@ -105,7 +106,7 @@ export default function JobDescriptionPage() {
 
         {/* Description section */}
         <TabsContent value="description">
-          <Card>
+          <Card className='max-h-[65vh] overflow-hidden w-full'>
             <CardHeader>
               <CardTitle className="text-center font-bold text-2xl">
                 Enter Job Description
@@ -114,21 +115,21 @@ export default function JobDescriptionPage() {
                 Enter a job link or paste a job description to optimize your resume
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-2 flex-grow overflow-auto">
               <div className="space-y-1">
-                <Label htmlFor="job-desc">Job Description</Label>
+                <Label htmlFor="job-desc" className='mb-2'>Job Description</Label>
                 <textarea
                   id="job-desc"
-                  className="w-full h-32 p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#b06afe]"
+                  className="w-full h-30 max-h-60 p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#b06afe] resize-none"
                   placeholder="Paste the job description here..."
                   value={jobDescription}
                   onChange={(e) => setJobDescription(e.target.value)}
                 />
               </div>
             </CardContent>
-            <CardFooter className="flex justify-end">
+            <CardFooter className="flex justify-end mb-0">
               <Button 
-              className="bg-gradient-to-r from-[#b06afe] to-[#497bfe] text-white cursor-pointer"
+              className="bg-gradient-to-r from-[#b06afe] to-[#497bfe] text-white cursor-pointer mb-0"
               onClick={handleDescriptionSubmit}
               >
                 Continue
@@ -138,6 +139,6 @@ export default function JobDescriptionPage() {
         </TabsContent>
       </Tabs>
     </div>
-    </>
+    </div>
   )
 }
