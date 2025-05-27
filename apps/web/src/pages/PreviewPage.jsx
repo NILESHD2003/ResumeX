@@ -3,9 +3,12 @@ import { getProfileDetails } from '../services/operations/profileDetailsAPIS';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import ProgressIndicator from '../components/ProgressIndicator';
 import StaticBar from '../components/StaticBar';
+import { Button } from "@/components/ui/button";
+import { useNavigate } from 'react-router-dom';
 
 const PreviewPage = () => {
   const [profileData, setProfileData] = useState(null);
+  const navigate = useNavigate()
 
   const fetchData = async () => {
     const data = await getProfileDetails();
@@ -310,6 +313,15 @@ const PreviewPage = () => {
           </CardContent>
         </Card>
       )}
+
+      <div className='flex max-w-xl mb-4 mx-auto'>
+        <div>
+          <Button onClick={() => {navigate('/generate-resume')}} className="mr-20">Generate Resume</Button>
+        </div>
+        <div>
+          <Button variant="outline" onClick={() => {navigate('/dashboard')}} className="ml-20">Skip for now</Button>
+        </div>
+      </div>
     </div>
   );
 };

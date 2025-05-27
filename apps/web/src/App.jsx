@@ -24,6 +24,8 @@ import ResumeSection from './components/ResumeSection';
 import CoverLetterSection from './components/CoverLetterSection';
 import PreviewPage from "./pages/PreviewPage";
 import JobDescriptionPage from "./pages/JobDescription";
+import OnboardingPage from "./pages/OnboardingPage";
+import ResumePreview from "./pages/ResumePreview";
 
 
 function App() {
@@ -44,6 +46,7 @@ function App() {
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/create-account" element={<CreateAccountPage />} />
           <Route path="/generate-resume" element={<JobDescriptionPage/>} />
+          <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/onboarding/personal-details" element={<PersonalDetails />} />
           <Route path="/onboarding/awards-section" element={<AwardDetails />} />
           <Route path="/onboarding/profile-summary" element={<ProfileSummaryPage />} />
@@ -59,6 +62,7 @@ function App() {
           <Route path="/onboarding/references-section" element={<ReferenceDetails />} />
           <Route path="/onboarding/declaration-section" element={<DeclarationDetails />} />
           <Route path="/onboarding/preview" element={<PreviewPage />} />
+          <Route path="/resume/preview" element={<ResumePreview />} />
         </Routes>
       </Router>
         

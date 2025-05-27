@@ -1,7 +1,9 @@
 import React from 'react';
 import { Pencil, Download, Trash2, FilePlus2} from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const ResumeSection = () => {
+  const navigate = useNavigate()
   const resumeItems = [
     {
       id: 1,
@@ -74,7 +76,7 @@ const ResumeSection = () => {
           </div>
         ))}        
       </div>
-      <button onClick={() => (console.log("working"))} className="fixed md:absolute bottom-6 right-6 z-10 md:bottom-4 md:right-4 bg-gradient-to-r from-[#CA79FF] to-[#1C7EFF] text-white p-3 rounded-full shadow-lg hover:opacity-90 transition md:block">
+      <button onClick={() => {navigate('/generate-resume')}} className="fixed md:absolute bottom-6 right-6 z-10 md:bottom-4 md:right-4 bg-gradient-to-r from-[#CA79FF] to-[#1C7EFF] text-white p-3 rounded-full shadow-lg hover:opacity-90 transition md:block">
         <FilePlus2 size={24} />
       </button>
     </div>

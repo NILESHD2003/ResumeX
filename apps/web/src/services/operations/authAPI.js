@@ -64,7 +64,7 @@ export function login(email, password, navigate) {
                 console.log("Successfully logged in");
                 const token = response.data.token;
                 localStorage.setItem("token", token);
-                navigate('/onboarding/personal-details');
+                navigate('/onboarding');
             } else {
                 console.log("error")
                 throw new Error(response.data.message)

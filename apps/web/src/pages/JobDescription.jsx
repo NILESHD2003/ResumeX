@@ -18,31 +18,34 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import StaticBar from "../components/StaticBar"
+import { useNavigate } from "react-router-dom"
 
 export default function JobDescriptionPage() {
 
   const [jobUrl, setJobUrl] = useState("")
   const [urlError, setUrlError] = useState("")
   const [jobDescription, setJobDescription] = useState("")
+  const navigate = useNavigate();
 
 //   Url logic
-  const handleUrlSubmit = () => {
+  const handleUrlSubmit = async () => {
     const urlPattern = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/\S*)?$/i
     if (!urlPattern.test(jobUrl.trim())) {
       toast.error("Please enter a valid URL.")
       return
     }
     // proceed with submission
+    navigate('/resume/preview');
     console.log("Valid URL:", jobUrl)
   }
 
 //   Description logic
-  const handleDescriptionSubmit = () => {
+  const handleDescriptionSubmit = async () => {
   if (jobDescription.trim().length === 0) {
     toast.error("Please enter a job description.")
     return
   }
-
+  navigate('/resume/preview');
   toast.success("Job description received!")
   console.log("Job Description:", jobDescription)
   // Continue with logic
