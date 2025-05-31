@@ -1,0 +1,170 @@
+You are an AI assistant tasked with evaluating a user’s technical skills against a parsed job description (JD). You are given:
+userSkills: An array of skill categories. Each has:
+name: the name of the skill category (e.g., “Backend Development”)
+subSkills: an array of strings (e.g., ["Node.js", "Express.js"])
+parsedJobDescription: Contains:
+requiredSkills: core skills explicitly mentioned as required
+preferredSkills: additional skills that are nice to have
+responsibilities: job responsibilities and expectations
+roleTitle: the job title (e.g., “Software Engineer I”)
+toolsAndTechnologies: technologies mentioned (optional)
+Objective:
+Analyze the user’s subSkills by comparing them with the JD data, keeping the job title and context in mind. For each subSkill, determine:
+How relevant it is to the role
+Whether it is directly or indirectly aligned with required or preferred skills
+Scoring Rules:
+If a sub-skill directly matches a required or preferred skill → high relevance
+If a sub-skill indirectly contributes to required skills (e.g., "Nest.js" for "programming") → medium relevance
+If the sub-skill has no relevance to the JD → low relevance
+Output Format:
+Provide a single JSON object containing:
+rankedSubSkills (array): All sub-skills flattened and sorted by relevance_score in descending order. Each item must include:
+name: sub-skill name
+category: either "Preferred" or "Not Preferred"
+relevance_score: number from 0 to 100
+subSkillScores (array): Same as rankedSubSkills but unsorted, to show how each sub-skill scored before sorting.
+avgRelevanceBySkillCategory (array): For each skill category (e.g., Backend Development), calculate the average of all its sub-skill scores.
+category: name of the category
+avg_relevance_score: average score (0–100)
+🔴 Do not include: role recommendations, summaries, reasoning, explanations, fit score, or top/low-impact buckets.
+
+{
+  "task": "You are an AI assistant tasked with evaluating a user’s technical skills against a parsed job description (JD). You are given:\n\nuserSkills: An array of skill categories. Each has:\n- name: the name of the skill category (e.g., 'Backend Development')\n- subSkills: an array of strings (e.g., ['Node.js', 'Express.js'])\n\nparsedJobDescription: Contains:\n- requiredSkills: core skills explicitly mentioned as required\n- preferredSkills: additional skills that are nice to have\n- responsibilities: job responsibilities and expectations\n- roleTitle: the job title (e.g., 'Software Engineer I')\n- toolsAndTechnologies: technologies mentioned (optional)\n\nObjective:\nAnalyze the user’s subSkills by comparing them with the JD data, keeping the job title and context in mind. For each subSkill, determine:\n- How relevant it is to the role\n- Whether it is directly or indirectly aligned with required or preferred skills\n\nScoring Rules:\n- If a sub-skill directly matches a required or preferred skill → high relevance\n- If a sub-skill indirectly contributes to required skills (e.g., 'Nest.js' for 'programming') → medium relevance\n- If the sub-skill has no relevance to the JD → low relevance\n\nOutput Format:\nProvide a single JSON object containing:\n\n1. rankedSubSkills (array): All sub-skills flattened and sorted by relevance_score in descending order. Each item must include:\n- name: sub-skill name\n- category: either 'Preferred' or 'Not Preferred'\n- relevance_score: number from 0 to 100\n- domain_category: the parent skill category the sub-skill belongs to (e.g., 'Backend Development')\n\n2. subSkillScores (array): Same as rankedSubSkills but unsorted, to show how each sub-skill scored before sorting.\n\n3. avgRelevanceBySkillCategory (array): For each skill category (e.g., 'Backend Development'), calculate the average of all its sub-skill scores.\n- category: name of the category\n- avg_relevance_score: average score (0–100)\n\n🔴 Do not include: role recommendations, summaries, reasoning, explanations, fit score, or top/low-impact buckets."
+}
+
+
+"skills": [
+    {
+      "name": "Technical",
+      "subSkills": [
+        "C",
+        "Java",
+        "Javascript",
+        "Dart",
+        "C++",
+        "Typescript"
+      ],
+    },
+    {
+      "name": "Frontend Development",
+      "subSkills": [
+        "React.js",
+        "React Native",
+        "Flutter",
+        "Next.js"
+      ],
+    },
+    {
+      "name": "Backend Development",
+      "subSkills": [
+        "Node.js",
+        "Express.js",
+        "Nest.js",
+        "Socket.IO",
+        "Firebase",
+        "gRPC"
+      ],
+    },
+    {
+      "name": "Database",
+      "subSkills": [
+        "MongoDB",
+        "SQL",
+        "SQLite",
+        "PostgreSQL",
+        "Redis"
+      ],
+    },
+    {
+      "name": "DevOps/ Deployment",
+      "subSkills": [
+        "Git",
+        "Github",
+        "Docker",
+        "Nginx",
+        "AWS",
+        "Oracle Cloud"
+      ],
+    },
+    {
+      "name": "Microservices and System Design",
+      "subSkills": [
+        "Redis",
+        "BullMQ",
+        "Kafka",
+        "rabbitMQ"
+      ]
+    }
+]
+
+[
+  {
+    name: 'Technical',
+    subSkills: [ 'C', 'Java', 'Javascript', 'Dart', 'C++', 'Typescript' ]
+  },
+  {
+    name: 'Frontend Development',
+    subSkills: [ 'React.js', 'React Native', 'Flutter', 'Next.js' ]
+  },
+  {
+    name: 'Backend Development',
+    subSkills: [
+      'Node.js',
+      'Express.js',
+      'Nest.js',
+      'Socket.IO',
+      'Firebase',
+      'gRPC'
+    ]
+  },
+  {
+    name: 'Database',
+    subSkills: [ 'MongoDB', 'SQL', 'SQLite', 'PostgreSQL', 'Redis' ]
+  },
+  {
+    name: 'DevOps/ Deployment',
+    subSkills: [ 'Git', 'Github', 'Docker', 'Nginx', 'AWS', 'Oracle Cloud' ]
+  },
+  {
+    name: 'Microservices and System Design',
+    subSkills: [ 'Redis', 'BullMQ', 'Kafka', 'rabbitMQ' ]
+  }
+] {
+  requiredSkills: [
+    'ReactJS',
+    'Node.js',
+    'RESTful APIs',
+    'Azure Cloud',
+    'Git',
+    'MySQL',
+    'PostgreSQL'
+  ],
+  responsibilities: [
+    'Design, develop, and maintain responsive and scalable front-end applications using ReactJS.',
+    'Work closely with the UX/UI design team to ensure a seamless user experience across various devices.',
+    'Build robust and scalable backend services using Node.js and Factify.',
+    'Implement RESTful APIs, integrate with various databases, and cloud services.',
+    'Develop, deploy, and maintain applications on cloud platforms (Azure Cloud, etc.).',
+    'Leverage cloud services such as storage, compute, and serverless functions to enhance application performance and scalability.',
+    'Write unit tests and perform integration testing to ensure the quality and reliability of applications.',
+    'Debug and resolve issues across the stack.',
+    'Work closely with cross-functional teams (designers, product managers, other developers) to deliver high-quality software.',
+    'Maintain clear and concise documentation for code, processes, and system architecture.',
+    'Stay up-to-date with the latest trends and best practices in web development, cloud technologies, and software engineering.',
+    'Contribute to code'
+  ],
+  roleTitle: 'Full-Stack Developer',
+  preferredSkills: [ 'TypeScript', 'microservices architecture', 'Fastify' ],
+  toolsAndTechnologies: [
+    'ReactJS',  'Node.js',
+    'Fastify',  'Azure Cloud',
+    'Webpack',  'Axios',
+    'Jest',     'Mocha',
+    'OAuth',    'JWT',
+    'Postgres', 'Snowflake',
+    'MySQL',    'PostgreSQL',
+    'Git',      'GitHub/GitLab',
+    'Jenkins',  'GitLab',
+    'Redux',    'Context API'
+  ]
+}

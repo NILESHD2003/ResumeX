@@ -1,17 +1,18 @@
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { Injectable } from '@nestjs/common';
+import { User } from 'src/Mongo/Schema/user.schema';
 
 @Injectable()
-export class JDAnalyzerProducer {
+export class SkillRankerProducer {
   constructor(
-    @InjectQueue('jd-analysis')
-    private readonly jdAnalysisQueue: Queue,
+    @InjectQueue('skills-ranker')
+    private readonly skillRankerQueue: Queue,
   ) {}
 
-  async addJobToQueue(jobId: string, context: object, userData: object) {
-    await this.jdAnalysisQueue.add(
-      'analyze-jd',
+  async addJobToQueue(jobId: string, context: object, userData: User) {
+    await this.skillRankerQueue.add(
+      'skill-rank',
       {
         jobId,
         context,

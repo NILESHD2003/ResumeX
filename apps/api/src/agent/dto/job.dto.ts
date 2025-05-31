@@ -1,9 +1,13 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class NewJobDto {
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  jobDescription: string;
+  jobDescription?: string;
+
+  @IsOptional()
+  @IsString()
+  jobLink?: string;
 }
 
 //TODO: Complete this response

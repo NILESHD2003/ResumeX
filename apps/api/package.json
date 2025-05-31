@@ -24,6 +24,7 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^11.1.6",
+    "@redis/client": "^5.1.0",
     "@repo/api": "*",
     "bcrypt": "^5.1.1",
     "bullmq": "^5.52.2",

@@ -10,6 +10,7 @@ import { RepositoryModule } from './repository/repository.module';
 import { ProfileModule } from './profile/profile.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { AgentModule } from './agent/agent.module';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { AgentModule } from './agent/agent.module';
     ProfileModule,
     CloudinaryModule,
     AgentModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],

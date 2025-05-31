@@ -3,15 +3,19 @@ import { Queue } from 'bullmq';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class JDAnalyzerProducer {
+export class ProjectDescriptionGeneratorProducer {
   constructor(
-    @InjectQueue('jd-analysis')
-    private readonly jdAnalysisQueue: Queue,
+    @InjectQueue('project-description-generator')
+    private readonly projectDescriptionGenerator: Queue,
   ) {}
 
-  async addJobToQueue(jobId: string, context: object, userData: object) {
-    await this.jdAnalysisQueue.add(
-      'analyze-jd',
+  async addJobToQueue(
+    jobId: string,
+    context: object,
+    userData: object,
+  ) {
+    await this.projectDescriptionGenerator.add(
+      'generate-project-description',
       {
         jobId,
         context,

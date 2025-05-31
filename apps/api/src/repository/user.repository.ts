@@ -1,18 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { Collection, ObjectId } from 'mongodb';
 import { MongoService } from '../Mongo/mongo.service';
 import { User, USER_COLLECTION } from '../Mongo/Schema/user.schema';
 import { ProfileSummaryResponseDto } from 'src/profile/dto/profile';
 
-// try{
-
-// }catch(error){
-//   console.log("Something went Wrong while performing Database Operation: updateUserProfileSummary ", error);
-// }
-
 @Injectable()
 export class UserRepository {
   private collection: Collection<User>;
+
+  private readonly logger = new Logger(UserRepository.name);
 
   constructor(private readonly mongo: MongoService) {}
 
@@ -25,7 +21,7 @@ export class UserRepository {
     try {
       return this.collection.findOne({ email });
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: findUserByEmail ',
         error,
       );
@@ -51,7 +47,7 @@ export class UserRepository {
 
       return user.acknowledged;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: createNewUser ',
         error,
       );
@@ -75,7 +71,7 @@ export class UserRepository {
       );
       return { summary: user.profileSummary, hide: user.hideProfileSummary };
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateUserProfileSummary ',
         error,
       );
@@ -87,7 +83,7 @@ export class UserRepository {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        console.log('User not found');
+        this.logger.error('User not found');
         return false;
       }
 
@@ -101,7 +97,7 @@ export class UserRepository {
 
       return data.hideProfileSummary;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleProfileSummaryVisibility ',
         error,
       );
@@ -117,7 +113,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: findUserPersonalDetails',
         error,
       );
@@ -143,7 +139,7 @@ export class UserRepository {
       
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateUserPersonalDetails',
         error
       );
@@ -161,7 +157,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateProfileImage',
         error,
       );
@@ -179,7 +175,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: removeProfileImage',
         error,
       );
@@ -191,7 +187,7 @@ export class UserRepository {
     try {
       const user = await this.collection.findOne({ email });
       if (!user) {
-        console.log('User not found');
+        this.logger.error('User not found');
         return false;
       }
 
@@ -205,7 +201,7 @@ export class UserRepository {
 
       return data.hideProfilePicture;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleProfileImageVisibility',
         error,
       );
@@ -223,7 +219,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addEducationDetail',
         error,
       );
@@ -247,13 +243,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateEducationDetail',
         error,
       );
@@ -296,7 +292,7 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
@@ -304,7 +300,7 @@ export class UserRepository {
         (detail) => detail._id.toString() === recordId,
       ).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleEducationDetailVisibility',
         error,
       );
@@ -321,13 +317,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteEducationDetail',
         error,
       );
@@ -344,13 +340,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addProfessionalExperience',
         error,
       );
@@ -378,13 +374,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+            this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateProfessionalExperience',
         error,
       );
@@ -437,7 +433,7 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
@@ -445,7 +441,7 @@ export class UserRepository {
         (detail) => detail._id.toString() === recordId,
       ).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleProfessionalExperienceVisibility',
         error,
       );
@@ -462,13 +458,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteProfessionalExperience',
         error,
       );
@@ -485,13 +481,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addSkill',
         error,
       );
@@ -515,13 +511,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateSkill',
         error,
       );
@@ -560,13 +556,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.skills.find((s) => s._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleSkillVisibility',
         error,
       );
@@ -584,7 +580,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteSkill',
         error,
       );
@@ -601,13 +597,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addLanguage',
         error,
       );
@@ -633,13 +629,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateLanguage',
         error,
       );
@@ -680,13 +676,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.languages.find((l) => l._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleLanguageVisibility',
         error,
       );
@@ -704,7 +700,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteLanguage',
         error,
       );
@@ -721,13 +717,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addCertificate',
         error,
       );
@@ -751,13 +747,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateCertificate',
         error,
       );
@@ -798,13 +794,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+          this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.certificates.find((c) => c._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleCertificateVisibility',
         error,
       );
@@ -825,7 +821,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteCertificate',
         error,
       );
@@ -842,13 +838,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addProject',
         error,
       );
@@ -872,13 +868,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateProject',
         error,
       );
@@ -917,13 +913,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.projects.find((p) => p._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleProjectVisibility',
         error,
       );
@@ -941,7 +937,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+        this.logger.error(
         'Something went Wrong while performing Database Operation: deleteProject',
         error,
       );
@@ -958,13 +954,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+            this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addAward',
         error,
       );
@@ -989,13 +985,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateAward',
         error,
       );
@@ -1034,13 +1030,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+          this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.awards.find((a) => a._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleAwardVisibility',
         error,
       );
@@ -1058,7 +1054,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteAward',
         error,
       );
@@ -1075,13 +1071,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addCourse',
         error,
       );
@@ -1105,13 +1101,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateCourse',
         error,
       );
@@ -1150,13 +1146,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.courses.find((c) => c._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleCourseVisibility',
         error,
       );
@@ -1174,7 +1170,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteCourse',
         error,
       );
@@ -1191,13 +1187,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addOrganization',
         error,
       );
@@ -1221,13 +1217,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateOrganization',
         error,
       );
@@ -1268,13 +1264,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.organizations.find((o) => o._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleOrganizationVisibility',
         error,
       );
@@ -1295,7 +1291,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteOrganization',
         error,
       );
@@ -1312,13 +1308,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addPublication',
         error,
       );
@@ -1342,13 +1338,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updatePublication',
         error,
       );
@@ -1389,13 +1385,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.publications.find((p) => p._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: togglePublicationVisibility',
         error,
       );
@@ -1416,7 +1412,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deletePublication',
         error,
       );
@@ -1433,13 +1429,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addReference',
         error,
       );
@@ -1463,13 +1459,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateReference',
         error,
       );
@@ -1510,13 +1506,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.references.find((r) => r._id.toString() === recordId).hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleReferenceVisibility',
         error,
       );
@@ -1534,7 +1530,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: deleteReference',
         error,
       );
@@ -1552,7 +1548,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: addDeclaration',
         error,
       );
@@ -1578,7 +1574,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateDeclaration',
         error,
       );
@@ -1606,13 +1602,13 @@ export class UserRepository {
       );
 
       if (!data) {
-        console.log('No record found with the given ID');
+        this.logger.error('No record found with the given ID');
         return null;
       }
 
       return data.declaration.hide;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: toggleDeclarationVisibility',
         error,
       );
@@ -1639,7 +1635,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: updateDeclarationSignature',
         error,
       );
@@ -1662,7 +1658,7 @@ export class UserRepository {
 
       return data;
     } catch (error) {
-      console.log(
+      this.logger.error(
         'Something went Wrong while performing Database Operation: removeDeclarationSignature',
         error,
       );

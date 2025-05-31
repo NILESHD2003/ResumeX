@@ -3,15 +3,15 @@ import { Queue } from 'bullmq';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class JDAnalyzerProducer {
+export class JDScrapperProducer {
   constructor(
-    @InjectQueue('jd-analysis')
-    private readonly jdAnalysisQueue: Queue,
+    @InjectQueue('jd-scrapper')
+    private readonly jdScrapperQueue: Queue,
   ) {}
 
   async addJobToQueue(jobId: string, context: object, userData: object) {
-    await this.jdAnalysisQueue.add(
-      'analyze-jd',
+    await this.jdScrapperQueue.add(
+      'jd-scrap',
       {
         jobId,
         context,
