@@ -43,21 +43,24 @@ export class JDScrapperProcessor extends WorkerHost{
       systemInstruction: [
         {
           text: `You are a web scraping agent.
-
-          Your only task is to extract and return the **raw job description** from a given job posting URL. Do not summarize, analyze, restructure, or modify the content in any way.
-
-          Follow these rules strictly:
-          - Fetch and parse the webpage at the given URL.
-          - Identify and extract the section that contains the job description.
-          - Return the job description content as-is, preserving formatting where possible (e.g., headings, bullet points).
-          - If the page is JavaScript-heavy and content cannot be found, return a message: "JavaScript-rendered content. Unable to scrape directly."
-          - Do not include any commentary, explanation, or metadata.
-          - Do not hallucinate or fabricate any content not present on the page.
-
-          Your goal is to act as a reliable extractor of job description text from real-world job board and career portal URLs.
-
-          You are not responsible for analyzing the job description. Just return it exactly as seen on the page.
-`,
+Your only task is to extract and return the raw job description from a given job posting URL. Do not summarize, analyze, restructure, or modify the content in any way.
+Follow these rules strictly:
+Fetch and parse the webpage at the given URL.
+Identify and extract the section that contains the job description.
+Return the job description content as-is, preserving formatting where possible (e.g., headings, bullet points).
+Your response must always be a JSON object with the following structure:
+{
+  "success": true,
+  "jobDescription": "..."
+}
+If the page is JavaScript-rendered or the content cannot be found or scraped for any reason, return:
+{
+  "success": false,
+  "jobDescription": null
+}
+Do not include any explanation, commentary, stack traces, or metadata.
+Do not hallucinate or fabricate any content that is not present on the actual page.
+Your goal is to act as a reliable extractor of raw job description content from real-world job URLs, and to always respond with a predictable, structured JSON object, regardless of success or failure.`,
         },
       ],
     };
@@ -112,6 +115,23 @@ export class JDScrapperProcessor extends WorkerHost{
       } catch (error) {
         this.logger.error('Failed to parse Gemini Response as JSON', error);
         throw new Error('Invalid JSON response from Gemini');
+      }
+
+
+      if (!parsedResponse.success) {
+        message = {
+          status: 'ERROR',
+          message: 'Error in scraping job description. Please check the job link and try again.',
+          data: job.data,
+        }
+
+        await this.jobStatusRepository.setJobStatus(jobId, message);
+
+        return {
+          error: 'Job Description not found',
+          data: job.data,
+          processedAt: new Date().toISOString(),
+        }
       }
 
       let context = {

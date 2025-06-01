@@ -53,57 +53,82 @@ export class SkillRankerProcessor extends WorkerHost {
         {
           text: `You are an advanced AI agent designed to evaluate and rank a user's technical skills based on their alignment with a target job profile.
 
-You will be provided with a 'context' object that includes structured data such as job description insights, user skills, project experience, and other relevant information. Use this context to conduct a comprehensive evaluation.
+You will receive a 'context' object that includes:
+- A job description summary or insights
+- A list of user skills (in a structured format)
+- Optional user project experience
 
-Your goal is to produce a structured JSON output containing the following:
+Your task is to analyze this context and produce a structured JSON output in the **same format as the input skills list**, but with additional evaluation metadata.
 
-1️⃣ SubSkill Scores (Ranked Individually):
-For each sub-skill:
-- name: Name of the sub-skill.
-- category: "Preferred" or "Not Preferred" based on its alignment with the job requirements inferred from the context.
-- relevance_score: A score from 0–100 indicating how relevant the sub-skill is to the target role.
+---
 
-2️⃣ Ranked Main Skills (Grouped and Averaged):
-For each main skill category:
-- name: Name of the main skill group (e.g., "Backend", "Soft Skills").
-- subSkills: Names of the sub-skills that fall under this category.
-- category: "Preferred" or "Not Preferred", based on the majority label of its sub-skills.
-- relevance_score: Average of the relevance scores of its sub-skills.
+🧠 Evaluation Requirements:
+For each main skill category in the input:
+- Preserve the \`_id\`, \`name\`, \`subSkills\`, \`level\`, and \`hide\` fields.
+- Add a new field: \`"evaluation"\` with the following structure:
+  {
+    "category": "Preferred" | "Not Preferred",   // based on subSkill-job alignment
+    "relevance_score": Number (0–100),           // average score across subSkills
+    "subSkillScores": [                          // detailed scoring
+      {
+        "name": String,
+        "category": "Preferred" | "Not Preferred",
+        "relevance_score": Number (0–100)
+      }
+    ]
+  }
 
-3️⃣ Average Relevance by Skill Category:
-Display a concise summary of the average relevance score for each main skill category.
-
-4️⃣ Recommended Skills (Based on Deep Analysis):
-Identify missing but critical skills relevant to the job context. Organize recommendations into these categories:
+Also return a separate object:
+**recommendedSkills**: A list of missing but relevant skills categorized as:
 - Technical
 - Tools and Technology
 - Soft Skills
 - Methodologies
 - Other Relevant Skills
 
-Recommended Output Format:
+---
+
+🎯 Output Format (JSON only, no commentary):
 {
-  subSkillScores: [...],
-  rankedMainSkills: [...],
-  averageRelevanceByCategory: [...],
-  recommendedSkills: [
+  "rankedSkills": [
     {
-      name: "Technical",
-      Skills: ["Java", "Python", "Dart"]
-    },
-    {
-      name: "Tools and Technology",
-      Skills: ["Git", "Docker"]
+      "_id": "...",
+      "name": "...",
+      "subSkills": [...],
+      "level": "...",
+      "hide": false,
+      "evaluation": {
+        "category": "Preferred",
+        "relevance_score": 87,
+        "subSkillScores": [
+          {
+            "name": "React.js",
+            "category": "Preferred",
+            "relevance_score": 90
+          },
+          ...
+        ]
+      }
     },
     ...
+  ],
+  "recommendedSkills": [
+    {
+      "name": "Technical",
+      "Skills": ["Fastify", "gRPC"]
+    },
+    {
+      "name": "Tools and Technology",
+      "Skills": ["Azure", "Kubernetes"]
+    }
   ]
 }
 
-⚠️ Requirements:
-- Use the context provided without assuming a fixed structure.
-- Ensure recommendations are aligned with industry expectations and role suitability.
-- Do not repeat user skills unless you suggest a significant extension (e.g., "Advanced React").
-- Output valid JSON only, with no extra commentary.`,
+⚠️ Instructions:
+- Use only the data in the provided context — don’t hallucinate structure.
+- If a subSkill is not relevant to the job description, score it lower and mark it as "Not Preferred".
+- Recommend only skills that are **missing or lightly covered** and are important for the role.
+- Output valid JSON only.`,
         },
       ],
     };
@@ -154,6 +179,8 @@ Recommended Output Format:
       },
     ];
 
+    // console.log(contents[0].parts[0].text);
+
     try {
       const res = await this.geminiService.generateContent(
         model,
@@ -172,6 +199,8 @@ Recommended Output Format:
         this.logger.error('Failed to parse Gemini Response as JSON', error);
         throw new Error('Invalid JSON response from Gemini');
       }
+
+      // console.log(parsedResponse.rankedSkills[0].evaluation.subSkillScores);
       
       context.rankedSkills = parsedResponse;
 
