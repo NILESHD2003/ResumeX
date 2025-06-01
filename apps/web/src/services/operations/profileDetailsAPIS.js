@@ -12,7 +12,7 @@ export async function getProfileDetails() {
             Authorization: `Bearer ${token}`
         })
         if (response.data.success) {
-            console.log(response.data.message);
+            console.log(response.data.data);
             return response.data.data;
         } else {
             console.log(response.data.message);
