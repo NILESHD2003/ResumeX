@@ -3,6 +3,7 @@ import {Job} from 'bullmq';
 import {Injectable, Logger} from '@nestjs/common';
 import {GeminiService} from '../gemini.service';
 import {JobStatusRepository} from 'src/repository/jobStatus.repository';
+import {ResumeStoreRepository} from "../../repository/resumeStore.repository";
 
 @Processor('project-description-generator')
 @Injectable()
@@ -12,12 +13,14 @@ export class ProjectDescriptionGeneratorProcessor extends WorkerHost {
     constructor(
         private geminiService: GeminiService,
         private jobStatusRepository: JobStatusRepository,
+        private resumeStoreRepository: ResumeStoreRepository,
     ) {
         super();
     }
 
     async process(job: Job) {
         const jobId = job.data.jobId;
+        const userData = job.data.userData;
 
         if (!jobId) {
             this.logger.error('No Job ID found in Job Data', job.data);
@@ -178,7 +181,36 @@ Add explanations or commentary
             await this.jobStatusRepository.setJobStatus(jobId, message);
             context.generatedProjectDescription = parsedResponse;
 
-            console.log('Final Context is: ', context);
+            // console.log('Final Context is: ', context);
+
+            let data = {
+                userId: userData._id,
+
+                profileSummary: userData.profileSummary ? userData.profileSummary : null,
+                hideProfileSummary: userData.hideProfileSummary,
+
+                profilePicture: userData.profilePicture ? userData.profilePicture : null,
+                hideProfilePicture: userData.hideProfilePicture,
+
+                personalDetails: userData.personalDetails ? userData.personalDetails : null,
+                educationDetails: userData.educationDetails ? userData.educationDetails : null,
+                professionalExperience: userData.professionalExperience ? userData.professionalExperience : null,
+                // skills: userData.skills ? userData.skills : null,
+                skills: context.rankedSkills,
+                languages: userData.languages ? userData.languages : null,
+                certificates: userData.certificates ? userData.certificates : null,
+                // projects: userData.projects ? userData.projects : null,
+                projects: context.generatedProjectDescription,
+                awards: userData.awards ? userData.awards : null,
+                courses: userData.courses ? userData.courses : null,
+                organizations: userData.organizations ? userData.organizations : null,
+                publications: userData.publications ? userData.publications : null,
+                references: userData.references ? userData.references : null,
+                declaration: userData.declaration ? userData.declaration : null,
+            };
+
+            //Save to Database
+            await this.resumeStoreRepository.createNewResume(jobId, data);
 
             message = {
                 status: 'COMPLETED',

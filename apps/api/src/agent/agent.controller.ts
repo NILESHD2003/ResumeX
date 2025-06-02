@@ -14,12 +14,12 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { SuccessResponseDto } from 'src/dto/common.dto';
 
-@Controller('agent')
+@Controller('agent/ai/job')
 @UseGuards(JwtAuthGuard)
 export class AgentController {
   constructor(private readonly agentService: AgentService) {}
 
-  @Post('ai/job')
+  @Post('resume')
   addNewJob(
     @GetUser() user,
     @Body() body: NewJobDto,
@@ -32,7 +32,7 @@ export class AgentController {
     }
   }
 
-  @Get('job/status/:jobId')
+  @Get('resume/status/:jobId')
   getJobStatus(@Param('jobId') jobId: string) {
     return this.agentService.getJobStatus(jobId);
   }
