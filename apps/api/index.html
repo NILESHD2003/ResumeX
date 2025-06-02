@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+  <body>
+    <h2>SSE Test</h2>
+    <pre id="log"></pre>
+
+    <script>
+      const jobId = prompt('Enter Job ID:');
+      const eventSource = new EventSource(
+        `http://localhost:9000/agent/stream/${jobId}`,
+      );
+
+      eventSource.onmessage = (event) => {
+        const log = document.getElementById('log');
+        log.textContent += event.data + '\n\n';
+      };
+
+      eventSource.onerror = (err) => {
+        console.error('SSE error', err);
+        eventSource.close();
+      };
+    </script>
+  </body>
+</html>

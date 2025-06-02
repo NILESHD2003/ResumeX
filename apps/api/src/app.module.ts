@@ -9,6 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import { RepositoryModule } from './repository/repository.module';
 import { ProfileModule } from './profile/profile.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { AgentModule } from './agent/agent.module';
+import { RedisModule } from './redis/redis.module';
+import { StoreModule } from './store/store.module';
 
 @Module({
   imports: [
@@ -20,6 +23,9 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     AuthModule,
     ProfileModule,
     CloudinaryModule,
+    AgentModule,
+    RedisModule,
+    StoreModule,
   ],
   controllers: [AppController],
   providers: [AppService],

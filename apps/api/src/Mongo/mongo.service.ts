@@ -1,9 +1,10 @@
 // mongo.service.ts
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { MongoClient, Db } from 'mongodb';
 
 @Injectable()
 export class MongoService {
+    private readonly logger = new Logger(MongoService.name);
     private client: MongoClient;
     private db: Db;
     private connectionPromise: Promise<void> | null = null;
@@ -20,10 +21,10 @@ export class MongoService {
                 this.client = new MongoClient(process.env.MONGODB_URI);
                 await this.client.connect();
                 this.db = this.client.db(process.env.MONGODB_DB);
-                console.log('Connected to MongoDB');
+                this.logger.log('Connected to MongoDB');
                 resolve();
             } catch (error) {
-                console.error('Error Connecting to MongoDB', error);
+                this.logger.error('Error Connecting to MongoDB', error);
                 reject(error);
             }
         });
@@ -41,7 +42,7 @@ export class MongoService {
     async onModuleDestroy() {
         if (this.client) {
             await this.client.close();
-            console.log('MongoDB connection closed');
+            this.logger.log('MongoDB connection closed');
         }
     }
 }
