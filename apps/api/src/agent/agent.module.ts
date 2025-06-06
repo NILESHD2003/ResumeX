@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AgentController } from './agent.controller';
 import { AgentService } from './agent.service';
 import { BullModule } from '@nestjs/bullmq';
@@ -17,41 +18,24 @@ import { RepositoryModule } from 'src/repository/repository.module';
 
 @Module({
   imports: [
-    BullModule.registerQueue({
-      name: 'jd-analysis',
-      connection: {
-        host: 'localhost',
-        port: 6379,
-      },
+    ConfigModule,
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get<string>('REDIS_HOST'),
+          port: configService.get<number>('REDIS_PORT'),
+          username: configService.get<string>('REDIS_USERNAME'),
+          password: configService.get<string>('REDIS_PASSWORD'),
+        },
+      }),
     }),
-    BullModule.registerQueue({
-      name: 'skills-ranker',
-      connection: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
-    BullModule.registerQueue({
-      name: 'projects-ranker',
-      connection: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
-    BullModule.registerQueue({
-      name: 'project-description-generator',
-      connection: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
-    BullModule.registerQueue({
-      name: 'jd-scrapper',
-      connection: {
-        host: 'localhost',
-        port: 6379,
-      },
-    }),
+    BullModule.registerQueue({ name: 'jd-analysis' }),
+    BullModule.registerQueue({ name: 'skills-ranker' }),
+    BullModule.registerQueue({ name: 'projects-ranker' }),
+    BullModule.registerQueue({ name: 'project-description-generator' }),
+    BullModule.registerQueue({ name: 'jd-scrapper' }),
     AuthModule,
     RepositoryModule,
   ],
