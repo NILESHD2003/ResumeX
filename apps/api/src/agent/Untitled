@@ -1,0 +1,264 @@
+Final Context is:  {
+  jobDescription: 'We are seeking a Full stack Intern Intern to join our dynamic and growing team. The ideal candidate should have strong problem-solving skills and know at least one frontend language Angular or React . Experience with front-end technologies like React.js or Angular is a plus.\n' +
+    '\n' +
+    'Key Responsibilities:\n' +
+    'Develop and maintain the back-end architecture using JavaScript/Node.js and related frameworks.\n' +
+    'Design and implement RESTful APIs to support various front-end applications.\n' +
+    'Collaborate with the front-end development team to integrate user-facing elements with server-side logic.\n' +
+    'Optimize application performance, scalability, and security.\n' +
+    'Work with databases (SQL/NoSQL) to ensure data integrity and efficiency.\n' +
+    'Implement data storage solutions and handle server-side logic for business logic and workflows.\n' +
+    'Write clean, modular, and scalable code that follows best practices.\n' +
+    'Stay up to date with back-end trends, best practices, and technologies.\n' +
+    'Nice-to-Have Skills:\n' +
+    'Knowledge of front-end frameworks such as React.js or Angular.\n' +
+    'Experience with DevOps, including CI/CD pipelines, server deployment, and containerization (Docker, Kubernetes).\n' +
+    'Familiarity with cloud platforms like AWS, Azure, or Google Cloud.\n' +
+    'Knowledge of elastic DB, Clickhouse, Kafka is a plus.',
+  analysedJobDescription: {
+    roleTitle: 'Full stack Intern',
+    requiredSkills: [ 'JavaScript/Node.js', 'RESTful APIs', 'SQL/NoSQL' ],
+    preferredSkills: [
+      'React.js',
+      'Angular',
+      'DevOps',
+      'CI/CD pipelines',
+      'Docker',
+      'Kubernetes',
+      'AWS',
+      'Azure',
+      'Google Cloud',
+      'elastic DB',
+      'Clickhouse',
+      'Kafka'
+    ],
+    toolsAndTechnologies: [
+      'React.js',   'Angular',
+      'Node.js',    'Docker',
+      'Kubernetes', 'AWS',
+      'Azure',      'Google Cloud',
+      'elastic DB', 'Clickhouse',
+      'Kafka'
+    ],
+    responsibilities: [
+      'Develop and maintain the back-end architecture using JavaScript/Node.js and related frameworks.',
+      'Design and implement RESTful APIs to support various front-end applications.',
+      'Collaborate with the front-end development team to integrate user-facing elements with server-side logic.',
+      'Optimize application performance, scalability, and security.',
+      'Work with databases (SQL/NoSQL) to ensure data integrity and efficiency.',
+      'Implement data storage solutions and handle server-side logic for business logic and workflows.',
+      'Write clean, modular, and scalable code that follows best practices.',
+      'Stay up to date with back-end trends, best practices, and technologies.'
+    ],
+    educationQualifications: [],
+    experienceLevel: 'Internship',
+    location: null,
+    salaryRange: null,
+    employmentType: 'Internship'
+  },
+  rankedProjects: {
+    rankedProjects: [ [Object], [Object], [Object] ],
+    unsortedProjectScores: [ [Object], [Object], [Object] ],
+    avgProjectScore: 73.33333333333333
+  },
+  rankedSkills: {
+    rankedSkills: [ [Object], [Object], [Object], [Object], [Object], [Object] ],
+    recommendedSkills: [ [Object], [Object] ]
+  },
+  generatedProjectDescription: [
+    {
+      _id: '6812133665c26520d8eb9dbf',
+      title: 'StudyNotion – Full-Stack EdTech Platform',
+      subtitle: 'Tech Stack: React.js, Tailwind CSS, Express.js, MongoDB',
+      description: '<ul><li>Designed responsive, user-friendly UIs using React.js and Tailwind CSS.</li><li>Integrated Cloudinary for optimized media uploads and retrieval, reducing load time by 50%.</li><li>Implemented Razorpay payment gateway for secure transactions.</li><li>Built OTP-based authentication and password reset flows with automated email delivery.</li></ul>',
+      links: [Array],
+      startDate: null,
+      endDate: null,
+      hide: true
+    },
+    {
+      _id: '6812155b50432c1a8e5c6f27',
+      title: 'Adaptive Bitrate Streaming Web Application',
+      subtitle: 'Tech Stack: React, Node.js, Express.js, Socket.IO, gRPC, MongoDB, Docker, Messaging Queues, Oracle Cloud',
+      description: '<ul><li>Engineered a video processing pipeline for adaptive bitrate HLS streaming using Dockerized services and messaging queues for transcoding and chunking workflows.</li><li>Deployed the application on Oracle Cloud utilizing Oracle Cloud Buckets for scalable video storage and retrieval.</li><li>Developed a React-based frontend for live demonstration and managed the backend using Express.js and MongoDB.</li></ul>',
+      links: [Array],
+      startDate: null,
+      endDate: null,
+      hide: true
+    },
+    {
+      _id: '681215fb50432c1a8e5c6f28',
+      title: 'EcoHarvest Mobile Application',
+      subtitle: 'Tech Stack: React Native, Node.js, Express.js, MongoDB',
+      description: '<ul><li>Developed a high-performance mobile application using React Native.</li><li>Designed and integrated APIs to support real-time data processing with cloud-based services.</li><li>Implemented secure user authentication for enhanced data protection and login experience.</li></ul>',
+      links: [Array],
+      startDate: null,
+      endDate: null,
+      hide: true
+    }
+  ]
+}
+
+User Data is:  {
+  _id: '68120b9165c26520d8eb9dbc',
+  name: 'Nilesh Deshpande',
+  email: 'nileshdeshpande2003@gmail.com',
+  password: '$2b$10$biuFm17TG2lRCxjGI1BzwejS5PDbHW2NFUZ.3t.2/rfkFgJdwIi1e',
+  createdAt: '2025-04-30T11:37:53.071Z',
+  updatedAt: '2025-04-30T11:37:53.071Z',
+  hideProfilePicture: false,
+  hideProfileSummary: false,
+  profilePicture: 'https://res.cloudinary.com/dflgxjjm7/image/upload/v1746013487/cncchiod8bq2veq1w2fq.jpg',
+  profilePicturePublicId: 'cncchiod8bq2veq1w2fq',
+  personalDetails: {
+    fullName: 'Nilesh Deshpande',
+    jobTitle: null,
+    email: null,
+    phone: null,
+    location: null,
+    personalInfo: null,
+    dateOfBirth: '2003-10-10T00:00:00.000Z',
+    nationality: null,
+    passport_govt_id: null,
+    maritalStatus: null,
+    militaryService: null,
+    drivingLicense: null,
+    genderPronoun: null,
+    visa: null,
+    socialLinks: [ [Object] ]
+  },
+  professionalExperience: [
+    {
+      _id: '681211ce65c26520d8eb9dbd',
+      jobTitle: 'Freelance Developer',
+      employer: 'Maulana Azad Polytechnic',
+      link: null,
+      city: 'Solapur',
+      country: 'India',
+      startDate: null,
+      endDate: null,
+      description: null,
+      hide: false
+    }
+  ],
+  projects: [
+    {
+      _id: '6812133665c26520d8eb9dbf',
+      title: 'Study Notion (MERN App)',
+      links: [Array],
+      subtitle: 'Tech Stack: React.js, Tailwind CSS, Express.js, MongoDB',
+      description: '• Designed and implemented user interfaces using React.js and Tailwind CSS, creating responsive and \n' +
+        '• Integrated Cloudinary API, improving media upload and retrieval times by 50%, and leveraged Razorpay for secure online payments. Deployed an email system for OTPs and password resets.',
+      startDate: null,
+      endDate: null,
+      hide: true
+    },
+    {
+      _id: '6812155b50432c1a8e5c6f27',
+      title: 'HLS with Adaptive Bitrate Streaming (Web Application)',
+      links: [Array],
+      subtitle: 'Tech Stack: React, Node.js, Express.js, Socket.IO, gRPC, MongoDB, Docker, Messaging Queues, Oracle Cloud',
+      description: '• Engineered a video processing pipeline for adaptive bitrate HLS streaming, leveraging Dockerized services and messaging queues to streamline transcoding and chunking workflows. \n' +
+        '• Deployed the application on Oracle Cloud, utilizing Oracle Cloud Buckets for scalable and efficient video storage and retrieval.\n' +
+        '• Crafted a minimalist React-based frontend for a live demo and orchestrated the backend using Express.js and MongoDB to handle metadata management and video delivery efficiently',
+      startDate: null,
+      endDate: null,
+      hide: true
+    },
+    {
+      _id: '681215fb50432c1a8e5c6f28',
+      title: 'EcoHarvest(Mobile App)',
+      links: [Array],
+      subtitle: 'Tech Stack: React Native, Node.js, Express.js, MongoDB',
+      description: '• Developed a high-performance mobile application using React Native, focusing on seamless user experience and cross-platform compatibility. \n' +
+        '• Designed and integrated APIs to support real-time data processing and interaction with cloud-based services. \n' +
+        '• Implemented secure user authentication to enhance data protection and ensure a reliable login experience.',
+      startDate: null,
+      endDate: null,
+      hide: true
+    }
+  ],
+  skills: [
+    {
+      _id: '6812169c50432c1a8e5c6f29',
+      name: 'Technical',
+      subSkills: [Array],
+      level: 'EXPERT',
+      hide: false
+    },
+    {
+      _id: '681216da50432c1a8e5c6f2a',
+      name: 'Frontend Development',
+      subSkills: [Array],
+      level: 'EXPERT',
+      hide: false
+    },
+    {
+      _id: '6812171750432c1a8e5c6f2b',
+      name: 'Backend Development',
+      subSkills: [Array],
+      level: 'EXPERT',
+      hide: false
+    },
+    {
+      _id: '6812174950432c1a8e5c6f2c',
+      name: 'Database',
+      subSkills: [Array],
+      level: 'EXPERT',
+      hide: false
+    },
+    {
+      _id: '6812178b50432c1a8e5c6f2d',
+      name: 'DevOps/ Deployment',
+      subSkills: [Array],
+      level: 'COMPETENT',
+      hide: false
+    },
+    {
+      _id: '681217bd50432c1a8e5c6f2e',
+      name: 'Microservices and System Design',
+      subSkills: [Array],
+      level: 'AMATEUR',
+      hide: false
+    }
+  ],
+  educationDetails: [
+    {
+      _id: '6812185e292ed75989464aca',
+      degree: 'B. Tech, Computer Science and Engineering',
+      school: null,
+      university: null,
+      link: null,
+      city: null,
+      country: null,
+      startDate: null,
+      endDate: null,
+      description: null,
+      grade: '7.95 CGPA',
+      hide: false
+    }
+  ],
+  awards: [
+    {
+      _id: '681218df292ed75989464acb',
+      title: 'Finalist at an offline 36-hour PAN India Hackathon arranged by HackHive, DAVV, Indore.',
+      link: 'https://drive.google.com/file/d/1i0Pvzu2bOBS8KpfnOBwVEELeNPHwh8J7/view',
+      additionalInfo: null,
+      issuer: null,
+      date: null,
+      expirationDate: null,
+      hide: false
+    },
+    {
+      _id: '68121903292ed75989464acc',
+      title: "Won state Level Technical Event ORCHATHON'23.",
+      link: 'https://drive.google.com/file/d/1W4muSTWcmzmQxKF1ptiZdsStmMzzYtNS/view',
+      additionalInfo: null,
+      issuer: 'N. K. Orchid College of Engineering - CSESA',
+      date: null,
+      expirationDate: null,
+      hide: false
+    }
+  ],
+  profileSummary: 'Hello World'
+}
