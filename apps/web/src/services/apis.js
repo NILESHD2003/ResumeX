@@ -140,3 +140,13 @@ export const declarationSectionEndpoints = {
     UPDATE_USER_SIGNATURE_IMAGE: BASE_URL + "/profile/declaration/signature",
     DELETE_USER_SIGNATURE_IMAGE: BASE_URL + "/profile/declaration/signature"
 }  
+
+export const agenticAI_Endpoints = {
+    SUBMIT_NEW_JOB_REQUEST: BASE_URL + "/agent/ai/job/resume",
+    CHECK_JOB_STATUS: BASE_URL + "/agent/ai/job/resume/status/"
+}
+
+export const resumeStoredData = {
+    GET_USER_ALL_GENERATED_RESUMES: BASE_URL + "/store/resumes/all",
+    GET_USER_SPECIFIC_RESUME: BASE_URL + "/store/resumes/"
+}

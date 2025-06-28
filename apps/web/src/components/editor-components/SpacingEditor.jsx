@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Minus, Plus } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -84,17 +84,30 @@ const SpacingControl = ({
 };
 
 
-const SpacingEditor = () => {
-  const [fontSize, setFontSize] = useState(11);
-  const [lineHeight, setLineHeight] = useState(1.1);
-  const [leftRightMargin, setLeftRightMargin] = useState(10);
-  const [topBottomMargin, setTopBottomMargin] = useState(10);
-  const [spaceBetweenEntities, setSpaceBetweenEntities] = useState(1);
+const SpacingEditor = ({resumeMetadata, setResumeMetadata}) => {
+  const [fontSize, setFontSize] = useState(resumeMetadata?.spacing?.fontSize || 11);
+  const [lineHeight, setLineHeight] = useState(resumeMetadata?.spacing?.lineHeight || 1.1);
+  const [leftRightMargin, setLeftRightMargin] = useState(resumeMetadata?.spacing?.yMargin || 10);
+  const [topBottomMargin, setTopBottomMargin] = useState(resumeMetadata?.spacing?.xMargin || 10);
+  const [spaceBetweenEntities, setSpaceBetweenEntities] = useState(resumeMetadata?.spacing?.spaceBetnEntries || 1);
+
+  useEffect(() => {
+    setResumeMetadata(prev => ({
+      ...prev,
+      spacing: {
+        ...prev.spacing,
+        fontSize: fontSize,
+        lineHeight: lineHeight,
+        xMargin: leftRightMargin,
+        yMargin: topBottomMargin,
+        spaceBetnEntries: spaceBetweenEntities
+      }
+    }));
+  }, [fontSize, lineHeight, leftRightMargin, topBottomMargin, spaceBetweenEntities])
 
   return (
-    <div className="w-96 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className="w-full bg-white rounded-xl p-6">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">Spacing</h2>
-
       <SpacingControl
         label="Font Size"
         value={fontSize}

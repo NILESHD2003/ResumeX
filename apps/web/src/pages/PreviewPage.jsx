@@ -5,10 +5,11 @@ import ProgressIndicator from '../components/ProgressIndicator';
 import StaticBar from '../components/StaticBar';
 import { Button } from "@/components/ui/button";
 import { useNavigate } from 'react-router-dom';
+import { Edit } from 'lucide-react'; // Import the Edit icon
 
 const PreviewPage = () => {
   const [profileData, setProfileData] = useState(null);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const fetchData = async () => {
     const data = await getProfileDetails();
@@ -23,14 +24,80 @@ const PreviewPage = () => {
     return <div>Loading preview...</div>;
   }
 
+  // Function to handle edit click and navigate to the respective page
+  const handleEditClick = (section) => {
+    let path = '';
+    switch (section) {
+      case 'personalDetails':
+        path = '/onboarding/personal-details';
+        break;
+      case 'profileSummary':
+        path = '/onboarding/profile-summary';
+        break;
+      case 'educationDetails':
+        path = '/onboarding/education-section';
+        break;
+      case 'professionalExperience':
+        path = '/onboarding/professional-section';
+        break;
+      case 'skills':
+        path = '/onboarding/skills-section';
+        break;
+      case 'languages':
+        path = '/onboarding/languages-section';
+        break;
+      case 'certificates':
+        path = '/onboarding/certificates-section';
+        break;
+      case 'projects':
+        path = '/onboarding/projects-section';
+        break;
+      case 'awards':
+        path = '/onboarding/awards-section';
+        break;
+      case 'courses':
+        path = '/onboarding/courses-section';
+        break;
+      case 'organizations':
+        path = '/onboarding/organizations-section';
+        break;
+      case 'publications':
+        path = '/onboarding/publications-section';
+        break;
+      case 'references':
+        path = '/onboarding/references-section';
+        break;
+      case 'declaration':
+        path = '/onboarding/declaration-section';
+        break;
+      default:
+        console.warn('Unknown section for editing:', section);
+        return;
+    }
+    navigate(path);
+  };
+
+  const EditIcon = ({ onClick }) => (
+    <button
+      onClick={onClick}
+      // Changed positioning from 'left-2' to 'right-2'
+      // Increased padding 'p-1' to 'p-2' for a slightly larger button
+      // Increased icon size from '16' to '20'
+      className="absolute bottom-2 right-2 p-2 rounded-full bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+      aria-label="Edit"
+    >
+      <Edit size={20} /> {/* Using the Lucide React Edit icon with increased size */}
+    </button>
+  );
+
   return (
-    <div className="flex flex-col w-full"> {/* Added some spacing between cards */}
-        <StaticBar />
-        <h1 className="text-3xl pt-2 font-bold text-center">Preview Section</h1>
-        <ProgressIndicator currentStep={15}/>
-      
+    <div className="flex flex-col w-full">
+      <StaticBar />
+      <h1 className="text-3xl pt-2 font-bold text-center">Preview Section</h1>
+      <ProgressIndicator currentStep={15} />
+
       {profileData.personalDetails && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Personal Details</CardTitle>
           </CardHeader>
@@ -52,22 +119,24 @@ const PreviewPage = () => {
                 </p>
               ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('personalDetails')} />
         </Card>
       )}
 
       {profileData.profileSummary && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Profile Summary</CardTitle>
           </CardHeader>
           <CardContent>
             <p>{profileData.profileSummary}</p>
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('profileSummary')} />
         </Card>
       )}
 
       {profileData.educationDetails && profileData.educationDetails.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Education</CardTitle>
           </CardHeader>
@@ -86,11 +155,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('educationDetails')} />
         </Card>
       )}
 
       {profileData.professionalExperience && profileData.professionalExperience.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Professional Experience</CardTitle>
           </CardHeader>
@@ -107,11 +177,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('professionalExperience')} />
         </Card>
       )}
 
       {profileData.skills && profileData.skills.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Skills</CardTitle>
           </CardHeader>
@@ -126,11 +197,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('skills')} />
         </Card>
       )}
 
       {profileData.languages && profileData.languages.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Languages</CardTitle>
           </CardHeader>
@@ -143,11 +215,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('languages')} />
         </Card>
       )}
 
       {profileData.certificates && profileData.certificates.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Certificates</CardTitle>
           </CardHeader>
@@ -164,11 +237,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('certificates')} />
         </Card>
       )}
 
       {profileData.projects && profileData.projects.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Projects</CardTitle>
           </CardHeader>
@@ -196,11 +270,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('projects')} />
         </Card>
       )}
 
       {profileData.awards && profileData.awards.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Awards</CardTitle>
           </CardHeader>
@@ -215,11 +290,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('awards')} />
         </Card>
       )}
 
       {profileData.courses && profileData.courses.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Courses</CardTitle>
           </CardHeader>
@@ -236,11 +312,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('courses')} />
         </Card>
       )}
 
       {profileData.organizations && profileData.organizations.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Organizations</CardTitle>
           </CardHeader>
@@ -256,11 +333,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('organizations')} />
         </Card>
       )}
 
       {profileData.publications && profileData.publications.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Publications</CardTitle>
           </CardHeader>
@@ -276,11 +354,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('publications')} />
         </Card>
       )}
 
       {profileData.references && profileData.references.length > 0 && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>References</CardTitle>
           </CardHeader>
@@ -296,11 +375,12 @@ const PreviewPage = () => {
               </div>
             ))}
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('references')} />
         </Card>
       )}
 
       {profileData.declaration && (
-        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm">
+        <Card className="max-w-xl w-full mx-auto my-3 p-6 bg-white rounded-3xl shadow-sm relative">
           <CardHeader>
             <CardTitle>Declaration</CardTitle>
           </CardHeader>
@@ -311,15 +391,16 @@ const PreviewPage = () => {
             <p><strong>Place:</strong> {profileData.declaration.place}</p>
             <p><strong>Signature:</strong> {profileData.declaration.signature}</p>
           </CardContent>
+          <EditIcon onClick={() => handleEditClick('declaration')} />
         </Card>
       )}
 
       <div className='flex max-w-xl mb-4 mx-auto'>
         <div>
-          <Button onClick={() => {navigate('/generate-resume')}} className="mr-20">Generate Resume</Button>
+          <Button onClick={() => { navigate('/generate-resume') }} className="mr-20">Generate Resume</Button>
         </div>
         <div>
-          <Button variant="outline" onClick={() => {navigate('/dashboard')}} className="ml-20">Skip for now</Button>
+          <Button variant="outline" onClick={() => { navigate('/dashboard') }} className="ml-20">Skip for now</Button>
         </div>
       </div>
     </div>
