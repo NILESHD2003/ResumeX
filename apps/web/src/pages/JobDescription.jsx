@@ -32,43 +32,56 @@ export default function JobDescriptionPage() {
 
   // Effect to perform a single check after a delay
   useEffect(() => {
-    let timer;
-    if (jobId && showProcessingMessage) {
-      setProcessingStatusMessage("Your request is being processed. This may take a moment...");
-      timer = setTimeout(async () => {
-        console.log("Performing single job status check after 15 seconds for Job ID:", jobId);
-        const jobStatusResponse = await importedCheckJobStatus(jobId);
+  let intervalId;
+  let attempts = 0;
+  const MAX_ATTEMPTS = 8;
+  const CHECK_INTERVAL_MS = 5000;
 
-        if (jobStatusResponse && jobStatusResponse.length > 0) {
-          try {
-            const latestStatusData = JSON.parse(jobStatusResponse[0]);
-            console.log(jobStatusResponse[0])
-            console.log("Status after single check:", latestStatusData.status);
+  if (jobId && showProcessingMessage) {
+    setProcessingStatusMessage("Your request is being processed. This may take a moment...");
 
-            if (latestStatusData.status === "COMPLETED") {
-              toast.success("Resume generation completed!");
-              navigate('/resume/preview');
-            } else {
-              setProcessingStatusMessage("Job is still processing. Please check back later or try again.");
-              toast.info("Your resume is still being generated. Please wait a bit longer.");
-            }
-          } catch (e) {
-            console.error("Error parsing status data during single check:", e);
-            setProcessingStatusMessage("An error occurred processing your request. Please try again.");
-            toast.error("An unexpected error occurred. Please try again.");
+    intervalId = setInterval(async () => {
+      attempts++;
+      console.log(`Attempt ${attempts}: Checking status for Job ID:`, jobId);
+
+      const jobStatusResponse = await importedCheckJobStatus(jobId);
+
+      if (jobStatusResponse && jobStatusResponse.length > 0) {
+        try {
+          const latestStatusData = JSON.parse(jobStatusResponse[0]);
+          console.log("Status:", latestStatusData.status);
+
+          if (latestStatusData.status === "COMPLETED") {
+            clearInterval(intervalId);
+            toast.success("Resume generation completed!");
+            navigate('/resume/preview');
+          } else {
+            setProcessingStatusMessage("Job is still processing. Please wait...");
           }
-        } else {
-          setProcessingStatusMessage(jobStatusResponse?.message || "Could not retrieve job status. Please try again.");
-          toast.error(jobStatusResponse?.message || "Failed to get job status. Please try again.");
+        } catch (e) {
+          clearInterval(intervalId);
+          console.error("Error parsing status data:", e);
+          setProcessingStatusMessage("An error occurred. Please try again.");
+          toast.error("Unexpected error. Please try again.");
         }
-      }, SINGLE_CHECK_DELAY_MS);
-    }
+      } else {
+        clearInterval(intervalId);
+        setProcessingStatusMessage(jobStatusResponse?.message || "Could not retrieve job status.");
+        toast.error(jobStatusResponse?.message || "Failed to get job status.");
+      }
 
-    // Cleanup function
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [jobId, showProcessingMessage, navigate]);
+      if (attempts >= MAX_ATTEMPTS) {
+        clearInterval(intervalId);
+        toast.info("Job is still processing. Please check back later.");
+      }
+    }, CHECK_INTERVAL_MS);
+  }
+
+  return () => {
+    clearInterval(intervalId);
+  };
+}, [jobId, showProcessingMessage, navigate]);
+
 
   const handleUrlSubmit = async () => {
     const urlPattern = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/\S*)?$/i;
