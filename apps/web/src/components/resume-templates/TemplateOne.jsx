@@ -50,6 +50,216 @@ const TemplateOne = ({ data, metadata }) => {
     declaration,
   } = data;
 
+  const renderSection = (sectionKey) => {
+  switch (sectionKey) {
+    case "profileSummary":
+        return profileSummary && (
+          <div key="profileSummary">
+            <Section title="Profile" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              <p>{[profileSummary]}</p>
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "educationDetails":
+        return educationDetails && (
+          <div key="educationDetails">
+            <Section title="Education" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {educationDetails.map((edu) => (
+                <Education
+                  key={edu._id}
+                  title={edu.degree}
+                  subtitle={edu.school}
+                  grade={edu.grade}
+                  location={`${edu.city}, ${edu.country}`}
+                  date={`${formatDate(edu.startDate)} - ${formatDate(edu.endDate)}`}
+                  description={edu.description}
+                  style={metadata.education}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "skills":
+        return skills && (
+          <div key="skills">
+            <Section title="Skills" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              <Skills skills={skills} style={metadata.skills} />
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "professionalExperience":
+        return professionalExperience && (
+          <div key="professionalExperience">
+            <Section title="Professional Experience" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {professionalExperience.map((exp) => (
+                <ProfessionalExp
+                  key={exp._id}
+                  title={exp.employer}
+                  subtitle={exp.jobTitle}
+                  location={`${exp.city}, ${exp.country}`}
+                  date={`${formatDate(exp.startDate)} - ${formatDate(exp.endDate)}`}
+                  description={exp.description}
+                  style={metadata.professionalExperience}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "languages":
+        return languages && (
+          <div key="languages">
+            <Section title="Languages" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              <Languages languages={languages} style={metadata.languages} />
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "certificates":
+        return certificates && (
+          <div key="certificates">
+            <Section title="Certificates" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {certificates.map((cert) => (
+                <Certificates
+                  key={cert._id}
+                  certificates={certificates}
+                  style={metadata.certificates}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "projects":
+        return projects && (
+          <div key="projects">
+            <Section title="Projects" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {projects.map((proj) => (
+                <Project
+                  key={proj._id}
+                  title={proj.title}
+                  subtitle={proj.subtitle}
+                  description={proj.description}
+                  startDate={proj.startDate}
+                  endDate={proj.endDate}
+                  links={proj.links}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "awards":
+        return awards && (
+          <div key="awards">
+            <Section title="Awards" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {awards.map((award) => (
+                <Award
+                  key={award._id}
+                  title={award.title}
+                  issuer={award.issuer}
+                  date={formatDate(award.date)}
+                  link={award.link}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "courses":
+        return courses && (
+          <div key="courses">
+            <Section title="Courses" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {courses.map((course) => (
+                <Course
+                  key={course._id}
+                  title={course.title}
+                  issuer={course.issuer}
+                  date={`${formatDate(course.date)} - ${formatDate(course.expirationDate)}`}
+                  link={course.link}
+                  description={course.additionalInfo}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "organizations":
+        return organizations && (
+          <div key="organizations">
+            <Section title="Organization" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {organizations.map((organization) => (
+                <Organization
+                  key={organization._id}
+                  title={organization.name}
+                  date={`${formatDate(organization.startDate)} - ${formatDate(organization.endDate)}`}
+                  link={organization.link}
+                  description={organization.description}
+                  location={`${organization.city}, ${organization.country}`}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "publications":
+        return publications && (
+          <div key="publications">
+            <Section title="Publications" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {publications.map((publication) => (
+                <Publication
+                  key={publication._id}
+                  title={publication.title}
+                  publisher={publication.publisher}
+                  date={formatDate(publication.date)}
+                  link={publication.link}
+                  description={publication.description}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      case "references":
+        return references && (
+          <div key="references">
+            <Section title="References" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
+              {references.map((reference) => (
+                <Reference
+                  key={reference._id}
+                  name={reference.name}
+                  jobTitle={reference.jobTitle}
+                  organization={reference.organization}
+                  link={reference.link}
+                  email={reference.email}
+                  phone={reference.phone}
+                />
+              ))}
+            </Section>
+            <div style={{ height: spaceBetnEntries }} className="w-full" />
+          </div>
+        );
+
+      
+    default:
+      return null;
+  }
+};
+
   const baseFontSize = metadata.spacing.fontSize ?? 10;
   const nameSizeOption = metadata.name.nameSize ?? 'M'; // Default to 'M' for nameSize
   const jobTitleSizeOption = metadata.jobTitle.jobTitleSize ?? 'M'; // Default to 'M' for jobTitleSize
@@ -59,254 +269,190 @@ const TemplateOne = ({ data, metadata }) => {
   const lineHeight = metadata.spacing.lineHeight ?? 1.3;
   const spaceBetnEntries = 10 + (metadata.spacing.spaceBetnEntries * 2);
 
+
   return (
-        <div style={{ 
-          fontFamily: metadata.font.fontFamily,
-          paddingLeft: `${metadata.spacing.xMargin}mm`,
-          paddingRight: `${metadata.spacing.xMargin}mm`,
-          paddingTop: `${metadata.spacing.yMargin}mm`,
-          paddingBottom: `${metadata.spacing.yMargin}mm`,
-          lineHeight: lineHeight,
-         }} 
-        className={`w-[210mm] h-auto min-h-[297mm] bg-[#ffffff] shadow-lg print:shadow-none text-[#000000] mx-auto print:text-[#000000] print:w-[210mm] print:h-[297mm] `}>
-            {/* Header */}
-            {metadata.layout.columns === "one" && <div>
+  <div
+    style={{
+      fontFamily: metadata.font.fontFamily,
+      paddingLeft: `${metadata.spacing.xMargin}mm`,
+      paddingRight: `${metadata.spacing.xMargin}mm`,
+      paddingTop: `${metadata.spacing.yMargin}mm`,
+      paddingBottom: `${metadata.spacing.yMargin}mm`,
+      lineHeight: lineHeight,
+    }}
+    className="print:p-0  w-[210mm] h-auto min-h-[297mm] bg-[#ffffff] shadow-lg print:shadow-none text-[#000000] mx-auto print:text-[#000000] print:w-[210mm] print:h-[297mm]"
+  >
+    {/* Header */}
 
-                {personalDetails && (
-                  <div className="text-center pb-4">
-                      <h1 style={{ fontFamily: metadata.name.creativeFontOption, fontSize: `${calculatedNameFontSize}pt` }} className={`text-3xl ${metadata.name.bold && "font-bold"}`}>{personalDetails.fullName}</h1>
-                      <p style={{ fontSize: `${calculatedJobTitleFontSize}pt` }} className={`text-lg ${metadata.jobTitle.jobTitleStyle === "italic" && "italic"}`}>{personalDetails.jobTitle}</p>
-                      <div className="flex justify-center flex-wrap gap-4 mt-2 text-sm">
-                      <span>{personalDetails.phone}</span>
-                      <span>{personalDetails.email}</span>
-                      <span>{personalDetails.location}</span>
-                      {personalDetails.socialLinks.map((link) => (
-                          <a
-                          key={link.platform}
-                          href={link.url}
-                          className="underline"
-                          target="_blank"
-                          rel="noreferrer"
-                          >
-                          {link.platform.toLowerCase() + ".com"}
-                          </a>
-                      ))}
-                      </div>
-                  </div>
-                )}
-    
-                {metadata.layout.sectionArrangement?.map((sectionKey) => {
-                  switch (sectionKey) {
-                    case "profileSummary":
-                      return profileSummary && (
-                        <div key="profileSummary" className="text-center pb-4">
-                          <Section title="Profile" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-
-                          </Section>
-                        </div>
-                      );
-
-                    case "educationDetails":
-                      return educationDetails && (
-                        <div key="educationDetails">
-                          <Section title="Education" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {educationDetails.map((edu) => (
-                              <Education
-                                key={edu._id}
-                                title={edu.degree}
-                                subtitle={edu.school}
-                                grade={edu.grade}
-                                location={`${edu.city}, ${edu.country}`}
-                                date={`${formatDate(edu.startDate)} - ${formatDate(edu.endDate)}`}
-                                description={edu.description}
-                                style={metadata.education}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "skills":
-                      return skills && (
-                        <div key="skills">
-                          <Section title="Skills" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            <Skills skills={skills} style={metadata.skills} />
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "professionalExperience":
-                      return professionalExperience && (
-                        <div key="professionalExperience">
-                          <Section title="Professional Experience" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {professionalExperience.map((exp) => (
-                              <ProfessionalExp
-                                key={exp._id}
-                                title={exp.employer}
-                                subtitle={exp.jobTitle}
-                                location={`${exp.city}, ${exp.country}`}
-                                date={`${formatDate(exp.startDate)} - ${formatDate(exp.endDate)}`}
-                                description={exp.description}
-                                style={metadata.professionalExperience}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "languages":
-                      return languages && (
-                        <div key="languages">
-                          <Section title="Languages" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            <Languages languages={languages} style={metadata.languages} />
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "certificates":
-                      return certificates && (
-                        <div key="certificates">
-                          <Section title="Certificates" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {certificates.map((cert) => (
-                              <Certificates
-                                key={cert._id}
-                                certificates={certificates}
-                                style={metadata.certificates}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "projects":
-                      return projects && (
-                        <div key="projects">
-                          <Section title="Projects" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {projects.map((proj) => (
-                              <Project
-                                key={proj._id}
-                                title={proj.title}
-                                subtitle={proj.subtitle}
-                                description={proj.description}
-                                startDate={proj.startDate}
-                                endDate={proj.endDate}
-                                links={proj.links}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "awards":
-                      return awards && (
-                        <div key="awards">
-                          <Section title="Awards" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {awards.map((award) => (
-                              <Award
-                                key={award._id}
-                                title={award.title}
-                                issuer={award.issuer}
-                                date={formatDate(award.date)}
-                                link={award.link}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "courses":
-                      return courses && (
-                        <div key="courses">
-                          <Section title="Courses" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {courses.map((course) => (
-                              <Course
-                                key={course._id}
-                                title={course.title}
-                                issuer={course.issuer}
-                                date={`${formatDate(course.date)} - ${formatDate(course.expirationDate)}`}
-                                link={course.link}
-                                description={course.additionalInfo}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "organizations":
-                      return organizations && (
-                        <div key="organizations">
-                          <Section title="Organization" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {organizations.map((organization) => (
-                              <Organization
-                                key={organization._id}
-                                title={organization.name}
-                                date={`${formatDate(organization.startDate)} - ${formatDate(organization.endDate)}`}
-                                link={organization.link}
-                                description={organization.description}
-                                location={`${organization.city}, ${organization.country}`}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "publications":
-                      return publications && (
-                        <div key="publications">
-                          <Section title="Publications" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {publications.map((publication) => (
-                              <Publication
-                                key={publication._id}
-                                title={publication.title}
-                                publisher={publication.publisher}
-                                date={formatDate(publication.date)}
-                                link={publication.link}
-                                description={publication.description}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    case "references":
-                      return references && (
-                        <div key="references">
-                          <Section title="References" style={metadata.heading} fontSize={metadata.spacing.fontSize}>
-                            {references.map((reference) => (
-                              <Reference
-                                key={reference._id}
-                                name={reference.name}
-                                jobTitle={reference.jobTitle}
-                                organization={reference.organization}
-                                link={reference.link}
-                                email={reference.email}
-                                phone={reference.phone}
-                              />
-                            ))}
-                          </Section>
-                          <div style={{ height: spaceBetnEntries }} className="w-full" />
-                        </div>
-                      );
-
-                    default:
-                      return null;
-                  }
-                })}
-
+    {/* Layout rendering */}
+    {metadata.layout.columns === "two" && metadata.layout.twoRowSectionArrangement ? (
+      <>
+        {personalDetails && metadata.layout.headerPosition === "top" &&(
+          <div className="text-center pb-4">
+            <h1
+              style={{
+                fontFamily: metadata.name.creativeFontOption,
+                fontSize: `${calculatedNameFontSize}pt`,
+              }}
+              className={`text-3xl ${metadata.name.bold && "font-bold"}`}
+            >
+              {personalDetails.fullName}
+            </h1>
+            <p
+              style={{ fontSize: `${calculatedJobTitleFontSize}pt` }}
+              className={`text-lg ${metadata.jobTitle.jobTitleStyle === "italic" && "italic"}`}
+            >
+              {personalDetails.jobTitle}
+            </p>
+            <div className="flex justify-center flex-wrap gap-4 mt-2 text-sm">
+              <span>{personalDetails.phone}</span>
+              <span>{personalDetails.email}</span>
+              <span>{personalDetails.location}</span>
+              {personalDetails.socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  className="underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {link.platform.toLowerCase() + ".com"}
+                </a>
+              ))}
             </div>
-            }
+          </div>
+        )}
+        <div className="grid grid-cols-2 gap-6">
+          {/* Left Column */}
+          <div>
+            {personalDetails && metadata.layout.headerPosition === "left" &&(
+          <div className="text-center pb-4">
+            <h1
+              style={{
+                fontFamily: metadata.name.creativeFontOption,
+                fontSize: `${calculatedNameFontSize}pt`,
+              }}
+              className={`text-3xl ${metadata.name.bold && "font-bold"}`}
+            >
+              {personalDetails.fullName}
+            </h1>
+            <p
+              style={{ fontSize: `${calculatedJobTitleFontSize}pt` }}
+              className={`text-lg ${metadata.jobTitle.jobTitleStyle === "italic" && "italic"}`}
+            >
+              {personalDetails.jobTitle}
+            </p>
+            <div className="flex justify-center flex-wrap gap-4 mt-2 text-sm">
+              <span>{personalDetails.phone}</span>
+              <span>{personalDetails.email}</span>
+              <span>{personalDetails.location}</span>
+              {personalDetails.socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  className="underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {link.platform.toLowerCase() + ".com"}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+            {metadata.layout.twoRowSectionArrangement[0]?.map((sectionKey) =>
+              renderSection(sectionKey)
+            )}
+          </div>
+
+          {/* Right Column */}
+          <div>
+            {personalDetails && metadata.layout.headerPosition === "right" &&(
+          <div className="text-center pb-4">
+            <h1
+              style={{
+                fontFamily: metadata.name.creativeFontOption,
+                fontSize: `${calculatedNameFontSize}pt`,
+              }}
+              className={`text-3xl ${metadata.name.bold && "font-bold"}`}
+            >
+              {personalDetails.fullName}
+            </h1>
+            <p
+              style={{ fontSize: `${calculatedJobTitleFontSize}pt` }}
+              className={`text-lg ${metadata.jobTitle.jobTitleStyle === "italic" && "italic"}`}
+            >
+              {personalDetails.jobTitle}
+            </p>
+            <div className="flex justify-center flex-wrap gap-4 mt-2 text-sm">
+              <span>{personalDetails.phone}</span>
+              <span>{personalDetails.email}</span>
+              <span>{personalDetails.location}</span>
+              {personalDetails.socialLinks.map((link) => (
+                <a
+                  key={link.platform}
+                  href={link.url}
+                  className="underline"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {link.platform.toLowerCase() + ".com"}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+            {metadata.layout.twoRowSectionArrangement[1]?.map((sectionKey) =>
+              renderSection(sectionKey)
+            )}
+          </div>
         </div>
-    )
+      </>
+    ) : (
+      <>
+      {personalDetails && (
+              <div className="text-center pb-4">
+                <h1
+                  style={{
+                    fontFamily: metadata.name.creativeFontOption,
+                    fontSize: `${calculatedNameFontSize}pt`,
+                  }}
+                  className={`text-3xl ${metadata.name.bold && "font-bold"}`}
+                >
+                  {personalDetails.fullName}
+                </h1>
+                <p
+                  style={{ fontSize: `${calculatedJobTitleFontSize}pt` }}
+                  className={`text-lg ${metadata.jobTitle.jobTitleStyle === "italic" && "italic"}`}
+                >
+                  {personalDetails.jobTitle}
+                </p>
+                <div className="flex justify-center flex-wrap gap-4 mt-2 text-sm">
+                  <span>{personalDetails.phone}</span>
+                  <span>{personalDetails.email}</span>
+                  <span>{personalDetails.location}</span>
+                  {personalDetails.socialLinks.map((link) => (
+                    <a
+                      key={link.platform}
+                      href={link.url}
+                      className="underline"
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      {link.platform.toLowerCase() + ".com"}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+        {metadata.layout.sectionArrangement?.map((sectionKey) =>
+          renderSection(sectionKey)
+        )}
+      </>
+    )}
+  </div>
+);
+
 }
 
 const Section = ({ title, style, fontSize, children}) => {
