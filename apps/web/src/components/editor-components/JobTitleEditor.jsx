@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from 'react';
 
-const JobTitleEditor = () => {
-  const [selectedSize, setSelectedSize] = useState('S');
-  const [selectedPosition, setSelectedPosition] = useState('Below');
-  const [selectedStyle, setSelectedStyle] = useState('Normal');
+const JobTitleEditor = ({ resumeMetadata, setResumeMetadata }) => {
+  const [selectedSize, setSelectedSize] = useState(resumeMetadata?.jobTitle?.jobTitleSize || 'S');
+  const [selectedPosition, setSelectedPosition] = useState(resumeMetadata?.jobTitle?.position || 'below');
+  const [selectedStyle, setSelectedStyle] = useState(resumeMetadata?.jobTitle?.jobTitleStyle || 'normal');
 
   const sizeOptions = ['S', 'M', 'L'];
   const positionOptions = [
@@ -16,23 +15,20 @@ const JobTitleEditor = () => {
     { id: 'italic', label: 'Italic' }
   ];
 
-  const handleSizeSelect = (size) => {
-    setSelectedSize(size);
-    console.log('Selected size:', size);
-  };
-
-  const handlePositionSelect = (position) => {
-    setSelectedPosition(position);
-    console.log('Selected position:', position);
-  };
-
-  const handleStyleSelect = (style) => {
-    setSelectedStyle(style);
-    console.log('Selected style:', style);
-  };
+  useEffect(() => {
+    setResumeMetadata(prev => ({
+      ...prev,
+      jobTitle: {
+        ...prev.jobTitle,
+        jobTitleSize: selectedSize,
+        position: selectedPosition,
+        jobTitleStyle: selectedStyle,
+      }
+    }));
+  }, [selectedSize, selectedStyle, selectedPosition]);
 
   return (
-    <div className="w-80 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className="w-full p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">Job Title</h2>
 
       {/* Size Section */}
@@ -40,47 +36,57 @@ const JobTitleEditor = () => {
         <h3 className="text-sm font-medium text-gray-900 mb-3">Size</h3>
         <div className="flex gap-2">
           {sizeOptions.map((size) => (
-            <Button
+            <button
               key={size}
-              variant={selectedSize === size ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => handleSizeSelect(size)}
+              onClick={() => setSelectedSize(size)}
+              className={`p-3 text-xs rounded-lg border transition-colors ${
+                selectedSize === size
+                  ? 'bg-blue-100 border-blue-300 text-blue-700'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
             >
               {size}
-            </Button>
+            </button>
           ))}
         </div>
       </div>
 
       {/* Position Section */}
-      <div className="mb-6">
+      {/* <div className="mb-6">
         <h3 className="text-sm font-medium text-gray-900 mb-3">Position</h3>
         <div className="grid grid-cols-2 gap-2">
           {positionOptions.map((position) => (
-            <Button
+            <button
               key={position.id}
-              variant={selectedPosition === position.label ? 'default' : 'outline'}
-              onClick={() => handlePositionSelect(position.label)}
+              onClick={() => setSelectedPosition(position.id)}
+              className={`p-3 text-xs rounded-lg border transition-colors ${
+                selectedPosition === position.id
+                  ? 'bg-blue-100 border-blue-300 text-blue-700'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              }`}
             >
               {position.label}
-            </Button>
+            </button>
           ))}
         </div>
-      </div>
+      </div> */}
 
       {/* Style Section */}
       <div>
         <h3 className="text-sm font-medium text-gray-900 mb-3">Style</h3>
         <div className="grid grid-cols-2 gap-2">
           {styleOptions.map((style) => (
-            <Button
+            <button
               key={style.id}
-              variant={selectedStyle === style.label ? 'default' : 'outline'}
-              className={style.id === 'italic' ? 'italic' : ''}
-              onClick={() => handleStyleSelect(style.label)}
+              onClick={() => setSelectedStyle(style.id)}
+              className={`p-3 text-xs rounded-lg border transition-colors ${
+                selectedStyle === style.id
+                  ? 'bg-blue-100 border-blue-300 text-blue-700'
+                  : 'bg-white border-gray-300 text-gray-700 hover:bg-gray-50'
+              } ${style.id === 'italic' ? 'italic' : ''}`}
             >
               {style.label}
-            </Button>
+            </button>
           ))}
         </div>
       </div>

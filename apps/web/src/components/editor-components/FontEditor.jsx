@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
-const FontEditor = () => {
-  const [selectedCategory, setSelectedCategory] = useState('serif');
-  const [selectedFont, setSelectedFont] = useState('');
+const FontEditor = ({resumeMetadata, setResumeMetadata}) => {
+  const [selectedCategory, setSelectedCategory] = useState(resumeMetadata?.font?.fontCategory || 'serif');
+  const [selectedFont, setSelectedFont] = useState(resumeMetadata?.font?.fontFamily || 'Amiri');
 
   const fontCategories = [
     { id: 'serif', label: 'Serif', preview: 'Aa' },
@@ -54,13 +54,6 @@ const FontEditor = () => {
 
   useEffect(() => {
     const firstFont = fontOptions[selectedCategory]?.[0]?.name;
-    if (firstFont) {
-      setSelectedFont(firstFont);
-    }
-  }, [selectedCategory]);
-
-  useEffect(() => {
-    const firstFont = fontOptions[selectedCategory]?.[0]?.name;
     if (firstFont && !selectedFont) {
       setSelectedFont(firstFont);
     }
@@ -69,6 +62,10 @@ const FontEditor = () => {
   const handleCategoryChange = (value) => {
     if (value) {
       setSelectedCategory(value);
+      const firstFont = fontOptions[value]?.[0]?.name;
+      if (firstFont) {
+      setSelectedFont(firstFont);
+    }
     }
   };
 
@@ -76,8 +73,19 @@ const FontEditor = () => {
     setSelectedFont(fontName);
   };
 
+  useEffect(() => {
+      setResumeMetadata(prev => ({
+        ...prev,
+        font: {
+          ...prev.font,
+          fontCategory: selectedCategory,
+          fontFamily: selectedFont
+        }
+      }));
+    }, [selectedCategory, selectedFont]);
+
   return (
-    <div className="w-120 p-6 bg-white border border-gray-200 rounded-lg shadow-sm">
+    <div className="w-full p-6 bg-white rounded-xl">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">Font</h2>
 
       {/* Font Category Toggle */}
@@ -105,7 +113,7 @@ const FontEditor = () => {
           <button
             key={font.name}
             onClick={() => handleFontSelect(font.name)}
-            className={`p-2 text-sm border rounded-lg transition-colors text-center flex flex-col items-center justify-center w-30 h-10 overflow-hidden ${
+            className={`p-2 text-sm border rounded-lg transition-colors text-center flex flex-col items-center justify-center w-full h-10 overflow-hidden ${
               selectedFont === font.name
                 ? 'bg-blue-100 border-blue-300 text-blue-700'
                 : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'

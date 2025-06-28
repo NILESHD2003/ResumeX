@@ -1,11 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 
-const HeadingEditor = () => {
-  const [selectedStyle, setSelectedStyle] = useState('underline');
-  const [selectedCapitalization, setSelectedCapitalization] = useState('capitalize');
-  const [selectedSize, setSelectedSize] = useState('xl');
-  const [selectedIcon, setSelectedIcon] = useState('none');
+const HeadingEditor = ({resumeMetadata, setResumeMetadata}) => {
+  const [selectedStyle, setSelectedStyle] = useState(resumeMetadata?.heading?.headingStyle || 'underline');
+  const [selectedCapitalization, setSelectedCapitalization] = useState(resumeMetadata?.heading?.capitalization || 'capitalize');
+  const [selectedSize, setSelectedSize] = useState(resumeMetadata?.heading?.size || 'xl');
+  const [selectedIcon, setSelectedIcon] = useState(resumeMetadata?.heading?.icons || 'none');
+
+  useEffect(() => {
+      setResumeMetadata(prev => ({
+        ...prev,
+        heading: {
+          ...prev.heading,
+          headingStyle: selectedStyle,
+          capitalization: selectedCapitalization,
+          size: selectedSize,
+          icons: selectedIcon,
+        }
+      }));
+    }, [selectedStyle, selectedCapitalization, selectedSize, selectedIcon]);
 
   const headingStyles = [
     {
@@ -134,7 +147,7 @@ const HeadingEditor = () => {
     }`;
 
   return (
-    <div className="w-full max-w-md p-6 bg-white border border-gray-200 rounded-xl shadow-md">
+    <div className="w-full p-6 bg-white rounded-xl">
       <h2 className="text-lg font-semibold text-gray-900 mb-6">Heading</h2>
 
       {/* Style Section */}
@@ -198,7 +211,7 @@ const HeadingEditor = () => {
         </ToggleGroup>
       </div>
 
-      {/* Icons */}
+      {/* Icons
       <div>
         <h3 className={sectionTitleClass}>Icons</h3>
         <ToggleGroup
@@ -218,7 +231,7 @@ const HeadingEditor = () => {
             </ToggleGroupItem>
           ))}
         </ToggleGroup>
-      </div>
+      </div> */}
     </div>
   );
 };

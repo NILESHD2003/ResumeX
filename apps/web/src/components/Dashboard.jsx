@@ -20,11 +20,7 @@ function Dashboard() {
       url: '/dashboard/resumes',
       icon: FileTerminal,
     },
-    {
-      title: 'Cover Letter',
-      url: '/dashboard/cover-letters',
-      icon: FileUser,
-    },
+    
     {
       title: 'Settings',
       url: '/dashboard/settings',

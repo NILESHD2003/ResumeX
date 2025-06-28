@@ -7,6 +7,7 @@ import { toast, Toaster } from 'sonner';
 import { signUp } from '../services/operations/authAPI';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import NavBar from './NavBar';
 
 function CreateAccount() {
   const [username, setUsername] = useState('');
@@ -17,6 +18,7 @@ function CreateAccount() {
   const [buttonClickable, setButtonClickable] = useState(false);
 
   const magicLink = useSelector(state => state.auth.magicLink);
+  console.log(magicLink)
   const navigate = useNavigate();
 
   // Toggle functions
@@ -54,87 +56,90 @@ function CreateAccount() {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <Toaster />
-      <Card className="w-[90%] sm:w-[80%] md:w-[500px] lg:w-[500px] mx-auto bg-white rounded-3xl shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-xl font-bold">Create Account</CardTitle>
-          <CardDescription>Enter your details to create an account</CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* Username */}
-          <div className="mb-4">
-            <Input
-              required
-              placeholder="Enter Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
-          </div>
+    <div>
+      <NavBar/>
+      <form onSubmit={handleSubmit} className="min-h-screen flex items-center justify-center bg-[#F1F0FB] px-4 sm:px-2">
+        <Toaster />
+        <Card className="shadow-xl w-md max-w-3xl sm:max-w-2xl p-6">
+          <CardHeader>
+            <CardTitle className="text-xl font-bold">Create Account</CardTitle>
+            <CardDescription>Enter your details to create an account</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {/* Username */}
+            <div className="mb-4">
+              <Input
+                required
+                placeholder="Enter Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </div>
 
-          {/* Password */}
-          <div className="relative mb-4">
-            <FaFingerprint className="absolute text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
-            <Input
-              type={showPassword ? 'text' : 'password'}
-              placeholder="Enter Password"
-              className="pl-10"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            {showPassword ? (
-              <FaRegEye
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
-                onClick={togglePasswordVisibility}
+            {/* Password */}
+            <div className="relative mb-4">
+              <FaFingerprint className="absolute text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter Password"
+                className="pl-10"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
               />
-            ) : (
-              <FaRegEyeSlash
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
-                onClick={togglePasswordVisibility}
-              />
-            )}
-          </div>
+              {showPassword ? (
+                <FaRegEye
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                  onClick={togglePasswordVisibility}
+                />
+              ) : (
+                <FaRegEyeSlash
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                  onClick={togglePasswordVisibility}
+                />
+              )}
+            </div>
 
-          {/* Confirm Password */}
-          <div className="relative mb-4">
-            <FaFingerprint className="absolute text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
-            <Input
-              type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="Confirm Password"
-              className="pl-10"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            {showConfirmPassword ? (
-              <FaRegEye
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
-                onClick={toggleConfirmPasswordVisibility}
+            {/* Confirm Password */}
+            <div className="relative mb-4">
+              <FaFingerprint className="absolute text-gray-400 left-3 top-1/2 transform -translate-y-1/2" />
+              <Input
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Confirm Password"
+                className="pl-10"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
               />
-            ) : (
-              <FaRegEyeSlash
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
-                onClick={toggleConfirmPasswordVisibility}
-              />
-            )}
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button
-            type="submit"
-            disabled={!buttonClickable}
-            className={`w-full p-3 rounded-xl text-sm md:text-base text-white font-semibold ${
-              buttonClickable
-                ? 'bg-gradient-to-r from-[#1C7EFF] to-[#CA79FF] cursor-pointer'
-                : 'bg-gray-400 cursor-not-allowed'
-            }`}
-          >
-            Sign Up
-          </Button>
-        </CardFooter>
-      </Card>
-    </form>
+              {showConfirmPassword ? (
+                <FaRegEye
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                  onClick={toggleConfirmPasswordVisibility}
+                />
+              ) : (
+                <FaRegEyeSlash
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-400"
+                  onClick={toggleConfirmPasswordVisibility}
+                />
+              )}
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              type="submit"
+              disabled={!buttonClickable}
+              className={`w-full p-3 rounded-xl text-sm md:text-base text-white font-semibold ${
+                buttonClickable
+                  ? 'bg-gradient-to-r from-[#1C7EFF] to-[#CA79FF] cursor-pointer'
+                  : 'bg-gray-400 cursor-not-allowed'
+              }`}
+            >
+              Sign Up
+            </Button>
+          </CardFooter>
+        </Card>
+      </form>
+    </div>
   );
 }
 

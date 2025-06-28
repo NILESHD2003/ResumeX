@@ -1,6 +1,6 @@
-import { useState } from "react"
-import { Toaster, toast } from "sonner"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react"; // Removed useRef as interval is short-lived
+import { Toaster, toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -8,140 +8,238 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import StaticBar from "../components/StaticBar"
-import { useNavigate } from "react-router-dom"
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import StaticBar from "../components/StaticBar";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { sumbitNewJobRequest } from "../services/operations/AgenticAI_APIS";
+import { checkJobStatus as importedCheckJobStatus } from "../services/operations/AgenticAI_APIS"; // Assuming this path
+
+const SINGLE_CHECK_DELAY_MS = 15000; // 15 seconds
 
 export default function JobDescriptionPage() {
+  const [jobUrl, setJobUrl] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
+  const [jobId, setJobId] = useState(null);
+  const [showProcessingMessage, setShowProcessingMessage] = useState(false); // To show the processing message
+  const [processingStatusMessage, setProcessingStatusMessage] = useState(""); // Message for the user
 
-  const [jobUrl, setJobUrl] = useState("")
-  const [urlError, setUrlError] = useState("")
-  const [jobDescription, setJobDescription] = useState("")
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
-//   Url logic
-  const handleUrlSubmit = async () => {
-    const urlPattern = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/\S*)?$/i
-    if (!urlPattern.test(jobUrl.trim())) {
-      toast.error("Please enter a valid URL.")
-      return
+  // Effect to perform a single check after a delay
+  useEffect(() => {
+    let timer;
+    if (jobId && showProcessingMessage) {
+      setProcessingStatusMessage("Your request is being processed. This may take a moment...");
+      timer = setTimeout(async () => {
+        console.log("Performing single job status check after 15 seconds for Job ID:", jobId);
+        const jobStatusResponse = await importedCheckJobStatus(jobId);
+
+        if (jobStatusResponse && jobStatusResponse.length > 0) {
+          try {
+            const latestStatusData = JSON.parse(jobStatusResponse[0]);
+            console.log(jobStatusResponse[0])
+            console.log("Status after single check:", latestStatusData.status);
+
+            if (latestStatusData.status === "COMPLETED") {
+              toast.success("Resume generation completed!");
+              navigate('/resume/preview');
+            } else {
+              setProcessingStatusMessage("Job is still processing. Please check back later or try again.");
+              toast.info("Your resume is still being generated. Please wait a bit longer.");
+            }
+          } catch (e) {
+            console.error("Error parsing status data during single check:", e);
+            setProcessingStatusMessage("An error occurred processing your request. Please try again.");
+            toast.error("An unexpected error occurred. Please try again.");
+          }
+        } else {
+          setProcessingStatusMessage(jobStatusResponse?.message || "Could not retrieve job status. Please try again.");
+          toast.error(jobStatusResponse?.message || "Failed to get job status. Please try again.");
+        }
+      }, SINGLE_CHECK_DELAY_MS);
     }
-    // proceed with submission
-    navigate('/resume/preview');
-    console.log("Valid URL:", jobUrl)
-  }
 
-//   Description logic
+    // Cleanup function
+    return () => {
+      clearTimeout(timer);
+    };
+  }, [jobId, showProcessingMessage, navigate]);
+
+  const handleUrlSubmit = async () => {
+    const urlPattern = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/\S*)?$/i;
+    if (!urlPattern.test(jobUrl.trim())) {
+      toast.error("Please enter a valid URL.");
+      return;
+    }
+    try {
+      const responseJobId = await dispatch(sumbitNewJobRequest({ jobLink: jobUrl }));
+      console.log("Dispatched jobId from URL:", responseJobId);
+
+      if (responseJobId) {
+        setJobId(responseJobId);
+        setShowProcessingMessage(true); // Show the processing message card
+        toast.success("Job submitted via URL! Checking status in 15 seconds.");
+      } else {
+        toast.error("Failed to submit job via URL.");
+      }
+    } catch (error) {
+      console.error("Error submitting URL:", error);
+      toast.error("An error occurred during URL submission.");
+    }
+  };
+
   const handleDescriptionSubmit = async () => {
-  if (jobDescription.trim().length === 0) {
-    toast.error("Please enter a job description.")
-    return
-  }
-  navigate('/resume/preview');
-  toast.success("Job description received!")
-  console.log("Job Description:", jobDescription)
-  // Continue with logic
-}
-    
- return (
-   <div className="min-h-screen bg-[#f1effd] overflow-hidden m-0 p-0 flex flex-col">
-   <Toaster/>
-    <StaticBar />
+    if (jobDescription.trim().length === 0) {
+      toast.error("Please enter a job description.");
+      return;
+    }
+    try {
+      const responseJobId = await dispatch(sumbitNewJobRequest({ jobDescription }));
+      console.log("Dispatched jobId from description:", responseJobId);
+      if (responseJobId) {
+        setJobId(responseJobId);
+        setShowProcessingMessage(true); // Show the processing message card
+        toast.success("Job description received! Checking status in 15 seconds.");
+      } else {
+        toast.error("Failed to submit job description.");
+      }
+    } catch (error) {
+      console.error("Error submitting description:", error);
+      toast.error("An error occurred during description submission.");
+    }
+  };
 
-    {/* Parent container along with heading */}
-    <div className="flex flex-col items-center py-4 px-4">
-     <h1 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-[#CA79FF] to-[#1C7EFF] bg-clip-text text-transparent mb-2">
-        Generate Custom Resume based on <br /> Job Description
-     </h1>
+  return (
+    <div className="min-h-screen bg-[#f1effd] overflow-hidden m-0 p-0 flex flex-col">
+      <Toaster />
+      <StaticBar />
 
-      <p className="text-sm text-gray-600 mb-6 text-center">
-        Optimize your resume for a specific job by analyzing the job description
-      </p>
+      <div className="flex flex-col items-center py-4 px-4">
+        <h1 className="text-3xl sm:text-4xl font-bold text-center bg-gradient-to-r from-[#CA79FF] to-[#1C7EFF] bg-clip-text text-transparent mb-2">
+          Generate Custom Resume based on <br /> Job Description
+        </h1>
 
-      <Tabs defaultValue="url" className="w-full max-w-md px-4 mt-2">
-        <TabsList className="grid w-full grid-cols-2 mb-3">
-          <TabsTrigger value="url">🔗 Job URL</TabsTrigger>
-          <TabsTrigger value="description">📄 Job description</TabsTrigger>
-        </TabsList>
+        <p className="text-sm text-gray-600 mb-6 text-center">
+          Optimize your resume for a specific job by analyzing the job description
+        </p>
 
-        {/* Url Section */}
-        <TabsContent value="url">
-          <Card className='max-h-[70vh] overflow-auto'>
-            <CardHeader>
-              <CardTitle className="text-center font-bold text-2xl">
-                Enter Job Description
-              </CardTitle>
+        {!showProcessingMessage ? (
+          <Tabs defaultValue="url" className="w-full max-w-md px-4 mt-2">
+            <TabsList className="grid w-full grid-cols-2 mb-3">
+              <TabsTrigger value="url">🔗 Job URL</TabsTrigger>
+              <TabsTrigger value="description">📄 Job description</TabsTrigger>
+            </TabsList>
 
-              <CardDescription className="text-center">
-                Enter a job link or paste a job description to optimize your resume
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-1 resize-none">
-                <Label htmlFor="job-url">Job URL</Label>
-                <Input 
-                id="job-url"
-                placeholder="https://example.com/job-posting"
-                value={jobUrl}
-                onChange={(e) => setJobUrl(e.target.value)}
-                className={urlError ? "border-red-500 focus:ring-red-500" : ""}
-               />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end">
-              <Button 
-                className="bg-gradient-to-r from-[#b06afe] to-[#497bfe] text-white cursor-pointer"
-                onClick={handleUrlSubmit}
-              >
-                Continue
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
+            <TabsContent value="url">
+              <Card className="max-h-[70vh] overflow-auto">
+                <CardHeader>
+                  <CardTitle className="text-center font-bold text-2xl">
+                    Enter Job Description
+                  </CardTitle>
+                  <CardDescription className="text-center">
+                    Enter a job link or paste a job description to optimize your resume
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-1 resize-none">
+                    <Label htmlFor="job-url">Job URL</Label>
+                    <Input
+                      id="job-url"
+                      placeholder="https://example.com/job-posting"
+                      value={jobUrl}
+                      onChange={(e) => setJobUrl(e.target.value)}
+                      // You might want to handle urlError visibility here
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end">
+                  <Button
+                    className="bg-gradient-to-r from-[#b06afe] to-[#497bfe] text-white cursor-pointer"
+                    onClick={handleUrlSubmit}
+                  >
+                    Continue
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
 
-        {/* Description section */}
-        <TabsContent value="description">
-          <Card className='max-h-[65vh] overflow-hidden w-full'>
-            <CardHeader>
-              <CardTitle className="text-center font-bold text-2xl">
-                Enter Job Description
-              </CardTitle>
-              <CardDescription className="text-center">
-                Enter a job link or paste a job description to optimize your resume
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2 flex-grow overflow-auto">
-              <div className="space-y-1">
-                <Label htmlFor="job-desc" className='mb-2'>Job Description</Label>
-                <textarea
-                  id="job-desc"
-                  className="w-full h-30 max-h-60 p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#b06afe] resize-none"
-                  placeholder="Paste the job description here..."
-                  value={jobDescription}
-                  onChange={(e) => setJobDescription(e.target.value)}
-                />
-              </div>
-            </CardContent>
-            <CardFooter className="flex justify-end mb-0">
-              <Button 
-              className="bg-gradient-to-r from-[#b06afe] to-[#497bfe] text-white cursor-pointer mb-0"
-              onClick={handleDescriptionSubmit}
-              >
-                Continue
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="description">
+              <Card className="max-h-[65vh] overflow-hidden w-full">
+                <CardHeader>
+                  <CardTitle className="text-center font-bold text-2xl">
+                    Enter Job Description
+                  </CardTitle>
+                  <CardDescription className="text-center">
+                    Enter a job link or paste a job description to optimize your resume
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2 flex-grow overflow-auto">
+                  <div className="space-y-1">
+                    <Label htmlFor="job-desc" className="mb-2">Job Description</Label>
+                    <textarea
+                      id="job-desc"
+                      className="w-full h-30 max-h-60 p-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#b06afe] resize-none"
+                      placeholder="Paste the job description here..."
+                      value={jobDescription}
+                      onChange={(e) => setJobDescription(e.target.value)}
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter className="flex justify-end mb-0">
+                  <Button
+                    className="bg-gradient-to-r from-[#b06afe] to-[#497bfe] text-white cursor-pointer mb-0"
+                    onClick={handleDescriptionSubmit}
+                  >
+                    Continue
+                  </Button>
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <div className="w-full max-w-md px-4 mt-2">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-center font-bold text-2xl">
+                  Request Submitted
+                </CardTitle>
+                <CardDescription className="text-center">
+                  We've received your job details!
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4 text-center">
+                <div className="flex justify-center items-center">
+                  {/* Simple Loading Spinner */}
+                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#b06afe]"></div>
+                </div>
+                <p className="text-md text-gray-700 font-medium">
+                  {processingStatusMessage}
+                </p>
+                <p className="text-sm text-gray-500 animate-pulse">
+                  Please do not close this window while we check the status.
+                </p>
+              </CardContent>
+              <CardFooter className="flex justify-center pt-4">
+                  <Button
+                      className="bg-gradient-to-r from-[#b06afe] to-[#497bfe] text-white cursor-pointer"
+                      onClick={() => {
+                          setShowProcessingMessage(false); // Go back to input form
+                          setJobId(null); // Clear jobId
+                          setProcessingStatusMessage(""); // Reset message
+                      }}
+                  >
+                      Go Back
+                  </Button>
+              </CardFooter>
+            </Card>
+          </div>
+        )}
+      </div>
     </div>
-    </div>
-  )
+  );
 }

@@ -27,7 +27,6 @@ import JobDescriptionPage from "./pages/JobDescription";
 import OnboardingPage from "./pages/OnboardingPage";
 import ResumePreview from "./pages/ResumePreview";
 
-
 function App() {
   return (
     <div>

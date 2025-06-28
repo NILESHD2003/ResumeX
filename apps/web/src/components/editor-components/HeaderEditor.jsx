@@ -1,47 +1,74 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 const layoutIcons = {
   left: (
-    <svg width="140" height="24" viewBox="0 0 40 24">
-      <rect x="6" y="6" width="20" height="3" rx="1.5" />
-      <circle cx="35" cy="10" r="8"/>
-      <rect x="6" y="13" width="20" height="3" rx="1" />
-    </svg>
+   <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 92 26"
+    style={{ width: "55%" }}
+  >
+    <path
+      d="M92 13c0 7.18-5.82 13-13 13s-13-5.82-13-13S71.82 0 79 0s13 5.82 13 13zM56 2H2a2 2 0 00-2 2v5a2 2 0 002 2h54a2 2 0 002-2V4a2 2 0 00-2-2zm0 13H2a2 2 0 00-2 2v5a2 2 0 002 2h54a2 2 0 002-2v-5a2 2 0 00-2-2z"
+      fill="currentColor"
+    />
+  </svg>
   ),
   center: (
-    <svg width="40" height="24" viewBox="0 0 40 24">
-      <circle cx="20" cy="6" r="3" fill="#4F46E5" />
-      <rect x="10" y="12" width="20" height="3" rx="1.5" fill="#4F46E5" />
-      <rect x="14" y="17" width="12" height="2" rx="1" fill="#A5B4FC" />
-    </svg>
+    <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 92 56"
+    style={{ width: "50%" }}
+  >
+    <path
+      d="M88.828 34H3.172C1.42 34 0 34.895 0 36v5c0 1.105 1.42 2 3.172 2h85.656C90.58 43 92 42.105 92 41v-5c0-1.105-1.42-2-3.172-2zm0 13H3.172C1.42 47 0 47.895 0 49v5c0 1.105 1.42 2 3.172 2h85.656C90.58 56 92 55.105 92 54v-5c0-1.105-1.42-2-3.172-2zM60 13c0 7.18-5.82 13-13 13s-13-5.82-13-13S39.82 0 47 0s13 5.82 13 13z"
+      fill="currentColor"
+    />
+  </svg>
   ),
   right: (
-    <svg width="40" height="24" viewBox="0 0 40 24">
-      <circle cx="10" cy="7.5" r="3" fill="#4F46E5" />
-      <rect x="14" y="6" width="20" height="3" rx="1.5" fill="#4F46E5" />
-      <rect x="22" y="13" width="12" height="2" rx="1" fill="#A5B4FC" />
-    </svg>
+    <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 92 26"
+    style={{ width: "55%" }}
+  >
+    <path
+      d="M26 13c0 7.18-5.82 13-13 13S0 20.18 0 13 5.82 0 13 0s13 5.82 13 13zM90 2H36a2 2 0 00-2 2v5a2 2 0 002 2h54a2 2 0 002-2V4a2 2 0 00-2-2zm0 13H36a2 2 0 00-2 2v5a2 2 0 002 2h54a2 2 0 002-2v-5a2 2 0 00-2-2z"
+      fill="currentColor"
+    />
+  </svg>
   ),
 };
 
 const detailIcons = {
-  left: (
-    <svg width="40" height="20" viewBox="0 0 40 20">
-      <rect x="6" y="6" width="16" height="2" fill="#999" />
-      <rect x="6" y="11" width="12" height="2" fill="#999" />
+  single: (
+    <svg width="39" height="24" viewBox="0 0 39 24" xmlns="http://www.w3.org/2000/svg" className="h-[18px] w-auto">
+      <rect width="39" height="6" rx="1"></rect>
+      <rect y="9" width="39" height="6" rx="1"></rect>
+      <rect y="18" width="39" height="6" rx="1"></rect>
     </svg>
   ),
-  center: (
-    <svg width="40" height="20" viewBox="0 0 40 20">
-      <rect x="8" y="5" width="24" height="2" fill="#4F46E5" />
-      <rect x="8" y="9" width="24" height="2" fill="#4F46E5" />
-      <rect x="8" y="13" width="24" height="2" fill="#4F46E5" />
+  tiled: (
+    <svg viewBox="0 0 82 24" xmlns="http://www.w3.org/2000/svg" className="h-[18px] w-auto">
+      <rect y="9" width="39" height="6" rx="1"></rect>
+      <rect x="44" y="9" width="38" height="6" rx="1"></rect>
+      <rect width="24" height="6" rx="1"></rect>
+      <rect y="18" width="24" height="6" rx="1"></rect>
+      <rect x="29" width="24" height="6" rx="1"></rect>
+      <rect x="29" y="18" width="24" height="6" rx="1"></rect>
+      <rect x="58" y="18" width="24" height="6" rx="1"></rect>
+      <rect x="58" width="24" height="6" rx="1"></rect>
     </svg>
   ),
-  right: (
-    <svg width="40" height="20" viewBox="0 0 40 20">
-      <rect x="18" y="6" width="16" height="2" fill="#999" />
-      <rect x="22" y="11" width="12" height="2" fill="#999" />
+  double: (
+    <svg viewBox="0 0 83 24" xmlns="http://www.w3.org/2000/svg" className="h-[18px] w-auto">
+      <rect width="39" height="6" rx="1"></rect><rect x="44" width="39" height="6" rx="1"></rect>
+      <rect y="9" width="39" height="6" rx="1"></rect>
+      <rect x="44" y="9" width="39" height="6" rx="1"></rect>
+      <rect x="44" y="18" width="39" height="6" rx="1"></rect>
+      <rect y="18" width="39" height="6" rx="1"></rect>
     </svg>
   ),
 };
@@ -54,14 +81,17 @@ const infoStyles = {
     </svg>
   ),
   bullet: (
-    <div className="text-lg text-indigo-600 font-bold">• Bullet</div>
+    <div className="text-sm md:text-md font-bold">• Bullet</div>
   ),
   bar: (
-    <div className="text-lg text-indigo-600 font-bold">| Bar</div>
+    <div className="text-sm md:text-md font-bold">| Bar</div>
+  ),
+  none: (
+    <div className="text-sm md:text-md font-bold">None</div>
   ),
 };
 
-const shapeOptions = ['None', 'Rounded', 'Square', 'Circle'];
+const shapeOptions = ['none', 'rounded', 'square', 'circle'];
 
 const reorderIcons = [
   // Phone
@@ -90,14 +120,28 @@ const reorderIcons = [
   </svg>,
 ];
 
-export default function HeaderSettingsPanel() {
-  const [layout, setLayout] = useState('left');
-  const [detail, setDetail] = useState('center');
-  const [infoStyle, setInfoStyle] = useState('icon');
-  const [shape, setShape] = useState('None');
+export default function HeaderEditor({resumeMetadata, setResumeMetadata}) {
+  const [layout, setLayout] = useState(resumeMetadata?.header?.headerType || 'left');
+  const [detail, setDetail] = useState(resumeMetadata?.header?.detail || 'tiled');
+  const [infoStyle, setInfoStyle] = useState(resumeMetadata?.header?.infoStyle || 'icon');
+  const [shape, setShape] = useState(resumeMetadata?.header?.iconShape || 'None');
+
+  useEffect(() => {
+    setResumeMetadata(prev => ({
+      ...prev,
+      header: {
+        ...prev.header,
+        headerType: layout,
+        detail: detail,
+        infoStyle: infoStyle,
+        iconShape: shape,
+    }
+    })
+    )
+  }, [layout, detail, infoStyle, shape])
 
   return (
-    <div className="p-6 max-w-xl mx-auto bg-white rounded-xl shadow space-y-6">
+    <div className="p-6 w-full mx-auto bg-white rounded-xl shadow space-y-6">
       <h2 className="text-xl font-bold text-zinc-900">Header</h2>
 
       {/* Layout */}
@@ -105,8 +149,11 @@ export default function HeaderSettingsPanel() {
         {Object.entries(layoutIcons).map(([id, svg]) => (
           <button
             key={id}
-            onClick={() => setLayout(id)}
-            className={`rounded-lg p-2 border w-full ${
+            onClick={() => {
+              setLayout(id)
+              setDetail('tiled')
+            }}
+            className={`rounded-lg flex justify-center p-2 border w-full  ${
               layout === id ? 'border-indigo-500 bg-indigo-50' : 'border-zinc-300'
             }`}
           >
@@ -117,50 +164,67 @@ export default function HeaderSettingsPanel() {
 
       {/* Details */}
       <div className="text-sm font-semibold text-zinc-700">Details</div>
-      <div className="flex gap-4">
-        {Object.entries(detailIcons).map(([id, svg]) => (
-          <button
-            key={id}
-            onClick={() => setDetail(id)}
-            className={`rounded-lg p-2 border ${
-              detail === id ? 'border-indigo-500 bg-indigo-50' : 'border-zinc-300'
-            }`}
-          >
-            {svg}
-          </button>
-        ))}
-      </div>
+        <div className="flex gap-4">
+          {Object.entries(detailIcons)
+            .filter(([id]) =>
+              layout === 'center' ? ['tiled', 'double'].includes(id) : true
+            )
+            .map(([id, svg]) => (
+              <button
+                key={id}
+                onClick={() => setDetail(id)}
+                className={`rounded-lg flex justify-center p-2 border w-full ${
+                  detail === id ? 'border-indigo-500 bg-indigo-50' : 'border-zinc-300'
+                }`}
+              >
+                {svg}
+              </button>
+            ))}
+        </div>
+
 
       {/* Info Style */}
+      <div className="text-sm font-semibold text-zinc-700">Info Style</div>
       <div className="flex gap-4">
-        {Object.entries(infoStyles).map(([id, label]) => (
-          <button
-            key={id}
-            onClick={() => setInfoStyle(id)}
-            className={`flex-1 py-2 border rounded-lg text-center ${
-              infoStyle === id ? 'border-indigo-500 bg-indigo-50' : 'border-zinc-300'
-            }`}
-          >
-            {label}
-          </button>
-        ))}
+        {Object.entries(infoStyles)
+          .filter(([id]) =>
+            detail === 'tiled'
+              ? ['icon', 'bullet', 'bar'].includes(id)
+              : ['icon', 'none'].includes(id)
+          )
+          .map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setInfoStyle(id)}
+              className={`flex-1 py-2 border rounded-lg text-center ${
+                infoStyle === id ? 'border-indigo-500 bg-indigo-50' : 'border-zinc-300'
+              }`}
+            >
+              {label}
+            </button>
+          ))}
       </div>
 
+
       {/* Shape */}
-      <div className="text-sm font-semibold text-zinc-700">Shape</div>
-      <div className="flex gap-4">
-        {shapeOptions.map(s => (
-          <button
-            key={s}
-            onClick={() => setShape(s)}
-            className={`flex-1 py-2 border rounded-lg text-center ${
-              shape === s ? 'border-indigo-500 bg-indigo-50' : 'border-zinc-300'
-            }`}
-          >
-            {s}
-          </button>
-        ))}
-      </div>
+      {infoStyle === 'icon' && (
+        <>
+          <div className="text-sm font-semibold text-zinc-700">Shape</div>
+          <div className="flex gap-4">
+            {shapeOptions.map(s => (
+              <button
+                key={s}
+                onClick={() => setShape(s)}
+                className={`flex-1 py-2 border rounded-lg text-center ${
+                  shape === s ? 'border-indigo-500 bg-indigo-50' : 'border-zinc-300'
+                }`}
+              >
+                {s.charAt(0).toUpperCase() + s.slice(1)}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Change Order */}
       <div className="text-sm font-semibold text-zinc-700">Change Order</div>
