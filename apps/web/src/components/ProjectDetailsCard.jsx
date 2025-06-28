@@ -41,7 +41,7 @@ const ProjectDetailsCard = () => {
     description: '',
     startDate: '',
     endDate: '',
-    links: [{ url: '', platform: '' }],
+    links: [],
     hide: false,
   });
 
@@ -103,37 +103,48 @@ const ProjectDetailsCard = () => {
   }
 
   const handleSave = async () => {
-      try {
-        if (!formData.title.trim()) {
-          toast.warning("Project title is required.");
-          return;
-        }
-    
-        if (editIndex !== null) {
-          const original = projects[editIndex];
-          const updatedFields = getChangedFields(formData, original);
-    
-          if (Object.keys(updatedFields).length > 0) {
-            await updateProjectDetail(updatedFields, original._id);
-            const updatedProjects = [...projects];
-            updatedProjects[editIndex] = { ...original, ...updatedFields };
-            setProjects(updatedProjects);
-          }
-        } else {
-          const filledData = getFilledFields(formData);
-          const response = await addNewProjectDetail(filledData);
-          if (response && response._id) {
-            setProjects((prev) => [...prev, { ...filledData, _id: response._id }]);
-          }
-        }
-        setAddData(false);
-        setEditIndex(null);
-        resetForm();
-      } catch (error) {
-        console.error("Error saving project detail:", error);
-        toast.error("Failed to save project.");
+  try {
+    if (!formData.title.trim()) {
+      toast.warning("Project title is required.");
+      return;
+    }
+
+    if (editIndex !== null) {
+      const original = projects[editIndex];
+      const updatedFields = getChangedFields(formData, original);
+
+      if (Object.keys(updatedFields).length > 0) {
+        await updateProjectDetail(updatedFields, original._id);
+        const updatedProjects = [...projects];
+        updatedProjects[editIndex] = { ...original, ...updatedFields };
+        setProjects(updatedProjects);
       }
-    };    
+    } else {
+      // ✅ NEW: Prepare full payload with proper date formatting
+      const payload = {
+        ...formData,
+        startDate: formData.startDate ? formData.startDate.toISOString() : null,
+        endDate: formData.endDate ? formData.endDate.toISOString() : null,
+      };
+
+      const response = await addNewProjectDetail(payload);
+      if (response && response._id) {
+        const normalized = normalizeProjectsData(response);
+        setProjects((prev) => [...prev, normalized]);
+      } else {
+        throw new Error("No _id in response");
+      }
+    }
+
+    setAddData(false);
+    setEditIndex(null);
+    resetForm();
+  } catch (error) {
+    console.error("Error saving project detail:", error);
+    toast.error("Failed to save project.");
+  }
+};
+   
 
   const handleEdit = (index) => {
     setEditIndex(index);

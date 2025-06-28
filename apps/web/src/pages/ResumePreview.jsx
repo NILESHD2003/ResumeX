@@ -25,6 +25,7 @@ import LayoutEditor from '../components/editor-components/LayoutEditor';
 import { getUserSpecificResume } from '../services/operations/resumeDataAPIS';
 import { FileText, Sparkles, Share2, Download, MoreVertical, ChevronDown, ArrowLeft } from 'lucide-react';
 import { useReactToPrint } from "react-to-print";
+import { useNavigate } from 'react-router-dom';
 
 const ResumePreview = () => {
   const [resumeData, setResumeData] = useState({});
@@ -162,6 +163,7 @@ const ResumePreview = () => {
         size: "XS"
     }
   })
+  const [hasLoadedMetadata, setHasLoadedMetadata] = useState(false);
 
   const jobId = useSelector((state) => state.job.jobId);
 
@@ -235,6 +237,28 @@ const ResumePreview = () => {
     window.print();
   };
 
+  useEffect(() => {
+    if (jobId && hasLoadedMetadata) {
+      localStorage.setItem(`resumeMetadata-${jobId}`, JSON.stringify(resumeMetadata));
+      console.log("Updated metadata in localStorage");
+    }
+  }, [resumeMetadata, jobId, hasLoadedMetadata]);
+
+
+  useEffect(() => {
+    if (jobId) {
+      const storedMetadata = localStorage.getItem(`resumeMetadata-${jobId}`);
+      if (storedMetadata) {
+        try {
+          setResumeMetadata(JSON.parse(storedMetadata));
+          console.log("Loaded metadata from localStorage");
+        } catch (e) {
+          console.error("Failed to parse metadata from localStorage", e);
+        }
+      }
+      setHasLoadedMetadata(true);  // Allow saving only after this
+    }
+  }, [jobId]);
 
   return (
     <>
@@ -242,16 +266,18 @@ const ResumePreview = () => {
         <div className="flex justify-between items-center bg-white px-6 py-3 rounded-md shadow-sm">
         {/* Left Section */}
         <div className="flex items-center space-x-4">
-          {/* ... buttons */}
+          <span className="text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#CA79FF] to-[#1C7EFF]">
+          ResumeX
+        </span>
         </div>
 
         {/* Right Section */}
         <div className="flex items-center space-x-3">
-          <button 
+          {/* <button 
           className="flex items-center px-3 py-1.5 bg-[#f3f4f6] text-sm rounded-md">
             Resume 1
             <ChevronDown className="w-4 h-4 ml-1" />
-          </button>
+          </button> */}
 
           {/* Download Button with onClick */}
               <button
@@ -261,9 +287,9 @@ const ResumePreview = () => {
                 <Download className="w-4 h-4" />
               </button>
           
-          <button className="p-2 border border-[#d1d5dc] rounded-md">
+          {/* <button className="p-2 border border-[#d1d5dc] rounded-md">
             <MoreVertical className="w-4 h-4" />
-          </button>
+          </button> */}
         </div>
       </div>
         <Toaster />
@@ -322,7 +348,7 @@ const ResumePreview = () => {
           </div>
           )}
       </div>
-      <div>
+      <div className='hidden print:block'>
         <TemplateOne data={resumeData} metadata={resumeMetadata} />
       </div>
     </>

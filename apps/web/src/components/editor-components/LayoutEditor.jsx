@@ -13,6 +13,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { SortableItem } from "./SortableItem";
+import { IdentificationCard } from "@phosphor-icons/react"
 
 const splitIntoColumns = (items) => {
   const middle = Math.ceil(items.length / 2);
@@ -165,57 +166,61 @@ const LayoutEditor = ({resumeMetadata, setResumeMetadata}) => {
         </div>
       </div>
       <div>
-      <div className="text-lg font-semibold mb-2">Header Position</div>
-        <div className="flex space-x-4">
-          {/* Top */}
-          <button
-            onClick={() => setHeaderPosition("top")}
-            className={`rounded-lg ${
-              headerPosition === "top" ? "bg-blue-100 text-blue-500 font-semibold" : ""
-            }`}
-          >
-            <div className={`w-16 h-16 overflow-hidden rounded ${
-                headerPosition === "top" ? "bg-blue-100" : "bg-gray-200"
-              }`}>
-              <div className={`w-full h-8 ${
-                  headerPosition === "top" ? "bg-blue-500" : "bg-black"
-                }`}></div>
-            </div>
-          </button>
-
-          {/* Left */}
-          <button
-            onClick={() => setHeaderPosition("left")}
-            className={`rounded-lg ${
-              headerPosition === "left" ? "bg-blue-100 text-blue-500 font-semibold" : ""
-            }`}
-          >
-            <div className={`w-16 h-16 overflow-hidden rounded flex  ${
-                headerPosition === "left" ? "bg-blue-100" : "bg-gray-200"
-              }`}>
-              <div className={`w-8 h-full ${
-                  headerPosition === "left" ? "bg-blue-500" : "bg-black"
-                }`}></div>
-            </div>
-          </button>
-
-          {/* Right */}
-          <button
-            onClick={() => setHeaderPosition("right")}
-            className={`rounded-lg  ${
-              headerPosition === "right" ? "bg-blue-100 text-blue-500 font-semibold" : ""
-            }`}
-          >
-            <div className={`w-16 h-16 overflow-hidden rounded flex justify-end ${
-                headerPosition === "right" ? "bg-blue-100" : "bg-gray-200"
-              }`}>
-              <div className={`w-8 h-full ${
-                  headerPosition === "right" ? "bg-blue-500" : "bg-black"
-                }`}></div>
-            </div>
-          </button>
+        {layout === "two" && 
+        <>
+        <div className="text-lg font-semibold mb-2">Header Position</div>
+          <div className="flex space-x-4">
+            {/* Top */}
+            <button
+              onClick={() => setHeaderPosition("top")}
+              className={`rounded-lg ${
+                headerPosition === "top" ? "bg-blue-100 text-blue-500 font-semibold" : ""
+              }`}
+            >
+              <div className={`w-16 h-16 overflow-hidden rounded ${
+                  headerPosition === "top" ? "bg-blue-100" : "bg-gray-200"
+                }`}>
+                <div className={`w-full h-8 ${
+                    headerPosition === "top" ? "bg-blue-500" : "bg-black"
+                  }`}></div>
+              </div>
+            </button>
+  
+            {/* Left */}
+            <button
+              onClick={() => setHeaderPosition("left")}
+              className={`rounded-lg ${
+                headerPosition === "left" ? "bg-blue-100 text-blue-500 font-semibold" : ""
+              }`}
+            >
+              <div className={`w-16 h-16 overflow-hidden rounded flex  ${
+                  headerPosition === "left" ? "bg-blue-100" : "bg-gray-200"
+                }`}>
+                <div className={`w-8 h-full ${
+                    headerPosition === "left" ? "bg-blue-500" : "bg-black"
+                  }`}></div>
+              </div>
+            </button>
+  
+            {/* Right */}
+            <button
+              onClick={() => setHeaderPosition("right")}
+              className={`rounded-lg  ${
+                headerPosition === "right" ? "bg-blue-100 text-blue-500 font-semibold" : ""
+              }`}
+            >
+              <div className={`w-16 h-16 overflow-hidden rounded flex justify-end ${
+                  headerPosition === "right" ? "bg-blue-100" : "bg-gray-200"
+                }`}>
+                <div className={`w-8 h-full ${
+                    headerPosition === "right" ? "bg-blue-500" : "bg-black"
+                  }`}></div>
+              </div>
+            </button>
+          </div>
+        </>
+        }
         </div>
-      </div>
 
       <div>
         <div className="text-lg font-semibold mb-2">Rearrange Sections</div>
@@ -227,10 +232,27 @@ const LayoutEditor = ({resumeMetadata, setResumeMetadata}) => {
         >
           {isTwoColumn ? (
             <div className="grid grid-cols-2 gap-4">
-              
+              {headerPosition === "top" &&
+                    <div className="bg-gray-200 w-full h-20 col-span-2 rounded flex justify-center items-center">
+                      <IdentificationCard size={32} weight="fill" />
+                    </div>
+              }
               {[leftSections, rightSections].map((columnItems, idx) => (
-                <SortableContext key={idx} items={columnItems} strategy={verticalListSortingStrategy}>
+                <SortableContext key={idx} items={columnItems} strategy={verticalListSortingStrategy}>    
                   <div className="p-4 rounded min-h-[100px]">
+                    {headerPosition === "right" && idx === 1 &&
+                      <div>
+                        <div className="col-span-1"></div>
+                        <div className="bg-gray-200 w-full h-20 col-span-1 rounded flex justify-center items-center">
+                          <IdentificationCard size={32} weight="fill" />
+                        </div>
+                      </div>
+                    }
+                    {headerPosition === "left" && idx === 0 &&
+                          <div className="bg-gray-200 w-full h-20 col-span-1 rounded flex justify-center items-center">
+                            <IdentificationCard size={32} weight="fill" />
+                          </div>
+                    }
                     {columnItems.map((id) => (
                       <SortableItem key={id} id={id} />
                     ))}
@@ -243,6 +265,9 @@ const LayoutEditor = ({resumeMetadata, setResumeMetadata}) => {
               items={sections}
               strategy={verticalListSortingStrategy}
             >
+              <div className="bg-gray-200 w-full h-20 rounded flex justify-center items-center">
+                <IdentificationCard size={32} weight="fill" />
+              </div>
               <div className="p-4 rounded">
                 {sections.map((id) => (
                   <SortableItem key={id} id={id} />
