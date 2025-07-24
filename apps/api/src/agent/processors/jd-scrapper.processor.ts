@@ -1,7 +1,12 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Injectable, Logger } from '@nestjs/common';
-import { GeminiService } from '../gemini.service';
+import {
+  GeminiService,
+  GeminiDegradationError,
+  GeminiRateLimitError,
+  GeminiServiceError,
+} from '../gemini.service';
 import { JDAnalyzerProducer } from '../queues/jd-analyzer.producer';
 import { JobStatusRepository } from 'src/repository/jobStatus.repository';
 
@@ -155,6 +160,48 @@ Your goal is to act as a reliable extractor of raw job description content from 
       };
     } catch (error) {
       this.logger.error('Error in JD Scrapper Processor ', error);
+
+      if (error instanceof GeminiDegradationError) {
+        message = {
+          status: 'RETRYING_AFTER_DEGRADATION',
+          message: `Service degraded. Job will be retried in ${error.degradationTime} seconds.`,
+          data: { degradationTime: error.degradationTime },
+        };
+        await this.jobStatusRepository.setJobStatus(jobId, message);
+        
+        // Add error name to the error for better identification during retry
+        const enhancedError = new Error(`GeminiDegradationError: ${error.message}`);
+        enhancedError.name = 'GeminiDegradationError';
+        throw enhancedError;
+      }
+
+      if (error instanceof GeminiRateLimitError) {
+        this.logger.warn(`Job ${jobId} will be retried due to rate limit`);
+        
+        message = {
+          status: 'RETRYING_RATE_LIMIT',
+          message: 'Rate limit exceeded. Job will be retried.',
+          data: null,
+        };
+        await this.jobStatusRepository.setJobStatus(jobId, message);
+        
+        // Add error name to the error for better identification during retry
+        const enhancedError = new Error(`GeminiRateLimitError: ${error.message}`);
+        enhancedError.name = 'GeminiRateLimitError';
+        throw enhancedError;
+      }
+
+      if (error instanceof GeminiServiceError && error.isRetryable) {
+        this.logger.error(`Gemini service error for job ${jobId}:`, error);
+        message = {
+          status: 'SERVICE_ERROR',
+          message: 'Gemini service error occurred. Job will be retried.',
+          data: null,
+        };
+        await this.jobStatusRepository.setJobStatus(jobId, message);
+        throw error;
+      }
+
       message = {
         status: 'ERROR',
         message: error.toString() || 'Unknown error in JD Scrapper Processor',

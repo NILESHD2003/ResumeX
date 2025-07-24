@@ -15,6 +15,7 @@ import { ProjectsRankerProcessor } from './processors/project-ranker.processor';
 import { ProjectDescriptionGeneratorProducer } from './queues/project-description-generator.producer';
 import { ProjectDescriptionGeneratorProcessor } from './processors/project-description-generator.processor';
 import { RepositoryModule } from 'src/repository/repository.module';
+import { WorkersManagementService } from './workers.service';
 
 @Module({
   imports: [
@@ -52,6 +53,8 @@ import { RepositoryModule } from 'src/repository/repository.module';
     ProjectsRankerProcessor,
     ProjectDescriptionGeneratorProducer,
     ProjectDescriptionGeneratorProcessor,
+    WorkersManagementService
   ],
+  exports: [WorkersManagementService]
 })
 export class AgentModule {}

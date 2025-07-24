@@ -1,7 +1,12 @@
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Job } from 'bullmq';
 import { Injectable, Logger } from '@nestjs/common';
-import { GeminiService } from '../gemini.service';
+import {
+  GeminiService,
+  GeminiDegradationError,
+  GeminiRateLimitError,
+  GeminiServiceError,
+} from '../gemini.service';
 import { ProjectRankerProducer } from '../queues/project-ranker.producer';
 import { JobStatusRepository } from 'src/repository/jobStatus.repository';
 
@@ -32,7 +37,7 @@ export class JDAnalysisProcessor extends WorkerHost {
       status: 'ANALYZING_JD',
       message: 'Analyzing Job Description for Key Information',
       data: null,
-    }
+    };
 
     let context = job.data.context;
 
@@ -82,7 +87,10 @@ export class JDAnalysisProcessor extends WorkerHost {
     const jobDescription = context.jobDescription || '';
 
     if (!jobDescription) {
-      this.logger.error('No job description found in the job data context', job.data.context);
+      this.logger.error(
+        'No job description found in the job data context',
+        job.data.context,
+      );
       return {
         error: 'No job description provided in job data context',
         data: job.data.context,
@@ -127,7 +135,7 @@ export class JDAnalysisProcessor extends WorkerHost {
         status: 'JD_ANALYZED',
         message: 'Job Description Analysis Completed',
         data: parsedResponse,
-      }
+      };
 
       await this.jobStatusRepository.setJobStatus(jobId, message);
 
@@ -144,11 +152,58 @@ export class JDAnalysisProcessor extends WorkerHost {
       };
     } catch (error) {
       this.logger.error('Error in JD analysis processor:', error);
+
+      if (error instanceof GeminiDegradationError) {
+        message = {
+          status: 'RETRYING_AFTER_DEGRADATION',
+          message: `Service degraded. Job will be retried in ${error.degradationTime} seconds.`,
+          data: { degradationTime: error.degradationTime },
+        };
+        await this.jobStatusRepository.setJobStatus(jobId, message);
+        
+        // Add error name to the error for better identification during retry
+        const enhancedError = new Error(`GeminiDegradationError: ${error.message}`);
+        enhancedError.name = 'GeminiDegradationError';
+        throw enhancedError;
+      }
       message = {
         status: 'ERROR',
         message: error.toString() || 'Unknown error in JD analysis',
         data: null,
+      };
+
+      if (error instanceof GeminiRateLimitError) {
+        this.logger.warn(`Job ${jobId} will be retried due to rate limit`);
+        
+        message = {
+          status: 'RETRYING_RATE_LIMIT',
+          message: 'Rate limit exceeded. Job will be retried.',
+          data: null,
+        };
+        await this.jobStatusRepository.setJobStatus(jobId, message);
+        
+        // Add error name to the error for better identification during retry
+        const enhancedError = new Error(`GeminiRateLimitError: ${error.message}`);
+        enhancedError.name = 'GeminiRateLimitError';
+        throw enhancedError;
       }
+
+      if (error instanceof GeminiServiceError && error.isRetryable) {
+        this.logger.error(`Gemini service error for job ${jobId}:`, error);
+        message = {
+          status: 'SERVICE_ERROR',
+          message: 'Gemini service error occurred. Job will be retried.',
+          data: null,
+        };
+        await this.jobStatusRepository.setJobStatus(jobId, message);
+        throw error;
+      }
+
+      message = {
+        status: 'ERROR',
+        message: error.toString() || 'Unknown error in JD analysis',
+        data: null,
+      };
       await this.jobStatusRepository.setJobStatus(jobId, message);
       return {
         error: error || 'Unknown error in JD analysis',

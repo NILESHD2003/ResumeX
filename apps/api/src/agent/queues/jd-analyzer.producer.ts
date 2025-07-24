@@ -22,7 +22,7 @@ export class JDAnalyzerProducer {
         attempts: 3,
         backoff: {
           type: 'exponential',
-          delay: 1000,
+          delay: 2000, // Increased base delay to 2 seconds
         },
         removeOnComplete: {
           age: 60 * 60,

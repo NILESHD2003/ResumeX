@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
+import { ValidationPipe, VERSION_NEUTRAL, VersioningType } from '@nestjs/common';
 import { GlobalExceptionFilter } from './filters/global-exception.filter';
 import { ConfigService } from '@nestjs/config';
 
@@ -18,6 +18,11 @@ async function bootstrap() {
     origin: ['http://localhost:5173', 'http://localhost:4173', 'https://resumex-stage.netlify.app'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
     credentials: true,
+  });
+  app.enableVersioning({
+    type: VersioningType.URI,
+    defaultVersion: [VERSION_NEUTRAL, '1'],
+    prefix: 'api'
   });
   const configService = app.get(ConfigService);
   await app.listen(process.env.PORT || 3000);

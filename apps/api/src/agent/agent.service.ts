@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { UserRepository } from 'src/repository/user.repository';
 import { ObjectId } from 'mongodb';
 import { JobStatusRepository } from 'src/repository/jobStatus.repository';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from '@nestjs/cache-manager';
 
 @Injectable()
 export class AgentService {
@@ -12,9 +14,20 @@ export class AgentService {
     @InjectQueue('jd-scrapper') private jdScrapperQueue: Queue,
     private readonly userRepository: UserRepository,
     private readonly jobStatusRepository: JobStatusRepository,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async addNewJob(jobDescription: string, email: string) {
+    // check if system is degraded
+    const degraded = await this.cacheManager.get('system:degraded');
+    console.log('Current State of system for degradation is', degraded);
+    if (degraded) {
+      throw new HttpException(
+        'System Currently Unavailable',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+
     const userData = await this.userRepository.findUserByEmail(email);
 
     if (!userData) {
@@ -25,7 +38,7 @@ export class AgentService {
       status: 'PENDING',
       message: 'Job Received and Pending for Processing.',
       data: null,
-    }
+    };
 
     await this.jobStatusRepository.setJobStatus(jobId, jobMessage);
 
@@ -40,12 +53,23 @@ export class AgentService {
 
     return {
       success: true,
-      message: 'JD analysis job submitted. Subscribe to job status API for updates.',
-      jobId
+      message:
+        'JD analysis job submitted. Subscribe to job status API for updates.',
+      jobId,
     };
   }
 
   async addNewJobByJobLink(jobLink: string, email: string) {
+    // check if system is degraded
+    const degraded = await this.cacheManager.get('system:degraded');
+
+    if (degraded) {
+      return {
+        success: false,
+        message: 'System is currently degraded. Please try again later.',
+      };
+    }
+
     const userData = await this.userRepository.findUserByEmail(email);
 
     if (!userData) {
@@ -67,13 +91,14 @@ export class AgentService {
       status: 'PENDING',
       message: 'Job Received and Pending for Processing.',
       data: null,
-    }
+    };
 
     await this.jobStatusRepository.setJobStatus(jobId, jobMessage);
 
     return {
       success: true,
-      message: 'JD Parsing job submitted. Subscribe to job status API for updates.',
+      message:
+        'JD Parsing job submitted. Subscribe to job status API for updates.',
       jobId,
     };
   }
@@ -90,19 +115,19 @@ export class AgentService {
 
   async getJobStatus(jobId: string) {
     const res = await this.jobStatusRepository.getJobStatus(jobId);
-  
+
     // if (Array.isArray(res) && typeof res[0] === 'string') {
     //   const parsed = JSON.parse(res[0]);
-  
+
     //   const [_, rawData] = parsed.data.split('__');
     //   const parsedData = JSON.parse(rawData);
-  
+
     //   parsed.data = parsedData;
-  
+
     //   console.log(parsed);
     //   return parsed;
     // }
-  
+
     return res;
   }
 }

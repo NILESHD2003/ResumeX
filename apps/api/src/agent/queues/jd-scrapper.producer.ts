@@ -22,7 +22,7 @@ export class JDScrapperProducer {
         attempts: 3,
         backoff: {
           type: 'exponential',
-          delay: 1000,
+          delay: 2000,
         },
         removeOnComplete: {
           age: 60 * 60,

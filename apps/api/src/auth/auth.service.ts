@@ -1,7 +1,7 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { generate } from 'generate-password';
-import { hash, compare } from 'bcrypt';
+import { hash, compare } from 'bcryptjs';
 import { UserRepository } from '../repository/user.repository';
 import { InvitationRepository } from '../repository/invitation.repository';
 
